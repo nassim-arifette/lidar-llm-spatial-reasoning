@@ -277,11 +277,13 @@ class QwenQuestionParser:
         max_new_tokens: int = 96,
         device: Optional[str] = None,
         batch_size: int = 16,
+        checkpoint_every: int = 5,
     ) -> None:
         self.model_name = model_name
         self.cache_path = cache_path
         self.max_new_tokens = max_new_tokens
         self.batch_size = batch_size
+        self.checkpoint_every = checkpoint_every   # save every N batches
         self.stats = ParserStats()
         self._cache: Dict[str, str] = {}
         if cache_path and os.path.exists(cache_path):
@@ -352,8 +354,13 @@ class QwenQuestionParser:
             chunk = missing[i:i + self.batch_size]
             for q, raw in zip(chunk, self._generate(chunk)):
                 self._cache[q] = raw
+            done = min(i + self.batch_size, len(missing))
+            # Checkpoint as we go. Generation is the expensive part of the
+            # whole pipeline, and a saved cache makes a lost VM cost minutes
+            # instead of the entire run.
+            if done % (self.batch_size * self.checkpoint_every) == 0:
+                self.save_cache()
             if verbose:
-                done = min(i + self.batch_size, len(missing))
                 print(f"  parsed {done}/{len(missing)} unique questions "
                       f"({time.perf_counter() - start:.0f}s)", flush=True)
         self.stats.seconds += time.perf_counter() - start
