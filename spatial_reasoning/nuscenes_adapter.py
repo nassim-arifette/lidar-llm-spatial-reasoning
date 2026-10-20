@@ -42,7 +42,22 @@ REQUIRED_TABLES = (
     "category",
     "calibrated_sensor",
     "sensor",
+    "attribute",
 )
+
+#: nuScenes attribute names mapped onto the status words nuScenes-QA uses in
+#: its answers. Getting this mapping wrong would make every status question
+#: unanswerable for reasons that have nothing to do with reasoning.
+ATTRIBUTE_TO_STATUS = {
+    "vehicle.moving": "moving",
+    "vehicle.stopped": "stopped",
+    "vehicle.parked": "parked",
+    "cycle.with_rider": "with rider",
+    "cycle.without_rider": "without rider",
+    "pedestrian.moving": "moving",
+    "pedestrian.standing": "standing",
+    "pedestrian.sitting_lying_down": "sitting lying down",
+}
 
 
 def _load_table(root: str, name: str) -> list:
@@ -96,6 +111,9 @@ def load_nuscenes_scenes(
         i["token"]: category_name.get(i["category_token"]) for i in tables["instance"]
     }
     ego_pose = {e["token"]: e for e in tables["ego_pose"]}
+    attribute_status = {
+        a["token"]: ATTRIBUTE_TO_STATUS.get(a["name"]) for a in tables["attribute"]
+    }
 
     # Which calibrated sensors are the LiDAR?
     sensor_channel = {s["token"]: s["channel"] for s in tables["sensor"]}
@@ -138,6 +156,15 @@ def load_nuscenes_scenes(
                 report.dropped_unknown_category += 1
                 continue
 
+            # An annotation carries at most one attribute in nuScenes; objects
+            # with none (a traffic cone, a barrier) keep status None and are
+            # refused by status questions rather than given a default.
+            status = None
+            for at in ann.get("attribute_tokens", []):
+                status = attribute_status.get(at)
+                if status:
+                    break
+
             global_objects.append(Object3D(
                 category=name,
                 center=ann["translation"],
@@ -145,6 +172,7 @@ def load_nuscenes_scenes(
                 yaw=quaternion_to_yaw(ann["rotation"]),
                 score=1.0,
                 token=ann["token"],
+                status=status,
             ))
 
         objects = global_to_ego(global_objects, pose["translation"], pose["rotation"])

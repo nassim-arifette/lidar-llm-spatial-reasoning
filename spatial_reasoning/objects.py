@@ -128,6 +128,7 @@ class Object3D:
     yaw: float = 0.0             # radians, around +z
     score: float = 1.0           # detection confidence; 1.0 for ground truth
     token: Optional[str] = None  # provenance, useful when debugging
+    status: Optional[str] = None # nuScenes attribute: moving / parked / ...
 
     def __post_init__(self) -> None:
         self.center = np.asarray(self.center, dtype=np.float32).reshape(3)
@@ -310,6 +311,7 @@ def load_simple_scenes(path: str) -> Dict[str, Scene]:
                 yaw=o.get("yaw", 0.0),
                 score=o.get("score", 1.0),
                 token=o.get("token"),
+                status=o.get("status"),
             )
             for o in entry.get("objects", [])
         ]
@@ -338,6 +340,7 @@ def save_simple_scenes(scenes: Dict[str, Scene], path: str) -> None:
                     "size": [round(float(v), 4) for v in o.size],
                     "yaw": round(float(o.yaw), 5),
                     "score": round(float(o.score), 5),
+                    "status": o.status,
                 }
                 for o in s.objects
             ],
