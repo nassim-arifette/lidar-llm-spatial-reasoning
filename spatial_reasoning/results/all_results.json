@@ -1,0 +1,4364 @@
+{
+ "balanced_seed0": {
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+   "numpy": "2.1.3"
+  },
+  "data": {
+   "n_items": 1600,
+   "n_samples": 200,
+   "train": 960,
+   "val": 320,
+   "test": 320,
+   "answer_vocabulary": 23,
+   "object_truncation_rate": 0.0,
+   "warnings": []
+  },
+  "seed": 0,
+  "majority_baseline_accuracy": 0.340625,
+  "trivial_answer_fraction": 0.371875,
+  "parser_coverage": {
+   "coverage": 1.0,
+   "n": 320.0
+  },
+  "systems": [
+   {
+    "name": "question_only",
+    "accuracy": 0.6406,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6406,
+    "count_mae": 0.8333,
+    "cost": {
+     "seconds": 0.2176,
+     "ms_per_item": 0.6801,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 158.0,
+      "accuracy": 0.810126582278481
+     },
+     "count": {
+      "n": 162.0,
+      "accuracy": 0.47530864197530864
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 41.0,
+      "accuracy": 0.8292682926829268
+     },
+     "compare::direction": {
+      "n": 16.0,
+      "accuracy": 0.6875
+     },
+     "count::any": {
+      "n": 68.0,
+      "accuracy": 0.3382352941176471
+     },
+     "count::direction": {
+      "n": 64.0,
+      "accuracy": 0.59375
+     },
+     "count::far": {
+      "n": 10.0,
+      "accuracy": 0.6
+     },
+     "count::near": {
+      "n": 20.0,
+      "accuracy": 0.5
+     },
+     "exists::any": {
+      "n": 40.0,
+      "accuracy": 0.825
+     },
+     "exists::direction": {
+      "n": 37.0,
+      "accuracy": 0.7297297297297297
+     },
+     "exists::far": {
+      "n": 10.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 14.0,
+      "accuracy": 0.9285714285714286
+     }
+    },
+    "extra": {
+     "num_parameters": 35863,
+     "train_seconds": 10.3,
+     "epochs_run": 40,
+     "best_val_accuracy": 0.6375
+    }
+   },
+   {
+    "name": "deepsets",
+    "accuracy": 0.6281,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6281,
+    "count_mae": 0.7778,
+    "cost": {
+     "seconds": 0.287,
+     "ms_per_item": 0.897,
+     "peak_memory_mb": 1.237,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 158.0,
+      "accuracy": 0.7721518987341772
+     },
+     "count": {
+      "n": 162.0,
+      "accuracy": 0.4876543209876543
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 41.0,
+      "accuracy": 0.7317073170731707
+     },
+     "compare::direction": {
+      "n": 16.0,
+      "accuracy": 0.6875
+     },
+     "count::any": {
+      "n": 68.0,
+      "accuracy": 0.39705882352941174
+     },
+     "count::direction": {
+      "n": 64.0,
+      "accuracy": 0.578125
+     },
+     "count::far": {
+      "n": 10.0,
+      "accuracy": 0.5
+     },
+     "count::near": {
+      "n": 20.0,
+      "accuracy": 0.5
+     },
+     "exists::any": {
+      "n": 40.0,
+      "accuracy": 0.8
+     },
+     "exists::direction": {
+      "n": 37.0,
+      "accuracy": 0.7027027027027027
+     },
+     "exists::far": {
+      "n": 10.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 14.0,
+      "accuracy": 0.9285714285714286
+     }
+    },
+    "extra": {
+     "num_parameters": 120855,
+     "train_seconds": 13.21,
+     "epochs_run": 18,
+     "best_val_accuracy": 0.6125
+    }
+   },
+   {
+    "name": "counter",
+    "accuracy": 0.6219,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6219,
+    "count_mae": 0.5741,
+    "cost": {
+     "seconds": 0.2859,
+     "ms_per_item": 0.8933,
+     "peak_memory_mb": 1.242,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 158.0,
+      "accuracy": 0.7215189873417721
+     },
+     "count": {
+      "n": 162.0,
+      "accuracy": 0.5246913580246914
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 41.0,
+      "accuracy": 0.6585365853658537
+     },
+     "compare::direction": {
+      "n": 16.0,
+      "accuracy": 0.6875
+     },
+     "count::any": {
+      "n": 68.0,
+      "accuracy": 0.4411764705882353
+     },
+     "count::direction": {
+      "n": 64.0,
+      "accuracy": 0.625
+     },
+     "count::far": {
+      "n": 10.0,
+      "accuracy": 0.5
+     },
+     "count::near": {
+      "n": 20.0,
+      "accuracy": 0.5
+     },
+     "exists::any": {
+      "n": 40.0,
+      "accuracy": 0.725
+     },
+     "exists::direction": {
+      "n": 37.0,
+      "accuracy": 0.7027027027027027
+     },
+     "exists::far": {
+      "n": 10.0,
+      "accuracy": 0.9
+     },
+     "exists::near": {
+      "n": 14.0,
+      "accuracy": 0.8571428571428571
+     }
+    },
+    "extra": {
+     "num_parameters": 129176,
+     "train_seconds": 15.39,
+     "epochs_run": 18,
+     "best_val_accuracy": 0.6344
+    }
+   },
+   {
+    "name": "symbolic_abstain",
+    "accuracy": 0.9406,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9406,
+    "count_mae": 0.0864,
+    "cost": {
+     "seconds": 0.0567,
+     "ms_per_item": 0.1771,
+     "peak_memory_mb": 0.025,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 158.0,
+      "accuracy": 0.9556962025316456
+     },
+     "count": {
+      "n": 162.0,
+      "accuracy": 0.9259259259259259
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 41.0,
+      "accuracy": 0.9024390243902439
+     },
+     "compare::direction": {
+      "n": 16.0,
+      "accuracy": 0.9375
+     },
+     "count::any": {
+      "n": 68.0,
+      "accuracy": 0.8823529411764706
+     },
+     "count::direction": {
+      "n": 64.0,
+      "accuracy": 0.984375
+     },
+     "count::far": {
+      "n": 10.0,
+      "accuracy": 0.9
+     },
+     "count::near": {
+      "n": 20.0,
+      "accuracy": 0.9
+     },
+     "exists::any": {
+      "n": 40.0,
+      "accuracy": 1.0
+     },
+     "exists::direction": {
+      "n": 37.0,
+      "accuracy": 0.972972972972973
+     },
+     "exists::far": {
+      "n": 10.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 14.0,
+      "accuracy": 0.9285714285714286
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": null
+    }
+   },
+   {
+    "name": "symbolic_fallback",
+    "accuracy": 0.9406,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9406,
+    "count_mae": 0.0864,
+    "cost": {
+     "seconds": 0.0582,
+     "ms_per_item": 0.182,
+     "peak_memory_mb": 0.022,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 158.0,
+      "accuracy": 0.9556962025316456
+     },
+     "count": {
+      "n": 162.0,
+      "accuracy": 0.9259259259259259
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 41.0,
+      "accuracy": 0.9024390243902439
+     },
+     "compare::direction": {
+      "n": 16.0,
+      "accuracy": 0.9375
+     },
+     "count::any": {
+      "n": 68.0,
+      "accuracy": 0.8823529411764706
+     },
+     "count::direction": {
+      "n": 64.0,
+      "accuracy": 0.984375
+     },
+     "count::far": {
+      "n": 10.0,
+      "accuracy": 0.9
+     },
+     "count::near": {
+      "n": 20.0,
+      "accuracy": 0.9
+     },
+     "exists::any": {
+      "n": 40.0,
+      "accuracy": 1.0
+     },
+     "exists::direction": {
+      "n": 37.0,
+      "accuracy": 0.972972972972973
+     },
+     "exists::far": {
+      "n": 10.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 14.0,
+      "accuracy": 0.9285714285714286
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": "yes"
+    }
+   }
+  ],
+  "contrast_pairs": {
+   "question_only": {
+    "pair_accuracy": 0.0,
+    "item_accuracy": 0.25742574257425743,
+    "n_pairs": 101.0
+   },
+   "deepsets": {
+    "pair_accuracy": 0.019801980198019802,
+    "item_accuracy": 0.29207920792079206,
+    "n_pairs": 101.0
+   },
+   "counter": {
+    "pair_accuracy": 0.0297029702970297,
+    "item_accuracy": 0.28217821782178215,
+    "n_pairs": 101.0
+   },
+   "symbolic_fallback": {
+    "pair_accuracy": 0.7623762376237624,
+    "item_accuracy": 0.8762376237623762,
+    "n_pairs": 101.0
+   }
+  },
+  "counterfactuals": {
+   "n": 58,
+   "note": "reference answers come from the same executor the symbolic system uses, so its score here is a sanity check, not evidence",
+   "systems": {
+    "question_only": {
+     "accuracy": 0.5172413793103449,
+     "changed_fraction": 0.5862068965517241,
+     "n": 58.0
+    },
+    "deepsets": {
+     "accuracy": 0.5172413793103449,
+     "changed_fraction": 0.603448275862069,
+     "n": 58.0
+    },
+    "counter": {
+     "accuracy": 0.5,
+     "changed_fraction": 0.5689655172413793,
+     "n": 58.0
+    },
+    "symbolic_fallback": {
+     "accuracy": 1.0,
+     "changed_fraction": 1.0,
+     "n": 58.0
+    }
+   }
+  },
+  "robustness": {
+   "question_only": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.640625
+    }
+   ],
+   "deepsets": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.628125
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.615625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.63125
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.634375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.628125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.628125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.628125
+    }
+   ],
+   "counter": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.621875
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6125
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.609375
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.596875
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.61875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.621875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.621875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.621875
+    }
+   ],
+   "symbolic_fallback": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.940625
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.88125
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.8
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.921875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.865625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.940625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.91875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.90625
+    }
+   ]
+  },
+  "error_decomposition": {
+   "counts": {
+    "correct": 301,
+    "declined": 0,
+    "perception": 19,
+    "comprehension": 0,
+    "geometry": 0,
+    "unattributed": 0
+   },
+   "fractions": {
+    "correct": 0.9406,
+    "declined": 0.0,
+    "perception": 0.0594,
+    "comprehension": 0.0,
+    "geometry": 0.0,
+    "unattributed": 0.0
+   },
+   "examples": {
+    "correct": [
+     "How many vehicles are there?",
+     "How many trailers are there?",
+     "Are there any buses to the back of the ego vehicle?",
+     "How many cars are to the front right of the ego vehicle?",
+     "Are there any cars to the front left of the ego vehicle?"
+    ],
+    "declined": [],
+    "perception": [
+     "How many trucks are there? :: 2 on detections, 3 on ground-truth boxes (expected 3)",
+     "How many vehicles are near the ego vehicle? :: 6 on detections, 4 on ground-truth boxes (expected 4)",
+     "Are there more pedestrians than trucks in the scene? :: no on detections, yes on ground-truth boxes (expected yes)",
+     "How many barriers are to the front right of the ego vehicle? :: 0 on detections, 1 on ground-truth boxes (expected 1)",
+     "How many vehicles are there? :: 2 on detections, 3 on ground-truth boxes (expected 3)"
+    ],
+    "comprehension": [],
+    "geometry": [],
+    "unattributed": []
+   }
+  }
+ },
+ "balanced_seed1": {
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+   "numpy": "2.1.3"
+  },
+  "data": {
+   "n_items": 1600,
+   "n_samples": 200,
+   "train": 960,
+   "val": 320,
+   "test": 320,
+   "answer_vocabulary": 23,
+   "object_truncation_rate": 0.0,
+   "warnings": []
+  },
+  "seed": 1,
+  "majority_baseline_accuracy": 0.28125,
+  "trivial_answer_fraction": 0.36875,
+  "parser_coverage": {
+   "coverage": 1.0,
+   "n": 320.0
+  },
+  "systems": [
+   {
+    "name": "question_only",
+    "accuracy": 0.6594,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6594,
+    "count_mae": 0.7283,
+    "cost": {
+     "seconds": 0.2227,
+     "ms_per_item": 0.696,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 147.0,
+      "accuracy": 0.7755102040816326
+     },
+     "count": {
+      "n": 173.0,
+      "accuracy": 0.5606936416184971
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.7575757575757576
+     },
+     "compare::direction": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     },
+     "count::any": {
+      "n": 79.0,
+      "accuracy": 0.4430379746835443
+     },
+     "count::direction": {
+      "n": 68.0,
+      "accuracy": 0.6764705882352942
+     },
+     "count::far": {
+      "n": 11.0,
+      "accuracy": 0.6363636363636364
+     },
+     "count::near": {
+      "n": 15.0,
+      "accuracy": 0.6
+     },
+     "exists::any": {
+      "n": 47.0,
+      "accuracy": 0.8297872340425532
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.7317073170731707
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 0.4
+     },
+     "exists::near": {
+      "n": 10.0,
+      "accuracy": 0.8
+     }
+    },
+    "extra": {
+     "num_parameters": 35863,
+     "train_seconds": 6.15,
+     "epochs_run": 28,
+     "best_val_accuracy": 0.6719
+    }
+   },
+   {
+    "name": "deepsets",
+    "accuracy": 0.675,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.675,
+    "count_mae": 0.5896,
+    "cost": {
+     "seconds": 0.277,
+     "ms_per_item": 0.8655,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 147.0,
+      "accuracy": 0.7687074829931972
+     },
+     "count": {
+      "n": 173.0,
+      "accuracy": 0.5953757225433526
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.7575757575757576
+     },
+     "compare::direction": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     },
+     "count::any": {
+      "n": 79.0,
+      "accuracy": 0.4936708860759494
+     },
+     "count::direction": {
+      "n": 68.0,
+      "accuracy": 0.6764705882352942
+     },
+     "count::far": {
+      "n": 11.0,
+      "accuracy": 0.7272727272727273
+     },
+     "count::near": {
+      "n": 15.0,
+      "accuracy": 0.6666666666666666
+     },
+     "exists::any": {
+      "n": 47.0,
+      "accuracy": 0.8297872340425532
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.7073170731707317
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 0.4
+     },
+     "exists::near": {
+      "n": 10.0,
+      "accuracy": 0.8
+     }
+    },
+    "extra": {
+     "num_parameters": 120855,
+     "train_seconds": 19.37,
+     "epochs_run": 26,
+     "best_val_accuracy": 0.6906
+    }
+   },
+   {
+    "name": "counter",
+    "accuracy": 0.6438,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6438,
+    "count_mae": 0.5376,
+    "cost": {
+     "seconds": 0.4169,
+     "ms_per_item": 1.3029,
+     "peak_memory_mb": 1.242,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 147.0,
+      "accuracy": 0.7551020408163265
+     },
+     "count": {
+      "n": 173.0,
+      "accuracy": 0.5491329479768786
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.696969696969697
+     },
+     "compare::direction": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     },
+     "count::any": {
+      "n": 79.0,
+      "accuracy": 0.43037974683544306
+     },
+     "count::direction": {
+      "n": 68.0,
+      "accuracy": 0.6764705882352942
+     },
+     "count::far": {
+      "n": 11.0,
+      "accuracy": 0.6363636363636364
+     },
+     "count::near": {
+      "n": 15.0,
+      "accuracy": 0.5333333333333333
+     },
+     "exists::any": {
+      "n": 47.0,
+      "accuracy": 0.8297872340425532
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.7073170731707317
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 0.4
+     },
+     "exists::near": {
+      "n": 10.0,
+      "accuracy": 0.8
+     }
+    },
+    "extra": {
+     "num_parameters": 129176,
+     "train_seconds": 18.35,
+     "epochs_run": 23,
+     "best_val_accuracy": 0.6813
+    }
+   },
+   {
+    "name": "symbolic_abstain",
+    "accuracy": 0.9281,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9281,
+    "count_mae": 0.104,
+    "cost": {
+     "seconds": 0.1058,
+     "ms_per_item": 0.3307,
+     "peak_memory_mb": 0.026,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 147.0,
+      "accuracy": 0.9591836734693877
+     },
+     "count": {
+      "n": 173.0,
+      "accuracy": 0.9017341040462428
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.9696969696969697
+     },
+     "compare::direction": {
+      "n": 11.0,
+      "accuracy": 1.0
+     },
+     "count::any": {
+      "n": 79.0,
+      "accuracy": 0.8354430379746836
+     },
+     "count::direction": {
+      "n": 68.0,
+      "accuracy": 0.9558823529411765
+     },
+     "count::far": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     },
+     "count::near": {
+      "n": 15.0,
+      "accuracy": 1.0
+     },
+     "exists::any": {
+      "n": 47.0,
+      "accuracy": 0.9787234042553191
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.9024390243902439
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 10.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": null
+    }
+   },
+   {
+    "name": "symbolic_fallback",
+    "accuracy": 0.9281,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9281,
+    "count_mae": 0.104,
+    "cost": {
+     "seconds": 0.1022,
+     "ms_per_item": 0.3194,
+     "peak_memory_mb": 0.023,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 147.0,
+      "accuracy": 0.9591836734693877
+     },
+     "count": {
+      "n": 173.0,
+      "accuracy": 0.9017341040462428
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.9696969696969697
+     },
+     "compare::direction": {
+      "n": 11.0,
+      "accuracy": 1.0
+     },
+     "count::any": {
+      "n": 79.0,
+      "accuracy": 0.8354430379746836
+     },
+     "count::direction": {
+      "n": 68.0,
+      "accuracy": 0.9558823529411765
+     },
+     "count::far": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     },
+     "count::near": {
+      "n": 15.0,
+      "accuracy": 1.0
+     },
+     "exists::any": {
+      "n": 47.0,
+      "accuracy": 0.9787234042553191
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.9024390243902439
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 10.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": "yes"
+    }
+   }
+  ],
+  "contrast_pairs": {
+   "question_only": {
+    "pair_accuracy": 0.0,
+    "item_accuracy": 0.3008849557522124,
+    "n_pairs": 113.0
+   },
+   "deepsets": {
+    "pair_accuracy": 0.02654867256637168,
+    "item_accuracy": 0.30973451327433627,
+    "n_pairs": 113.0
+   },
+   "counter": {
+    "pair_accuracy": 0.04424778761061947,
+    "item_accuracy": 0.2831858407079646,
+    "n_pairs": 113.0
+   },
+   "symbolic_fallback": {
+    "pair_accuracy": 0.5929203539823009,
+    "item_accuracy": 0.7610619469026548,
+    "n_pairs": 113.0
+   }
+  },
+  "counterfactuals": {
+   "n": 64,
+   "note": "reference answers come from the same executor the symbolic system uses, so its score here is a sanity check, not evidence",
+   "systems": {
+    "question_only": {
+     "accuracy": 0.390625,
+     "changed_fraction": 0.515625,
+     "n": 64.0
+    },
+    "deepsets": {
+     "accuracy": 0.40625,
+     "changed_fraction": 0.5625,
+     "n": 64.0
+    },
+    "counter": {
+     "accuracy": 0.34375,
+     "changed_fraction": 0.484375,
+     "n": 64.0
+    },
+    "symbolic_fallback": {
+     "accuracy": 1.0,
+     "changed_fraction": 1.0,
+     "n": 64.0
+    }
+   }
+  },
+  "robustness": {
+   "question_only": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.659375
+    }
+   ],
+   "deepsets": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.675
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.68125
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.671875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.675
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.675
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.678125
+    }
+   ],
+   "counter": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.64375
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.653125
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.628125
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6375
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.640625
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.628125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.64375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.64375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.640625
+    }
+   ],
+   "symbolic_fallback": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.928125
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.875
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.8125
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.7625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.86875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.8375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.925
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.921875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.91875
+    }
+   ]
+  },
+  "error_decomposition": {
+   "counts": {
+    "correct": 297,
+    "declined": 0,
+    "perception": 23,
+    "comprehension": 0,
+    "geometry": 0,
+    "unattributed": 0
+   },
+   "fractions": {
+    "correct": 0.9281,
+    "declined": 0.0,
+    "perception": 0.0719,
+    "comprehension": 0.0,
+    "geometry": 0.0,
+    "unattributed": 0.0
+   },
+   "examples": {
+    "correct": [
+     "Are there fewer barriers than construction vehicles in the scene?",
+     "Are there any vehicles to the front right of the ego vehicle?",
+     "How many motorcycles are far from the ego vehicle?",
+     "How many traffic cones are to the left of the ego vehicle?",
+     "Are there more cars than bicycles to the front right of the ego vehicle?"
+    ],
+    "declined": [],
+    "perception": [
+     "How many barriers are there? :: 0 on detections, 1 on ground-truth boxes (expected 1)",
+     "How many barriers are to the right of the ego vehicle? :: 0 on detections, 1 on ground-truth boxes (expected 1)",
+     "How many vehicles are there? :: 6 on detections, 5 on ground-truth boxes (expected 5)",
+     "How many bicycles are there? :: 2 on detections, 3 on ground-truth boxes (expected 3)",
+     "How many barriers are there? :: 0 on detections, 1 on ground-truth boxes (expected 1)"
+    ],
+    "comprehension": [],
+    "geometry": [],
+    "unattributed": []
+   }
+  }
+ },
+ "balanced_seed2": {
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+   "numpy": "2.1.3"
+  },
+  "data": {
+   "n_items": 1600,
+   "n_samples": 200,
+   "train": 960,
+   "val": 320,
+   "test": 320,
+   "answer_vocabulary": 23,
+   "object_truncation_rate": 0.0,
+   "warnings": []
+  },
+  "seed": 2,
+  "majority_baseline_accuracy": 0.265625,
+  "trivial_answer_fraction": 0.371875,
+  "parser_coverage": {
+   "coverage": 1.0,
+   "n": 320.0
+  },
+  "systems": [
+   {
+    "name": "question_only",
+    "accuracy": 0.6687,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6687,
+    "count_mae": 0.6056,
+    "cost": {
+     "seconds": 0.2152,
+     "ms_per_item": 0.6725,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 140.0,
+      "accuracy": 0.8071428571428572
+     },
+     "count": {
+      "n": 180.0,
+      "accuracy": 0.5611111111111111
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.7878787878787878
+     },
+     "compare::direction": {
+      "n": 14.0,
+      "accuracy": 0.7857142857142857
+     },
+     "count::any": {
+      "n": 82.0,
+      "accuracy": 0.43902439024390244
+     },
+     "count::direction": {
+      "n": 62.0,
+      "accuracy": 0.6935483870967742
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7894736842105263
+     },
+     "count::near": {
+      "n": 17.0,
+      "accuracy": 0.4117647058823529
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.9285714285714286
+     },
+     "exists::direction": {
+      "n": 47.0,
+      "accuracy": 0.723404255319149
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.7142857142857143
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 35863,
+     "train_seconds": 6.99,
+     "epochs_run": 26,
+     "best_val_accuracy": 0.65
+    }
+   },
+   {
+    "name": "deepsets",
+    "accuracy": 0.6625,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6625,
+    "count_mae": 0.5944,
+    "cost": {
+     "seconds": 0.2766,
+     "ms_per_item": 0.8643,
+     "peak_memory_mb": 1.237,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 140.0,
+      "accuracy": 0.7785714285714286
+     },
+     "count": {
+      "n": 180.0,
+      "accuracy": 0.5722222222222222
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.7878787878787878
+     },
+     "compare::direction": {
+      "n": 14.0,
+      "accuracy": 0.7142857142857143
+     },
+     "count::any": {
+      "n": 82.0,
+      "accuracy": 0.43902439024390244
+     },
+     "count::direction": {
+      "n": 62.0,
+      "accuracy": 0.6935483870967742
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7894736842105263
+     },
+     "count::near": {
+      "n": 17.0,
+      "accuracy": 0.5294117647058824
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.8928571428571429
+     },
+     "exists::direction": {
+      "n": 47.0,
+      "accuracy": 0.6595744680851063
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 120855,
+     "train_seconds": 19.37,
+     "epochs_run": 27,
+     "best_val_accuracy": 0.6406
+    }
+   },
+   {
+    "name": "counter",
+    "accuracy": 0.6656,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.6656,
+    "count_mae": 0.4889,
+    "cost": {
+     "seconds": 0.3406,
+     "ms_per_item": 1.0643,
+     "peak_memory_mb": 1.242,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 140.0,
+      "accuracy": 0.7571428571428571
+     },
+     "count": {
+      "n": 180.0,
+      "accuracy": 0.5944444444444444
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 0.7575757575757576
+     },
+     "compare::direction": {
+      "n": 14.0,
+      "accuracy": 0.8571428571428571
+     },
+     "count::any": {
+      "n": 82.0,
+      "accuracy": 0.524390243902439
+     },
+     "count::direction": {
+      "n": 62.0,
+      "accuracy": 0.6935483870967742
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.5789473684210527
+     },
+     "count::near": {
+      "n": 17.0,
+      "accuracy": 0.5882352941176471
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.8928571428571429
+     },
+     "exists::direction": {
+      "n": 47.0,
+      "accuracy": 0.574468085106383
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 129176,
+     "train_seconds": 33.63,
+     "epochs_run": 40,
+     "best_val_accuracy": 0.6531
+    }
+   },
+   {
+    "name": "symbolic_abstain",
+    "accuracy": 0.8781,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.8781,
+    "count_mae": 0.2056,
+    "cost": {
+     "seconds": 0.0586,
+     "ms_per_item": 0.1833,
+     "peak_memory_mb": 0.026,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 140.0,
+      "accuracy": 0.9357142857142857
+     },
+     "count": {
+      "n": 180.0,
+      "accuracy": 0.8333333333333334
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 1.0
+     },
+     "compare::direction": {
+      "n": 14.0,
+      "accuracy": 0.9285714285714286
+     },
+     "count::any": {
+      "n": 82.0,
+      "accuracy": 0.7926829268292683
+     },
+     "count::direction": {
+      "n": 62.0,
+      "accuracy": 0.8870967741935484
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7368421052631579
+     },
+     "count::near": {
+      "n": 17.0,
+      "accuracy": 0.9411764705882353
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.9285714285714286
+     },
+     "exists::direction": {
+      "n": 47.0,
+      "accuracy": 0.8936170212765957
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": null
+    }
+   },
+   {
+    "name": "symbolic_fallback",
+    "accuracy": 0.8781,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.8781,
+    "count_mae": 0.2056,
+    "cost": {
+     "seconds": 0.0621,
+     "ms_per_item": 0.194,
+     "peak_memory_mb": 0.024,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 140.0,
+      "accuracy": 0.9357142857142857
+     },
+     "count": {
+      "n": 180.0,
+      "accuracy": 0.8333333333333334
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 33.0,
+      "accuracy": 1.0
+     },
+     "compare::direction": {
+      "n": 14.0,
+      "accuracy": 0.9285714285714286
+     },
+     "count::any": {
+      "n": 82.0,
+      "accuracy": 0.7926829268292683
+     },
+     "count::direction": {
+      "n": 62.0,
+      "accuracy": 0.8870967741935484
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7368421052631579
+     },
+     "count::near": {
+      "n": 17.0,
+      "accuracy": 0.9411764705882353
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.9285714285714286
+     },
+     "exists::direction": {
+      "n": 47.0,
+      "accuracy": 0.8936170212765957
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 0.9090909090909091
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": "yes"
+    }
+   }
+  ],
+  "contrast_pairs": {
+   "question_only": {
+    "pair_accuracy": 0.0,
+    "item_accuracy": 0.3106796116504854,
+    "n_pairs": 103.0
+   },
+   "deepsets": {
+    "pair_accuracy": 0.019417475728155338,
+    "item_accuracy": 0.32038834951456313,
+    "n_pairs": 103.0
+   },
+   "counter": {
+    "pair_accuracy": 0.1553398058252427,
+    "item_accuracy": 0.45145631067961167,
+    "n_pairs": 103.0
+   },
+   "symbolic_fallback": {
+    "pair_accuracy": 0.5728155339805825,
+    "item_accuracy": 0.7135922330097088,
+    "n_pairs": 103.0
+   }
+  },
+  "counterfactuals": {
+   "n": 59,
+   "note": "reference answers come from the same executor the symbolic system uses, so its score here is a sanity check, not evidence",
+   "systems": {
+    "question_only": {
+     "accuracy": 0.3898305084745763,
+     "changed_fraction": 0.4915254237288136,
+     "n": 59.0
+    },
+    "deepsets": {
+     "accuracy": 0.4067796610169492,
+     "changed_fraction": 0.5084745762711864,
+     "n": 59.0
+    },
+    "counter": {
+     "accuracy": 0.3728813559322034,
+     "changed_fraction": 0.5084745762711864,
+     "n": 59.0
+    },
+    "symbolic_fallback": {
+     "accuracy": 1.0,
+     "changed_fraction": 1.0,
+     "n": 59.0
+    }
+   }
+  },
+  "robustness": {
+   "question_only": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.66875
+    }
+   ],
+   "deepsets": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.6625
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.66875
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.659375
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.65625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.671875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.65625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.6625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.665625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.665625
+    }
+   ],
+   "counter": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.665625
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.65625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.671875
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.65625
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.609375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.665625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.671875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.675
+    }
+   ],
+   "symbolic_fallback": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.878125
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.84375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.821875
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.721875
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.84375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.79375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.878125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.88125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.871875
+    }
+   ]
+  },
+  "error_decomposition": {
+   "counts": {
+    "correct": 281,
+    "declined": 0,
+    "perception": 39,
+    "comprehension": 0,
+    "geometry": 0,
+    "unattributed": 0
+   },
+   "fractions": {
+    "correct": 0.8781,
+    "declined": 0.0,
+    "perception": 0.1219,
+    "comprehension": 0.0,
+    "geometry": 0.0,
+    "unattributed": 0.0
+   },
+   "examples": {
+    "correct": [
+     "How many bicycles are to the front of the ego vehicle?",
+     "Are there any cars far from the ego vehicle?",
+     "How many buses are there?",
+     "How many construction vehicles are there?",
+     "How many bicycles are there?"
+    ],
+    "declined": [],
+    "perception": [
+     "How many cars are there? :: 2 on detections, 4 on ground-truth boxes (expected 4)",
+     "Are there any vehicles to the back right of the ego vehicle? :: no on detections, yes on ground-truth boxes (expected yes)",
+     "How many vehicles are there? :: 5 on detections, 7 on ground-truth boxes (expected 7)",
+     "How many vehicles are there? :: 5 on detections, 6 on ground-truth boxes (expected 6)",
+     "Are there any vehicles to the left of the ego vehicle? :: no on detections, yes on ground-truth boxes (expected yes)"
+    ],
+    "comprehension": [],
+    "geometry": [],
+    "unattributed": []
+   }
+  }
+ },
+ "degenerate_seed0": {
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+   "numpy": "2.1.3"
+  },
+  "data": {
+   "n_items": 1600,
+   "n_samples": 200,
+   "train": 960,
+   "val": 320,
+   "test": 320,
+   "answer_vocabulary": 23,
+   "object_truncation_rate": 0.0,
+   "warnings": []
+  },
+  "seed": 0,
+  "majority_baseline_accuracy": 0.403125,
+  "trivial_answer_fraction": 0.75625,
+  "parser_coverage": {
+   "coverage": 1.0,
+   "n": 320.0
+  },
+  "systems": [
+   {
+    "name": "question_only",
+    "accuracy": 0.7781,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.7781,
+    "count_mae": 0.5341,
+    "cost": {
+     "seconds": 0.1995,
+     "ms_per_item": 0.6235,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 144.0,
+      "accuracy": 0.8333333333333334
+     },
+     "count": {
+      "n": 176.0,
+      "accuracy": 0.7329545454545454
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 19.0,
+      "accuracy": 0.7894736842105263
+     },
+     "compare::direction": {
+      "n": 31.0,
+      "accuracy": 0.7419354838709677
+     },
+     "count::any": {
+      "n": 49.0,
+      "accuracy": 0.4897959183673469
+     },
+     "count::direction": {
+      "n": 99.0,
+      "accuracy": 0.8686868686868687
+     },
+     "count::far": {
+      "n": 15.0,
+      "accuracy": 0.7333333333333333
+     },
+     "count::near": {
+      "n": 13.0,
+      "accuracy": 0.6153846153846154
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::direction": {
+      "n": 50.0,
+      "accuracy": 0.88
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 0.8181818181818182
+     }
+    },
+    "extra": {
+     "num_parameters": 35863,
+     "train_seconds": 4.61,
+     "epochs_run": 20,
+     "best_val_accuracy": 0.8063
+    }
+   },
+   {
+    "name": "deepsets",
+    "accuracy": 0.7688,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.7688,
+    "count_mae": 0.5455,
+    "cost": {
+     "seconds": 0.2602,
+     "ms_per_item": 0.8131,
+     "peak_memory_mb": 1.237,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 144.0,
+      "accuracy": 0.8125
+     },
+     "count": {
+      "n": 176.0,
+      "accuracy": 0.7329545454545454
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 19.0,
+      "accuracy": 0.7368421052631579
+     },
+     "compare::direction": {
+      "n": 31.0,
+      "accuracy": 0.6774193548387096
+     },
+     "count::any": {
+      "n": 49.0,
+      "accuracy": 0.4897959183673469
+     },
+     "count::direction": {
+      "n": 99.0,
+      "accuracy": 0.8686868686868687
+     },
+     "count::far": {
+      "n": 15.0,
+      "accuracy": 0.7333333333333333
+     },
+     "count::near": {
+      "n": 13.0,
+      "accuracy": 0.6153846153846154
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.8214285714285714
+     },
+     "exists::direction": {
+      "n": 50.0,
+      "accuracy": 0.92
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 0.8
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 0.8181818181818182
+     }
+    },
+    "extra": {
+     "num_parameters": 120855,
+     "train_seconds": 11.59,
+     "epochs_run": 16,
+     "best_val_accuracy": 0.8125
+    }
+   },
+   {
+    "name": "counter",
+    "accuracy": 0.7844,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.7844,
+    "count_mae": 0.3466,
+    "cost": {
+     "seconds": 0.2772,
+     "ms_per_item": 0.8662,
+     "peak_memory_mb": 1.242,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 144.0,
+      "accuracy": 0.8125
+     },
+     "count": {
+      "n": 176.0,
+      "accuracy": 0.7613636363636364
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 19.0,
+      "accuracy": 0.7894736842105263
+     },
+     "compare::direction": {
+      "n": 31.0,
+      "accuracy": 0.7096774193548387
+     },
+     "count::any": {
+      "n": 49.0,
+      "accuracy": 0.5918367346938775
+     },
+     "count::direction": {
+      "n": 99.0,
+      "accuracy": 0.8686868686868687
+     },
+     "count::far": {
+      "n": 15.0,
+      "accuracy": 0.7333333333333333
+     },
+     "count::near": {
+      "n": 13.0,
+      "accuracy": 0.6153846153846154
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 0.7857142857142857
+     },
+     "exists::direction": {
+      "n": 50.0,
+      "accuracy": 0.92
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 0.6
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 0.8181818181818182
+     }
+    },
+    "extra": {
+     "num_parameters": 129176,
+     "train_seconds": 17.7,
+     "epochs_run": 22,
+     "best_val_accuracy": 0.8125
+    }
+   },
+   {
+    "name": "symbolic_abstain",
+    "accuracy": 0.95,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.95,
+    "count_mae": 0.0739,
+    "cost": {
+     "seconds": 0.0611,
+     "ms_per_item": 0.1911,
+     "peak_memory_mb": 0.023,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 144.0,
+      "accuracy": 0.9722222222222222
+     },
+     "count": {
+      "n": 176.0,
+      "accuracy": 0.9318181818181818
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 19.0,
+      "accuracy": 0.9473684210526315
+     },
+     "compare::direction": {
+      "n": 31.0,
+      "accuracy": 0.967741935483871
+     },
+     "count::any": {
+      "n": 49.0,
+      "accuracy": 0.8367346938775511
+     },
+     "count::direction": {
+      "n": 99.0,
+      "accuracy": 0.9797979797979798
+     },
+     "count::far": {
+      "n": 15.0,
+      "accuracy": 0.9333333333333333
+     },
+     "count::near": {
+      "n": 13.0,
+      "accuracy": 0.9230769230769231
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 1.0
+     },
+     "exists::direction": {
+      "n": 50.0,
+      "accuracy": 0.96
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": null
+    }
+   },
+   {
+    "name": "symbolic_fallback",
+    "accuracy": 0.95,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.95,
+    "count_mae": 0.0739,
+    "cost": {
+     "seconds": 0.0586,
+     "ms_per_item": 0.1832,
+     "peak_memory_mb": 0.024,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 144.0,
+      "accuracy": 0.9722222222222222
+     },
+     "count": {
+      "n": 176.0,
+      "accuracy": 0.9318181818181818
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 19.0,
+      "accuracy": 0.9473684210526315
+     },
+     "compare::direction": {
+      "n": 31.0,
+      "accuracy": 0.967741935483871
+     },
+     "count::any": {
+      "n": 49.0,
+      "accuracy": 0.8367346938775511
+     },
+     "count::direction": {
+      "n": 99.0,
+      "accuracy": 0.9797979797979798
+     },
+     "count::far": {
+      "n": 15.0,
+      "accuracy": 0.9333333333333333
+     },
+     "count::near": {
+      "n": 13.0,
+      "accuracy": 0.9230769230769231
+     },
+     "exists::any": {
+      "n": 28.0,
+      "accuracy": 1.0
+     },
+     "exists::direction": {
+      "n": 50.0,
+      "accuracy": 0.96
+     },
+     "exists::far": {
+      "n": 5.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 11.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": "0"
+    }
+   }
+  ],
+  "contrast_pairs": {
+   "question_only": {
+    "pair_accuracy": 0.0,
+    "item_accuracy": 0.2619047619047619,
+    "n_pairs": 42.0
+   },
+   "deepsets": {
+    "pair_accuracy": 0.023809523809523808,
+    "item_accuracy": 0.25,
+    "n_pairs": 42.0
+   },
+   "counter": {
+    "pair_accuracy": 0.047619047619047616,
+    "item_accuracy": 0.39285714285714285,
+    "n_pairs": 42.0
+   },
+   "symbolic_fallback": {
+    "pair_accuracy": 0.5714285714285714,
+    "item_accuracy": 0.7380952380952381,
+    "n_pairs": 42.0
+   }
+  },
+  "counterfactuals": {
+   "n": 59,
+   "note": "reference answers come from the same executor the symbolic system uses, so its score here is a sanity check, not evidence",
+   "systems": {
+    "question_only": {
+     "accuracy": 0.13559322033898305,
+     "changed_fraction": 0.23728813559322035,
+     "n": 59.0
+    },
+    "deepsets": {
+     "accuracy": 0.15254237288135594,
+     "changed_fraction": 0.2542372881355932,
+     "n": 59.0
+    },
+    "counter": {
+     "accuracy": 0.1864406779661017,
+     "changed_fraction": 0.288135593220339,
+     "n": 59.0
+    },
+    "symbolic_fallback": {
+     "accuracy": 1.0,
+     "changed_fraction": 1.0,
+     "n": 59.0
+    }
+   }
+  },
+  "robustness": {
+   "question_only": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.778125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.778125
+    }
+   ],
+   "deepsets": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.76875
+    }
+   ],
+   "counter": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.784375
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.784375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.784375
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.775
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.784375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.7875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.784375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.784375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.784375
+    }
+   ],
+   "symbolic_fallback": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.95
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.93125
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.925
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.890625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.95
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.921875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.95
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.946875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.940625
+    }
+   ]
+  },
+  "error_decomposition": {
+   "counts": {
+    "correct": 304,
+    "declined": 0,
+    "perception": 16,
+    "comprehension": 0,
+    "geometry": 0,
+    "unattributed": 0
+   },
+   "fractions": {
+    "correct": 0.95,
+    "declined": 0.0,
+    "perception": 0.05,
+    "comprehension": 0.0,
+    "geometry": 0.0,
+    "unattributed": 0.0
+   },
+   "examples": {
+    "correct": [
+     "How many pedestrians are near the ego vehicle?",
+     "Are there more cars than trailers to the back of the ego vehicle?",
+     "How many vehicles are to the back right of the ego vehicle?",
+     "Are there any cars to the right of the ego vehicle?",
+     "How many barriers are to the front of the ego vehicle?"
+    ],
+    "declined": [],
+    "perception": [
+     "How many cars are there? :: 6 on detections, 5 on ground-truth boxes (expected 5)",
+     "How many vehicles are there? :: 6 on detections, 7 on ground-truth boxes (expected 7)",
+     "Are there any pedestrians to the left of the ego vehicle? :: no on detections, yes on ground-truth boxes (expected yes)",
+     "How many vehicles are there? :: 2 on detections, 3 on ground-truth boxes (expected 3)",
+     "How many pedestrians are to the front left of the ego vehicle? :: 2 on detections, 3 on ground-truth boxes (expected 3)"
+    ],
+    "comprehension": [],
+    "geometry": [],
+    "unattributed": []
+   }
+  }
+ },
+ "degenerate_seed1": {
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+   "numpy": "2.1.3"
+  },
+  "data": {
+   "n_items": 1600,
+   "n_samples": 200,
+   "train": 960,
+   "val": 320,
+   "test": 320,
+   "answer_vocabulary": 23,
+   "object_truncation_rate": 0.0,
+   "warnings": []
+  },
+  "seed": 1,
+  "majority_baseline_accuracy": 0.39375,
+  "trivial_answer_fraction": 0.75,
+  "parser_coverage": {
+   "coverage": 1.0,
+   "n": 320.0
+  },
+  "systems": [
+   {
+    "name": "question_only",
+    "accuracy": 0.75,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.75,
+    "count_mae": 0.4512,
+    "cost": {
+     "seconds": 0.2232,
+     "ms_per_item": 0.6974,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 156.0,
+      "accuracy": 0.7307692307692307
+     },
+     "count": {
+      "n": 164.0,
+      "accuracy": 0.7682926829268293
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 30.0,
+      "accuracy": 0.7
+     },
+     "compare::direction": {
+      "n": 25.0,
+      "accuracy": 0.92
+     },
+     "count::any": {
+      "n": 47.0,
+      "accuracy": 0.574468085106383
+     },
+     "count::direction": {
+      "n": 82.0,
+      "accuracy": 0.8902439024390244
+     },
+     "count::far": {
+      "n": 23.0,
+      "accuracy": 0.6521739130434783
+     },
+     "count::near": {
+      "n": 12.0,
+      "accuracy": 0.9166666666666666
+     },
+     "exists::any": {
+      "n": 31.0,
+      "accuracy": 0.3870967741935484
+     },
+     "exists::direction": {
+      "n": 55.0,
+      "accuracy": 0.8545454545454545
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.5714285714285714
+     },
+     "exists::near": {
+      "n": 8.0,
+      "accuracy": 0.875
+     }
+    },
+    "extra": {
+     "num_parameters": 35863,
+     "train_seconds": 2.44,
+     "epochs_run": 11,
+     "best_val_accuracy": 0.7188
+    }
+   },
+   {
+    "name": "deepsets",
+    "accuracy": 0.8031,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.8031,
+    "count_mae": 0.311,
+    "cost": {
+     "seconds": 0.2885,
+     "ms_per_item": 0.9017,
+     "peak_memory_mb": 1.237,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 156.0,
+      "accuracy": 0.8141025641025641
+     },
+     "count": {
+      "n": 164.0,
+      "accuracy": 0.7926829268292683
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 30.0,
+      "accuracy": 0.8333333333333334
+     },
+     "compare::direction": {
+      "n": 25.0,
+      "accuracy": 0.88
+     },
+     "count::any": {
+      "n": 47.0,
+      "accuracy": 0.5957446808510638
+     },
+     "count::direction": {
+      "n": 82.0,
+      "accuracy": 0.8902439024390244
+     },
+     "count::far": {
+      "n": 23.0,
+      "accuracy": 0.782608695652174
+     },
+     "count::near": {
+      "n": 12.0,
+      "accuracy": 0.9166666666666666
+     },
+     "exists::any": {
+      "n": 31.0,
+      "accuracy": 0.7741935483870968
+     },
+     "exists::direction": {
+      "n": 55.0,
+      "accuracy": 0.8363636363636363
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::near": {
+      "n": 8.0,
+      "accuracy": 0.5
+     }
+    },
+    "extra": {
+     "num_parameters": 120855,
+     "train_seconds": 20.94,
+     "epochs_run": 28,
+     "best_val_accuracy": 0.7781
+    }
+   },
+   {
+    "name": "counter",
+    "accuracy": 0.7688,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.7688,
+    "count_mae": 0.2805,
+    "cost": {
+     "seconds": 0.5101,
+     "ms_per_item": 1.5942,
+     "peak_memory_mb": 1.242,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 156.0,
+      "accuracy": 0.7628205128205128
+     },
+     "count": {
+      "n": 164.0,
+      "accuracy": 0.774390243902439
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 30.0,
+      "accuracy": 0.7333333333333333
+     },
+     "compare::direction": {
+      "n": 25.0,
+      "accuracy": 0.88
+     },
+     "count::any": {
+      "n": 47.0,
+      "accuracy": 0.6170212765957447
+     },
+     "count::direction": {
+      "n": 82.0,
+      "accuracy": 0.8780487804878049
+     },
+     "count::far": {
+      "n": 23.0,
+      "accuracy": 0.6956521739130435
+     },
+     "count::near": {
+      "n": 12.0,
+      "accuracy": 0.8333333333333334
+     },
+     "exists::any": {
+      "n": 31.0,
+      "accuracy": 0.6129032258064516
+     },
+     "exists::direction": {
+      "n": 55.0,
+      "accuracy": 0.8
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::near": {
+      "n": 8.0,
+      "accuracy": 0.75
+     }
+    },
+    "extra": {
+     "num_parameters": 129176,
+     "train_seconds": 33.26,
+     "epochs_run": 40,
+     "best_val_accuracy": 0.8063
+    }
+   },
+   {
+    "name": "symbolic_abstain",
+    "accuracy": 0.9531,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9531,
+    "count_mae": 0.061,
+    "cost": {
+     "seconds": 0.1086,
+     "ms_per_item": 0.3393,
+     "peak_memory_mb": 0.025,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 156.0,
+      "accuracy": 0.9615384615384616
+     },
+     "count": {
+      "n": 164.0,
+      "accuracy": 0.9451219512195121
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 30.0,
+      "accuracy": 0.8666666666666667
+     },
+     "compare::direction": {
+      "n": 25.0,
+      "accuracy": 1.0
+     },
+     "count::any": {
+      "n": 47.0,
+      "accuracy": 0.8723404255319149
+     },
+     "count::direction": {
+      "n": 82.0,
+      "accuracy": 0.975609756097561
+     },
+     "count::far": {
+      "n": 23.0,
+      "accuracy": 0.9565217391304348
+     },
+     "count::near": {
+      "n": 12.0,
+      "accuracy": 1.0
+     },
+     "exists::any": {
+      "n": 31.0,
+      "accuracy": 0.9354838709677419
+     },
+     "exists::direction": {
+      "n": 55.0,
+      "accuracy": 1.0
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 8.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": null
+    }
+   },
+   {
+    "name": "symbolic_fallback",
+    "accuracy": 0.9531,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9531,
+    "count_mae": 0.061,
+    "cost": {
+     "seconds": 0.1103,
+     "ms_per_item": 0.3447,
+     "peak_memory_mb": 0.023,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 156.0,
+      "accuracy": 0.9615384615384616
+     },
+     "count": {
+      "n": 164.0,
+      "accuracy": 0.9451219512195121
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 30.0,
+      "accuracy": 0.8666666666666667
+     },
+     "compare::direction": {
+      "n": 25.0,
+      "accuracy": 1.0
+     },
+     "count::any": {
+      "n": 47.0,
+      "accuracy": 0.8723404255319149
+     },
+     "count::direction": {
+      "n": 82.0,
+      "accuracy": 0.975609756097561
+     },
+     "count::far": {
+      "n": 23.0,
+      "accuracy": 0.9565217391304348
+     },
+     "count::near": {
+      "n": 12.0,
+      "accuracy": 1.0
+     },
+     "exists::any": {
+      "n": 31.0,
+      "accuracy": 0.9354838709677419
+     },
+     "exists::direction": {
+      "n": 55.0,
+      "accuracy": 1.0
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 1.0
+     },
+     "exists::near": {
+      "n": 8.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": "0"
+    }
+   }
+  ],
+  "contrast_pairs": {
+   "question_only": {
+    "pair_accuracy": 0.0,
+    "item_accuracy": 0.35365853658536583,
+    "n_pairs": 41.0
+   },
+   "deepsets": {
+    "pair_accuracy": 0.07317073170731707,
+    "item_accuracy": 0.4268292682926829,
+    "n_pairs": 41.0
+   },
+   "counter": {
+    "pair_accuracy": 0.12195121951219512,
+    "item_accuracy": 0.4268292682926829,
+    "n_pairs": 41.0
+   },
+   "symbolic_fallback": {
+    "pair_accuracy": 0.6341463414634146,
+    "item_accuracy": 0.8170731707317073,
+    "n_pairs": 41.0
+   }
+  },
+  "counterfactuals": {
+   "n": 65,
+   "note": "reference answers come from the same executor the symbolic system uses, so its score here is a sanity check, not evidence",
+   "systems": {
+    "question_only": {
+     "accuracy": 0.15384615384615385,
+     "changed_fraction": 0.18461538461538463,
+     "n": 65.0
+    },
+    "deepsets": {
+     "accuracy": 0.23076923076923078,
+     "changed_fraction": 0.24615384615384617,
+     "n": 65.0
+    },
+    "counter": {
+     "accuracy": 0.27692307692307694,
+     "changed_fraction": 0.2923076923076923,
+     "n": 65.0
+    },
+    "symbolic_fallback": {
+     "accuracy": 1.0,
+     "changed_fraction": 1.0,
+     "n": 65.0
+    }
+   }
+  },
+  "robustness": {
+   "question_only": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.75
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.75
+    }
+   ],
+   "deepsets": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.803125
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.790625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.790625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.7875
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.8
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.79375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.803125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.803125
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.803125
+    }
+   ],
+   "counter": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.759375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.76875
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.771875
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.759375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.759375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.7625
+    }
+   ],
+   "symbolic_fallback": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.953125
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.934375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.896875
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.903125
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.946875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.925
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.95
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.946875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.9375
+    }
+   ]
+  },
+  "error_decomposition": {
+   "counts": {
+    "correct": 305,
+    "declined": 0,
+    "perception": 15,
+    "comprehension": 0,
+    "geometry": 0,
+    "unattributed": 0
+   },
+   "fractions": {
+    "correct": 0.9531,
+    "declined": 0.0,
+    "perception": 0.0469,
+    "comprehension": 0.0,
+    "geometry": 0.0,
+    "unattributed": 0.0
+   },
+   "examples": {
+    "correct": [
+     "How many construction vehicles are to the back of the ego vehicle?",
+     "Are there any traffic cones to the front left of the ego vehicle?",
+     "How many construction vehicles are there?",
+     "Are there any traffic cones in the scene?",
+     "Are there any buses in the scene?"
+    ],
+    "declined": [],
+    "perception": [
+     "Are there more traffic cones than trailers in the scene? :: yes on detections, no on ground-truth boxes (expected no)",
+     "How many vehicles are far from the ego vehicle? :: 0 on detections, 1 on ground-truth boxes (expected 1)",
+     "How many cars are to the front of the ego vehicle? :: 0 on detections, 1 on ground-truth boxes (expected 1)",
+     "How many cars are there? :: 3 on detections, 4 on ground-truth boxes (expected 4)",
+     "Are there fewer barriers than traffic cones in the scene? :: yes on detections, no on ground-truth boxes (expected no)"
+    ],
+    "comprehension": [],
+    "geometry": [],
+    "unattributed": []
+   }
+  }
+ },
+ "degenerate_seed2": {
+  "environment": {
+   "python": "3.13.16",
+   "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+   "numpy": "2.1.3"
+  },
+  "data": {
+   "n_items": 1600,
+   "n_samples": 200,
+   "train": 960,
+   "val": 320,
+   "test": 320,
+   "answer_vocabulary": 23,
+   "object_truncation_rate": 0.0,
+   "warnings": []
+  },
+  "seed": 2,
+  "majority_baseline_accuracy": 0.440625,
+  "trivial_answer_fraction": 0.74375,
+  "parser_coverage": {
+   "coverage": 1.0,
+   "n": 320.0
+  },
+  "systems": [
+   {
+    "name": "question_only",
+    "accuracy": 0.7438,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.7438,
+    "count_mae": 0.5213,
+    "cost": {
+     "seconds": 0.2187,
+     "ms_per_item": 0.6835,
+     "peak_memory_mb": 1.236,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 132.0,
+      "accuracy": 0.7348484848484849
+     },
+     "count": {
+      "n": 188.0,
+      "accuracy": 0.75
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 24.0,
+      "accuracy": 0.625
+     },
+     "compare::direction": {
+      "n": 21.0,
+      "accuracy": 0.8571428571428571
+     },
+     "count::any": {
+      "n": 52.0,
+      "accuracy": 0.46153846153846156
+     },
+     "count::direction": {
+      "n": 103.0,
+      "accuracy": 0.883495145631068
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7894736842105263
+     },
+     "count::near": {
+      "n": 14.0,
+      "accuracy": 0.7857142857142857
+     },
+     "exists::any": {
+      "n": 33.0,
+      "accuracy": 0.6060606060606061
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.8536585365853658
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.7142857142857143
+     },
+     "exists::near": {
+      "n": 6.0,
+      "accuracy": 0.6666666666666666
+     }
+    },
+    "extra": {
+     "num_parameters": 35863,
+     "train_seconds": 5.81,
+     "epochs_run": 20,
+     "best_val_accuracy": 0.7531
+    }
+   },
+   {
+    "name": "deepsets",
+    "accuracy": 0.725,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.725,
+    "count_mae": 0.4734,
+    "cost": {
+     "seconds": 0.2808,
+     "ms_per_item": 0.8774,
+     "peak_memory_mb": 1.237,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 132.0,
+      "accuracy": 0.75
+     },
+     "count": {
+      "n": 188.0,
+      "accuracy": 0.7074468085106383
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 24.0,
+      "accuracy": 0.5833333333333334
+     },
+     "compare::direction": {
+      "n": 21.0,
+      "accuracy": 0.8571428571428571
+     },
+     "count::any": {
+      "n": 52.0,
+      "accuracy": 0.4423076923076923
+     },
+     "count::direction": {
+      "n": 103.0,
+      "accuracy": 0.8155339805825242
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7368421052631579
+     },
+     "count::near": {
+      "n": 14.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::any": {
+      "n": 33.0,
+      "accuracy": 0.696969696969697
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.8292682926829268
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.5714285714285714
+     },
+     "exists::near": {
+      "n": 6.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 120855,
+     "train_seconds": 16.79,
+     "epochs_run": 23,
+     "best_val_accuracy": 0.775
+    }
+   },
+   {
+    "name": "counter",
+    "accuracy": 0.7719,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.7719,
+    "count_mae": 0.3032,
+    "cost": {
+     "seconds": 0.2868,
+     "ms_per_item": 0.8963,
+     "peak_memory_mb": 1.243,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 132.0,
+      "accuracy": 0.7651515151515151
+     },
+     "count": {
+      "n": 188.0,
+      "accuracy": 0.776595744680851
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 24.0,
+      "accuracy": 0.7083333333333334
+     },
+     "compare::direction": {
+      "n": 21.0,
+      "accuracy": 0.8571428571428571
+     },
+     "count::any": {
+      "n": 52.0,
+      "accuracy": 0.5384615384615384
+     },
+     "count::direction": {
+      "n": 103.0,
+      "accuracy": 0.883495145631068
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.7894736842105263
+     },
+     "count::near": {
+      "n": 14.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::any": {
+      "n": 33.0,
+      "accuracy": 0.6060606060606061
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.8536585365853658
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.7142857142857143
+     },
+     "exists::near": {
+      "n": 6.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 129176,
+     "train_seconds": 15.63,
+     "epochs_run": 19,
+     "best_val_accuracy": 0.7812
+    }
+   },
+   {
+    "name": "symbolic_abstain",
+    "accuracy": 0.9469,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9469,
+    "count_mae": 0.0904,
+    "cost": {
+     "seconds": 0.0748,
+     "ms_per_item": 0.2336,
+     "peak_memory_mb": 0.025,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 132.0,
+      "accuracy": 0.9772727272727273
+     },
+     "count": {
+      "n": 188.0,
+      "accuracy": 0.925531914893617
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 24.0,
+      "accuracy": 1.0
+     },
+     "compare::direction": {
+      "n": 21.0,
+      "accuracy": 0.9523809523809523
+     },
+     "count::any": {
+      "n": 52.0,
+      "accuracy": 0.8269230769230769
+     },
+     "count::direction": {
+      "n": 103.0,
+      "accuracy": 0.9902912621359223
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.9473684210526315
+     },
+     "count::near": {
+      "n": 14.0,
+      "accuracy": 0.7857142857142857
+     },
+     "exists::any": {
+      "n": 33.0,
+      "accuracy": 1.0
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.975609756097561
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::near": {
+      "n": 6.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": null
+    }
+   },
+   {
+    "name": "symbolic_fallback",
+    "accuracy": 0.9469,
+    "answered_fraction": 1.0,
+    "accuracy_when_answered": 0.9469,
+    "count_mae": 0.0904,
+    "cost": {
+     "seconds": 0.0581,
+     "ms_per_item": 0.1816,
+     "peak_memory_mb": 0.023,
+     "items": 320.0
+    },
+    "by_answer_type": {
+     "binary": {
+      "n": 132.0,
+      "accuracy": 0.9772727272727273
+     },
+     "count": {
+      "n": 188.0,
+      "accuracy": 0.925531914893617
+     }
+    },
+    "by_template": {
+     "compare::any": {
+      "n": 24.0,
+      "accuracy": 1.0
+     },
+     "compare::direction": {
+      "n": 21.0,
+      "accuracy": 0.9523809523809523
+     },
+     "count::any": {
+      "n": 52.0,
+      "accuracy": 0.8269230769230769
+     },
+     "count::direction": {
+      "n": 103.0,
+      "accuracy": 0.9902912621359223
+     },
+     "count::far": {
+      "n": 19.0,
+      "accuracy": 0.9473684210526315
+     },
+     "count::near": {
+      "n": 14.0,
+      "accuracy": 0.7857142857142857
+     },
+     "exists::any": {
+      "n": 33.0,
+      "accuracy": 1.0
+     },
+     "exists::direction": {
+      "n": 41.0,
+      "accuracy": 0.975609756097561
+     },
+     "exists::far": {
+      "n": 7.0,
+      "accuracy": 0.8571428571428571
+     },
+     "exists::near": {
+      "n": 6.0,
+      "accuracy": 1.0
+     }
+    },
+    "extra": {
+     "num_parameters": 0,
+     "train_seconds": 0.0,
+     "fallback_answer": "0"
+    }
+   }
+  ],
+  "contrast_pairs": {
+   "question_only": {
+    "pair_accuracy": 0.0,
+    "item_accuracy": 0.33962264150943394,
+    "n_pairs": 53.0
+   },
+   "deepsets": {
+    "pair_accuracy": 0.03773584905660377,
+    "item_accuracy": 0.36792452830188677,
+    "n_pairs": 53.0
+   },
+   "counter": {
+    "pair_accuracy": 0.018867924528301886,
+    "item_accuracy": 0.4056603773584906,
+    "n_pairs": 53.0
+   },
+   "symbolic_fallback": {
+    "pair_accuracy": 0.6415094339622641,
+    "item_accuracy": 0.8018867924528302,
+    "n_pairs": 53.0
+   }
+  },
+  "counterfactuals": {
+   "n": 73,
+   "note": "reference answers come from the same executor the symbolic system uses, so its score here is a sanity check, not evidence",
+   "systems": {
+    "question_only": {
+     "accuracy": 0.0821917808219178,
+     "changed_fraction": 0.1780821917808219,
+     "n": 73.0
+    },
+    "deepsets": {
+     "accuracy": 0.1917808219178082,
+     "changed_fraction": 0.2876712328767123,
+     "n": 73.0
+    },
+    "counter": {
+     "accuracy": 0.0821917808219178,
+     "changed_fraction": 0.1780821917808219,
+     "n": 73.0
+    },
+    "symbolic_fallback": {
+     "accuracy": 1.0,
+     "changed_fraction": 1.0,
+     "n": 73.0
+    }
+   }
+  },
+  "robustness": {
+   "question_only": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.74375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.74375
+    }
+   ],
+   "deepsets": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.725
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.73125
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.740625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.759375
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.709375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.721875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.725
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.725
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.725
+    }
+   ],
+   "counter": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.771875
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.7625
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.771875
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.759375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.771875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.765625
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.765625
+    }
+   ],
+   "symbolic_fallback": [
+    {
+     "setting": "drop=0 dup=0 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.946875
+    },
+    {
+     "setting": "drop=0.1 dup=0 jitter=0m",
+     "drop_probability": 0.1,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.934375
+    },
+    {
+     "setting": "drop=0.2 dup=0 jitter=0m",
+     "drop_probability": 0.2,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.90625
+    },
+    {
+     "setting": "drop=0.3 dup=0 jitter=0m",
+     "drop_probability": 0.3,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.88125
+    },
+    {
+     "setting": "drop=0 dup=0.1 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.1,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.9375
+    },
+    {
+     "setting": "drop=0 dup=0.2 jitter=0m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.2,
+     "position_jitter_m": 0.0,
+     "accuracy": 0.921875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=0.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 0.5,
+     "accuracy": 0.946875
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=1.5m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 1.5,
+     "accuracy": 0.934375
+    },
+    {
+     "setting": "drop=0 dup=0 jitter=3m",
+     "drop_probability": 0.0,
+     "duplicate_probability": 0.0,
+     "position_jitter_m": 3.0,
+     "accuracy": 0.925
+    }
+   ]
+  },
+  "error_decomposition": {
+   "counts": {
+    "correct": 303,
+    "declined": 0,
+    "perception": 17,
+    "comprehension": 0,
+    "geometry": 0,
+    "unattributed": 0
+   },
+   "fractions": {
+    "correct": 0.9469,
+    "declined": 0.0,
+    "perception": 0.0531,
+    "comprehension": 0.0,
+    "geometry": 0.0,
+    "unattributed": 0.0
+   },
+   "examples": {
+    "correct": [
+     "Are there any trailers to the front of the ego vehicle?",
+     "Are there fewer buses than trailers to the back right of the ego vehicle?",
+     "How many construction vehicles are near the ego vehicle?",
+     "How many construction vehicles are to the left of the ego vehicle?",
+     "How many cars are to the front right of the ego vehicle?"
+    ],
+    "declined": [],
+    "perception": [
+     "How many cars are there? :: 2 on detections, 4 on ground-truth boxes (expected 4)",
+     "How many barriers are there? :: 1 on detections, 2 on ground-truth boxes (expected 2)",
+     "How many vehicles are near the ego vehicle? :: 0 on detections, 1 on ground-truth boxes (expected 1)",
+     "How many pedestrians are near the ego vehicle? :: 1 on detections, 2 on ground-truth boxes (expected 2)",
+     "How many pedestrians are there? :: 1 on detections, 2 on ground-truth boxes (expected 2)"
+    ],
+    "comprehension": [],
+    "geometry": [],
+    "unattributed": []
+   }
+  }
+ }
+}

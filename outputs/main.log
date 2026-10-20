@@ -1,0 +1,217 @@
+2025-03-11 19:34:02,980 - main - INFO - Logger initialized for experiment: main
+2025-03-11 19:34:02,980 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 19:34:02,980 - main - INFO - Chargement et préparation des données
+2025-03-11 19:34:03,009 - main - INFO - Initialisation du modèle
+2025-03-11 19:34:05,203 - main - INFO - Génération de prédictions
+2025-03-11 19:58:42,899 - main - INFO - Logger initialized for experiment: main
+2025-03-11 19:58:42,899 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 19:58:42,899 - main - INFO - Chargement et préparation des données
+2025-03-11 19:58:42,932 - main - INFO - Initialisation du modèle
+2025-03-11 19:58:44,306 - main - INFO - Génération de prédictions
+2025-03-11 20:02:02,922 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:02:02,923 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:02:02,923 - main - INFO - Chargement et préparation des données
+2025-03-11 20:02:02,954 - main - INFO - Initialisation du modèle
+2025-03-11 20:02:04,242 - main - INFO - Génération de prédictions
+2025-03-11 20:04:19,167 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:04:19,167 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:04:19,167 - main - INFO - Chargement et préparation des données
+2025-03-11 20:04:19,202 - main - INFO - Initialisation du modèle
+2025-03-11 20:04:20,462 - main - INFO - Génération de prédictions
+2025-03-11 20:05:35,743 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:05:35,743 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:05:35,744 - main - INFO - Chargement et préparation des données
+2025-03-11 20:05:35,764 - main - INFO - Initialisation du modèle
+2025-03-11 20:05:37,117 - main - INFO - Génération de prédictions
+2025-03-11 20:07:12,756 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:07:12,757 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:07:12,757 - main - INFO - Chargement et préparation des données
+2025-03-11 20:07:12,786 - main - INFO - Initialisation du modèle
+2025-03-11 20:07:14,103 - main - INFO - Génération de prédictions
+2025-03-11 20:08:09,323 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:08:09,324 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:08:09,324 - main - INFO - Chargement et préparation des données
+2025-03-11 20:08:09,341 - main - INFO - Initialisation du modèle
+2025-03-11 20:08:10,643 - main - INFO - Génération de prédictions
+2025-03-11 20:08:26,451 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:08:26,451 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:08:26,451 - main - INFO - Chargement et préparation des données
+2025-03-11 20:08:26,468 - main - INFO - Initialisation du modèle
+2025-03-11 20:08:29,249 - main - INFO - Génération de prédictions
+2025-03-11 20:09:13,934 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:09:13,934 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:09:13,934 - main - INFO - Chargement et préparation des données
+2025-03-11 20:09:13,952 - main - INFO - Initialisation du modèle
+2025-03-11 20:09:15,245 - main - INFO - Génération de prédictions
+2025-03-11 20:11:44,879 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:11:44,879 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:11:44,879 - main - INFO - Chargement et préparation des données
+2025-03-11 20:11:44,915 - main - INFO - Initialisation du modèle
+2025-03-11 20:11:46,258 - main - INFO - Génération de prédictions
+2025-03-11 20:28:58,709 - main - INFO - Logger initialized for experiment: main
+2025-03-11 20:28:58,710 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 20:28:58,710 - main - INFO - Chargement et préparation des données
+2025-03-11 20:28:58,750 - main - INFO - Initialisation du modèle
+2025-03-11 20:29:00,083 - main - INFO - Génération de prédictions
+2025-03-11 22:11:44,067 - main - INFO - Logger initialized for experiment: main
+2025-03-11 22:11:44,067 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 22:11:44,067 - main - INFO - Chargement et préparation des données
+2025-03-11 22:11:44,102 - main - INFO - Initialisation du modèle
+2025-03-11 22:11:45,599 - main - INFO - Génération de prédictions
+2025-03-11 22:12:38,202 - main - INFO - Logger initialized for experiment: main
+2025-03-11 22:12:38,203 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 22:12:38,203 - main - INFO - Chargement et préparation des données
+2025-03-11 22:12:38,228 - main - INFO - Initialisation du modèle
+2025-03-11 22:12:39,456 - main - INFO - Génération de prédictions
+2025-03-11 22:14:05,935 - main - INFO - Logger initialized for experiment: main
+2025-03-11 22:14:05,935 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 22:14:05,935 - main - INFO - Chargement et préparation des données
+2025-03-11 22:14:05,959 - main - INFO - Initialisation du modèle
+2025-03-11 22:14:07,228 - main - INFO - Génération de prédictions
+2025-03-11 22:14:56,539 - main - INFO - Logger initialized for experiment: main
+2025-03-11 22:14:56,539 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 22:14:56,539 - main - INFO - Chargement et préparation des données
+2025-03-11 22:14:56,561 - main - INFO - Initialisation du modèle
+2025-03-11 22:14:57,770 - main - INFO - Génération de prédictions
+2025-03-11 22:15:17,271 - main - INFO - Exécution terminée. Résultats sauvegardés dans outputs
+2025-03-11 22:20:22,920 - main - INFO - Logger initialized for experiment: main
+2025-03-11 22:20:22,921 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-11 22:20:22,921 - main - INFO - Chargement et préparation des données
+2025-03-11 22:20:22,951 - main - INFO - Initialisation du modèle
+2025-03-11 22:20:24,451 - main - INFO - Génération de prédictions
+2025-03-11 22:20:43,580 - main - INFO - Exécution terminée. Résultats sauvegardés dans outputs
+2025-03-17 13:32:51,764 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:32:51,764 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:32:51,764 - main - INFO - Chargement et préparation des données
+2025-03-17 13:32:51,801 - main - INFO - Initialisation du modèle
+2025-03-17 13:32:56,546 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 13:34:05,162 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:34:05,163 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:34:05,163 - main - INFO - Chargement et préparation des données
+2025-03-17 13:34:05,184 - main - INFO - Initialisation du modèle
+2025-03-17 13:34:09,465 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 13:35:08,638 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:35:08,638 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:35:08,638 - main - INFO - Chargement et préparation des données
+2025-03-17 13:35:08,654 - main - INFO - Initialisation du modèle
+2025-03-17 13:35:18,980 - main - INFO - Génération de prédictions
+2025-03-17 13:35:50,556 - main - INFO - Exécution terminée. Résultats sauvegardés dans outputs
+2025-03-17 13:44:58,289 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:44:58,289 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:44:58,289 - main - INFO - Chargement et préparation des données
+2025-03-17 13:44:58,306 - main - INFO - Initialisation du modèle
+2025-03-17 13:46:44,832 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:46:44,832 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:46:44,832 - main - INFO - Démarrage de l'entraînement du modèle distillé
+2025-03-17 13:49:14,560 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:49:14,560 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:49:14,560 - main - INFO - Démarrage de l'entraînement du modèle distillé
+2025-03-17 13:49:42,766 - main - INFO - Exécution terminée. Résultats sauvegardés dans outputs
+2025-03-17 13:54:55,762 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:54:55,762 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:54:55,763 - main - INFO - Démarrage de l'entraînement du modèle distillé
+2025-03-17 13:55:45,574 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:55:45,574 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:55:45,574 - main - INFO - Démarrage de l'entraînement du modèle distillé
+2025-03-17 13:55:58,328 - main - INFO - Logger initialized for experiment: main
+2025-03-17 13:55:58,328 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 13:55:58,328 - main - INFO - Démarrage de l'entraînement du modèle distillé
+2025-03-17 13:56:24,361 - main - INFO - Exécution terminée. Résultats sauvegardés dans outputs
+2025-03-17 15:37:27,279 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:37:27,279 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:37:27,279 - main - INFO - Chargement et préparation des données
+2025-03-17 15:37:27,313 - main - INFO - Initialisation du modèle
+2025-03-17 15:37:29,022 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 15:45:42,391 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:45:42,392 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:45:42,392 - main - INFO - Chargement et préparation des données
+2025-03-17 15:45:42,419 - main - INFO - Initialisation du modèle
+2025-03-17 15:45:45,295 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 15:49:18,381 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:49:18,382 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:49:18,382 - main - INFO - Initialisation du modèle
+2025-03-17 15:50:39,119 - main - INFO - Chargement et préparation des données
+2025-03-17 15:54:08,814 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:54:08,814 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:54:08,814 - main - INFO - Initialisation du modèle
+2025-03-17 15:54:13,058 - main - INFO - Chargement et préparation des données
+2025-03-17 15:54:13,294 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 15:55:32,771 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:55:32,771 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:55:32,771 - main - INFO - Initialisation du modèle
+2025-03-17 15:55:34,997 - main - INFO - Chargement et préparation des données
+2025-03-17 15:55:35,183 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 15:56:07,227 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:56:07,227 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:56:07,227 - main - INFO - Initialisation du modèle
+2025-03-17 15:56:09,370 - main - INFO - Chargement et préparation des données
+2025-03-17 15:56:09,551 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 15:57:39,698 - main - INFO - Logger initialized for experiment: main
+2025-03-17 15:57:39,698 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 15:57:39,698 - main - INFO - Initialisation du modèle
+2025-03-17 15:57:42,033 - main - INFO - Chargement et préparation des données
+2025-03-17 16:36:38,905 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:36:38,906 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:36:38,906 - main - INFO - Initialisation du modèle
+2025-03-17 16:36:40,228 - main - INFO - Chargement et préparation des données
+2025-03-17 16:37:04,749 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:37:04,749 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:37:04,750 - main - INFO - Initialisation du modèle
+2025-03-17 16:37:06,308 - main - INFO - Chargement et préparation des données
+2025-03-17 16:37:06,494 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:39:32,492 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:39:32,492 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:39:32,492 - main - INFO - Initialisation du modèle
+2025-03-17 16:39:33,755 - main - INFO - Chargement et préparation des données
+2025-03-17 16:39:34,042 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:40:18,309 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:40:18,309 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:40:18,309 - main - INFO - Initialisation du modèle
+2025-03-17 16:40:19,177 - main - INFO - Chargement et préparation des données
+2025-03-17 16:40:19,353 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:41:31,808 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:41:31,808 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:41:31,808 - main - INFO - Initialisation du modèle
+2025-03-17 16:41:32,663 - main - INFO - Chargement et préparation des données
+2025-03-17 16:41:32,846 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:43:20,791 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:43:20,791 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:43:20,791 - main - INFO - Initialisation du modèle
+2025-03-17 16:43:22,106 - main - INFO - Chargement et préparation des données
+2025-03-17 16:43:22,285 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:44:01,454 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:44:01,454 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:44:01,454 - main - INFO - Initialisation du modèle
+2025-03-17 16:44:02,504 - main - INFO - Chargement et préparation des données
+2025-03-17 16:44:02,657 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:47:06,524 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:47:06,524 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:47:06,524 - main - INFO - Initialisation du modèle
+2025-03-17 16:47:07,838 - main - INFO - Chargement et préparation des données
+2025-03-17 16:47:08,016 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:48:08,493 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:48:08,493 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:48:08,493 - main - INFO - Initialisation du modèle
+2025-03-17 16:48:09,548 - main - INFO - Chargement et préparation des données
+2025-03-17 16:48:09,716 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 16:50:14,331 - main - INFO - Logger initialized for experiment: main
+2025-03-17 16:50:14,332 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 16:50:14,332 - main - INFO - Initialisation du modèle
+2025-03-17 16:50:15,541 - main - INFO - Chargement et préparation des données
+2025-03-17 16:50:15,716 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 17:25:47,246 - main - INFO - Logger initialized for experiment: main
+2025-03-17 17:25:47,246 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 17:25:47,246 - main - INFO - Initialisation du modèle
+2025-03-17 17:25:48,529 - main - INFO - Chargement et préparation des données
+2025-03-17 17:25:48,776 - main - INFO - Démarrage de l'entraînement du modèle
+2025-03-17 17:34:04,077 - main - INFO - Logger initialized for experiment: main
+2025-03-17 17:34:04,077 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 17:34:04,077 - main - INFO - Initialisation du modèle
+2025-03-17 17:34:05,450 - main - INFO - Chargement et préparation des données
+2025-03-17 17:34:05,654 - main - INFO - Génération de prédictions
+2025-03-17 17:35:55,095 - main - INFO - Logger initialized for experiment: main
+2025-03-17 17:35:55,096 - main - INFO - Démarrage de la plateforme LidarLLM
+2025-03-17 17:35:55,096 - main - INFO - Initialisation du modèle
+2025-03-17 17:35:56,269 - main - INFO - Chargement et préparation des données
+2025-03-17 17:35:56,450 - main - INFO - Génération de prédictions
+2025-03-17 17:36:20,062 - main - INFO - Exécution terminée. Résultats sauvegardés dans outputs

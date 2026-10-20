@@ -1,0 +1,66 @@
+data/data/
+outputs/distilled_lidar_gpt2.pt
+main.txt/main.log
+distilled_lidar_gpt2.pt
+main.txt/main.log
+__pycache__/
+*.py[cod]
+*$py.class
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a package manager (e.g. pip)
+*.py, coverage, nosetests.xml, coverage.xml, *, cover
+*.cover
+*.py,cover
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+.pytype/
+cover/
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Revision 2026: experiment outputs
+outputs/spatial_reasoning/
