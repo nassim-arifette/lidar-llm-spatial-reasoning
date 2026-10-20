@@ -388,7 +388,15 @@ def render_markdown(results: Dict) -> str:
 def build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--source", choices=["synthetic", "files"], default="synthetic")
+    p.add_argument("--source", choices=["synthetic", "files", "nuscenes"],
+                   default="synthetic")
+    p.add_argument("--metadata-root", type=str, default=None,
+                   help="nuscenes source: directory holding sample.json (v1.0-mini)")
+    p.add_argument("--min-lidar-points", type=int, default=1,
+                   help="nuscenes source: drop annotations with fewer LiDAR returns")
+    p.add_argument("--simulate-detector", action="store_true",
+                   help="nuscenes source: pass the ground-truth boxes through the "
+                        "detector-failure model instead of using them directly")
     p.add_argument("--detections", type=str, default=None,
                    help="detections JSON (nuScenes result format or simple format)")
     p.add_argument("--oracle", type=str, default=None,
@@ -427,6 +435,29 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("synthetic corpus:", json.dumps(corpus.summary(), indent=2))
         detected, oracle = corpus.detected_scenes, corpus.oracle_scenes
         items, gold = corpus.items, corpus.gold_queries
+    elif args.source == "nuscenes":
+        if not (args.metadata_root and args.qa):
+            print("--metadata-root and --qa are required with --source nuscenes",
+                  file=sys.stderr)
+            return 2
+        from .nuscenes_adapter import load_nuscenes_qa, load_nuscenes_scenes
+
+        oracle, conversion = load_nuscenes_scenes(args.metadata_root,
+                                                  args.min_lidar_points)
+        print("nuScenes conversion:", json.dumps(conversion.as_dict(), indent=2))
+
+        if args.simulate_detector:
+            from .consistency import perturb_scenes
+            detected = perturb_scenes(oracle, default_detector(args.seed))
+            print("perception: ground truth passed through the detector-failure model")
+        else:
+            detected = oracle
+            print("perception: ground-truth boxes (oracle condition)")
+
+        items = load_nuscenes_qa(args.qa, oracle)
+        gold = {}   # real questions have no gold program
+        print(f"nuScenes-QA: {len(items)} questions over "
+              f"{len({it.sample_token for it in items})} samples")
     else:
         if not (args.detections and args.qa):
             print("--detections and --qa are required with --source files",
