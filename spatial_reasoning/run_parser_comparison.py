@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 import time
 from collections import Counter, defaultdict
 from typing import Dict, List, Optional, Sequence
@@ -170,6 +171,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument("--batch-size", type=int, default=48)
     p.add_argument("--max-new-tokens", type=int, default=96)
     p.add_argument("--skip-llm", action="store_true")
+    p.add_argument("--drive-dir", default=None,
+                   help="mounted Drive folder to mirror the results and the "
+                        "parse cache into, e.g. /content/drive/MyDrive/npm3d")
     args = p.parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
@@ -229,7 +233,45 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(results, fh, indent=2)
     print(f"\nwrote {path}")
+
+    if args.drive_dir:
+        copied = mirror_to_drive(args.drive_dir, [path, args.cache])
+        for src, dst in copied:
+            print(f"mirrored {src} -> {dst}")
+
     return 0
+
+
+def mirror_to_drive(drive_dir: str, paths: Sequence[Optional[str]]):
+    """Copy the run's outputs onto mounted Google Drive.
+
+    A Colab VM is ephemeral and can disappear without warning, taking the
+    parse cache -- the only expensive artefact here -- with it. Mirroring at
+    the end of the run means the next invocation starts from the cache instead
+    of regenerating it.
+
+    Failures are reported but never fatal: losing the mirror must not discard
+    a finished run.
+    """
+    import shutil
+
+    copied = []
+    try:
+        os.makedirs(drive_dir, exist_ok=True)
+    except OSError as exc:
+        print(f"[drive] cannot write to {drive_dir}: {exc}", file=sys.stderr)
+        return copied
+
+    for src in paths:
+        if not src or not os.path.exists(src):
+            continue
+        dst = os.path.join(drive_dir, os.path.basename(src))
+        try:
+            shutil.copy(src, dst)
+            copied.append((src, dst))
+        except OSError as exc:
+            print(f"[drive] failed to copy {src}: {exc}", file=sys.stderr)
+    return copied
 
 
 if __name__ == "__main__":
