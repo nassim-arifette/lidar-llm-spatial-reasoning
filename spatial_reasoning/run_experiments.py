@@ -360,14 +360,20 @@ def render_markdown(results: Dict) -> str:
     lines += [
         "## Main comparison",
         "",
-        "| system | accuracy | answered | acc. when answered | count MAE | params | ms/item |",
-        "|---|---|---|---|---|---|---|",
+        "| system | accuracy | answered | acc. when answered | "
+        "count MAE (numeric answers) | numeric share | params | ms/item |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for s in results["systems"]:
         mae = "-" if s["count_mae"] is None else f"{s['count_mae']:.3f}"
+        # The MAE is computed only over counting questions answered with a
+        # number. Without the share, a system that says "yes" to half of them
+        # posts a fine MAE on the rest and reads as competent.
+        share = s.get("count_coverage", {}).get("numeric_fraction")
+        share_text = "-" if share is None else f"{share:.2f}"
         lines.append(
             f"| {s['name']} | {s['accuracy']:.3f} | {s['answered_fraction']:.3f} | "
-            f"{s['accuracy_when_answered']:.3f} | {mae} | "
+            f"{s['accuracy_when_answered']:.3f} | {mae} | {share_text} | "
             f"{s['extra'].get('num_parameters', 0)} | {s['cost']['ms_per_item']:.2f} |"
         )
 
@@ -381,7 +387,12 @@ def render_markdown(results: Dict) -> str:
               f"> {cf['note']}", "",
               "| system | accuracy | answer changed |", "|---|---|---|"]
     for name, v in cf["systems"].items():
-        lines.append(f"| {name} | {v['accuracy']:.3f} | {v['changed_fraction']:.3f} |")
+        changed = v.get("changed_fraction")
+        # None means the probe could not be computed (no counterfactuals, or no
+        # original scenes to compare against). Rendering it as a number would
+        # crash; rendering it as 0 would read as "never reacted".
+        changed_text = "n/a" if changed is None else f"{changed:.3f}"
+        lines.append(f"| {name} | {v['accuracy']:.3f} | {changed_text} |")
 
     lines += ["", "## Robustness to perception failures", "",
               "| system | setting | accuracy |", "|---|---|---|"]
@@ -419,7 +430,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help="detections JSON (nuScenes result format or simple format)")
     p.add_argument("--oracle", type=str, default=None,
                    help="ground-truth boxes in simple format, for error decomposition")
-    p.add_argument("--qa", type=str, default=None, help="question/answer JSON")
+    p.add_argument("--qa", type=str, nargs="+", default=None,
+                   help="question/answer JSON; several files are concatenated")
     p.add_argument("--min-score", type=float, default=0.3)
     p.add_argument("--output-dir", type=str, default="outputs/spatial_reasoning")
     p.add_argument("--seed", type=int, default=0)
@@ -481,7 +493,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             detected = oracle
             print("perception: ground-truth boxes (oracle condition)")
 
-        items = load_nuscenes_qa(args.qa, oracle)
+        items = []
+        for qa_path in args.qa:
+            items.extend(load_nuscenes_qa(qa_path, oracle))
         gold = {}   # real questions have no gold program
         print(f"nuScenes-QA: {len(items)} questions over "
               f"{len({it.sample_token for it in items})} samples")
@@ -491,7 +505,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                   file=sys.stderr)
             return 2
         detected, oracle, items, gold = load_from_files(
-            args.detections, args.qa, args.oracle, args.min_score
+            args.detections, args.qa[0], args.oracle, args.min_score
         )
 
     run(detected, oracle, items, gold,

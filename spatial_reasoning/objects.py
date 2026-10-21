@@ -294,7 +294,16 @@ def load_nuscenes_detections(
 
     results = payload.get("results", payload)
     scenes: Dict[str, Scene] = {}
+    missing_poses: List[str] = []
+    # An empty dict is not 'poses supplied'. Treating it as such converted
+    # nothing while claiming the ego frame.
     frame = "detection_ego_from_poses" if ego_poses else "detection_assumed_ego"
+    if ego_poses is not None and not ego_poses:
+        raise FrameError(
+            f"{path}: an empty ego_poses mapping cannot convert anything. Pass "
+            f"the poses, or assume_ego_frame=True if the file is already "
+            f"ego-relative."
+        )
 
     for token, boxes in results.items():
         objs: List[Object3D] = []
@@ -302,10 +311,25 @@ def load_nuscenes_detections(
             obj = _object_from_nuscenes_box(box, "detection_score", "detection_name")
             if obj is not None and obj.score >= min_score:
                 objs.append(obj)
-        if ego_poses is not None and token in ego_poses:
-            pose = ego_poses[token]
+        if ego_poses is not None:
+            pose = ego_poses.get(token)
+            if pose is None:
+                # A missing pose used to leave that one sample in global
+                # coordinates while its neighbours were converted, and both
+                # were labelled as ego-frame. A file mixing two frames is
+                # worse than one that is uniformly wrong, because nothing
+                # downstream can detect it.
+                missing_poses.append(token)
+                continue
             objs = global_to_ego(objs, pose["translation"], pose["rotation"])
         scenes[token] = Scene(sample_token=token, objects=objs, source=frame)
+
+    if missing_poses:
+        raise FrameError(
+            f"{path}: no ego pose for {len(missing_poses)} sample(s), e.g. "
+            f"{missing_poses[:3]}. Those boxes would stay in the global frame "
+            f"while the rest were converted, producing a file in two frames."
+        )
     return scenes
 
 

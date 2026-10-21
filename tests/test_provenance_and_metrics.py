@@ -114,8 +114,14 @@ def test_foreign_entries_are_not_reused_by_default():
 
         b = _parser(path, max_new_tokens=96)
         assert b._usable("Q") is None            # would be regenerated
+
+        # _usable is a pure lookup and counts nothing: it is called both to
+        # test availability and to fetch, so counting there double-charged the
+        # same entry. Consumption through parse() is what increments.
         c = _parser(path, max_new_tokens=96, allow_foreign=True)
         assert c._usable("Q") == '{"op": null}'
+        assert c.stats.foreign_used == 0
+        c.parse("Q")
         assert c.stats.foreign_used == 1
 
 

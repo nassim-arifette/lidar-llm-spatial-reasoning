@@ -192,7 +192,18 @@ def _selector_from_json(
         # that a counted parse failure instead of a wrong answer.
         raise InvalidProgram(f"unknown selector field(s): {sorted(unknown)}")
 
-    category = str(blob.get("category") or "object").strip().lower().replace(" ", "_")
+    raw_category = blob.get("category")
+    if raw_category is None:
+        category = "object"
+    elif isinstance(raw_category, str):
+        category = raw_category.strip().lower().replace(" ", "_")
+    else:
+        # `str(x or "object")` turned 0, false, [] and {} into "object", so a
+        # program with a malformed category counted every object in the scene
+        # instead of being rejected. Absence is a documented default; a present
+        # value of the wrong type is broken output.
+        raise InvalidProgram(
+            f"category must be a string or null, got {type(raw_category).__name__}")
     if category not in _VALID_CATEGORIES:
         raise InvalidProgram(f"unknown category {category!r}")
 
@@ -540,16 +551,23 @@ class QwenQuestionParser:
         An entry from another configuration is only reused when the caller
         asked for it. Reusing it by default would quietly report generations
         from one prompt as the output of another.
+
+        This is a pure lookup: it counts nothing. It is called both to test
+        availability (``warm_cache``) and to fetch (``parse``), so counting
+        here charged the same entry twice and could report a reuse rate above
+        100%. The counter lives in :meth:`parse`, where a generation is
+        actually consumed.
         """
         entry = self._cache.get(question)
         if entry is None:
             return None
         if entry.get("config") == self.config_id():
             return entry["raw"]
-        if self.allow_foreign:
-            self.stats.foreign_used += 1
-            return entry["raw"]
-        return None
+        return entry["raw"] if self.allow_foreign else None
+
+    def _is_foreign(self, question: str) -> bool:
+        entry = self._cache.get(question)
+        return entry is not None and entry.get("config") != self.config_id()
 
     def parse(self, question: str) -> Optional[Query]:
         """Return a program, or ``None`` when the question is not expressible."""
@@ -560,6 +578,8 @@ class QwenQuestionParser:
             self._cache[question] = {"raw": raw, "config": self.config_id()}
         else:
             self.stats.cache_hits += 1
+            if self._is_foreign(question):
+                self.stats.foreign_used += 1
 
         try:
             query = query_from_json(raw, frozenset(self.directions))
