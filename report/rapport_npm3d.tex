@@ -47,10 +47,10 @@ learned baselines do not reliably beat a scene-blind prior, and swapping
 ground-truth objects for detections barely moves them. The current state is
 tracked in \code{spatial\_reasoning/results/state\_of\_results.md}, and the
 comparison this report argues for --- one language model answering directly
-against the same model writing an executable program --- is running at the
-time of writing and is not yet in these tables. The synthetic results are kept
-here because the argument they illustrate is unchanged; they should not be
-cited as results on nuScenes-QA.
+against the same model writing an executable program --- is Section~7, on real
+nuScenes-QA questions. The synthetic results in Section~6 are kept because the
+argument they illustrate is unchanged; they should not be cited as results on
+nuScenes-QA.
 \end{minipage}}
 \end{center}
 
@@ -515,6 +515,190 @@ $0.045$ and $0.063$ respectively, exposing it. This is Real-3DQA's argument
 reproduced on our own data, and it is the strongest methodological lesson of
 the project: with a skewed answer distribution, a headline accuracy is close to
 uninformative.
+
+% =====================================================================
+\section{One model, two ways of using it}
+% =====================================================================
+
+The results above compare an executed system against \emph{trained} baselines.
+That leaves the comparison the argument actually needs unmade: a learned model
+and a program-writing model differ in architecture, in training and in what
+they are given, so a gap between them is not attributable to the division of
+labour this report defends. The experiment below removes every difference but
+that one.
+
+\subsection{Protocol}
+
+Both systems use \textbf{the same checkpoint} (Qwen2.5-1.5B-Instruct), loaded
+once through a shared runtime, decoded greedily, with the same token budget.
+Both are given \textbf{the same object list} --- ground-truth nuScenes
+annotations, an oracle condition that fixes perception so the comparison is
+about what each system does with a scene and not about who sees it better ---
+at the same rounding, in an order that does not depend on the question. Both
+are told \textbf{the same conventions}: the ego frame, the six
+$60^{\circ}$ sectors, and that an unknown attribute is not a different
+attribute. They differ in one respect:
+
+\begin{itemize}[nosep]
+\item \textbf{A, direct.} Question $+$ objects $\rightarrow$ model
+      $\rightarrow$ answer.
+\item \textbf{B, executed.} Question $\rightarrow$ the same model
+      $\rightarrow$ program $\rightarrow$ executor on the same objects
+      $\rightarrow$ answer.
+\end{itemize}
+
+The example set is fixed in advance (\code{manifests/first\_comparison.json}):
+$100$ development and $200$ evaluation questions, \textbf{split by scene} so no
+drive appears on both sides, drawn from the four question families the frozen
+language can represent. Families are assigned from the question's surface
+structure, never by checking which questions the parser copes with --- that
+would select the examples favouring~B. Of the $5916$ nuScenes-QA mini
+questions, $1626$ are in scope; the $4290$ excluded are recorded with their
+reason.
+
+Before any model was run, the executor was checked on the development split
+with reference programs and no model involved: $91/100$, with the
+category-only and attribute families at $25/25$. All nine disagreements were
+read and categorised. Eight are boundary disagreements on the diagonal
+sectors; the sector convention itself was checked against the gold answers
+rather than assumed, and uniform $60^{\circ}$ sectors with no range limit
+($76.5\%$ exact over the $68$ ego-anchored directional questions) beat a
+mirrored $y$ axis ($72.1\%$), the six nuScenes camera fields of view
+($67.6\%$), $45^{\circ}$ octants ($61.8\%$) and overlapping quadrants
+($51.5\%$). The boundaries were deliberately \emph{not} fitted to close the
+residual: an executor tuned on the gold answers would help the branch that
+computes with those boundaries far more than the branch that only reads them
+in prose.
+
+\subsection{Result}
+
+Nothing was changed between the two splits. The development result was
+measured twice, once before and once after a fix to the cost accounting and
+the batching, and every accuracy figure was identical, so that change is not a
+confound.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{development ($n{=}100$)} & \multicolumn{2}{c}{evaluation ($n{=}200$)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+ & A, direct & B, executed & A, direct & B, executed \\
+\midrule
+Accuracy (all)            & 0.510 & \textbf{0.740} & 0.505 & \textbf{0.685} \\
+Answers                   & 1.000 & 0.860 & 1.000 & 0.910 \\
+Accuracy when answering   & 0.510 & 0.860 & 0.505 & 0.753 \\
+\midrule
+Numeric coverage          & 1.000 & 0.946 & 1.000 & 0.988 \\
+Under-counting            & 2.08  & 0.54  & 1.84  & 0.34 \\
+Over-counting             & 0.35  & 0.00  & 0.31  & 0.34 \\
+Mean absolute error       & 2.43  & \textbf{0.54} & 2.16 & \textbf{0.68} \\
+\midrule
+Input / output tokens     & \multicolumn{1}{c}{124\,311 / 200} &
+                            \multicolumn{1}{c}{112\,095 / 5\,756} &
+                            \multicolumn{1}{c}{217\,272 / 400} &
+                            \multicolumn{1}{c}{178\,402 / 9\,731} \\
+Generation time (T4)      & 47.3\,s & 59.3\,s & 58.8\,s & 101.0\,s \\
+\bottomrule
+\end{tabular}
+\caption{Both modes of Qwen2.5-1.5B-Instruct. Refusals and invalid programs
+count as wrong answers in the accuracy row. The evaluation split shares no
+scene with development.}
+\end{table}
+
+The aggregate hides the measurement that matters. Paired question by question:
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+ & A only & B only & both & neither & sign test \\
+\midrule
+development & 15 & \textbf{38} & 36 & 11 & $p = 0.0022$ \\
+evaluation  & 31 & \textbf{67} & 70 & 32 & $p = 0.00035$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent The advantage is not sampling noise and it survives the move to
+unseen scenes. The counting improvement is not an artefact of abstention
+either --- the two modes produce an integer on practically the same questions
+($1.000$ against $0.988$ on evaluation).
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+ & \multicolumn{2}{c}{development} & \multicolumn{2}{c}{evaluation} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Family & A & B & A & B \\
+\midrule
+Attribute (``how many parked cars'')   & 0.640 & \textbf{1.000} & 0.547 & \textbf{0.962} \\
+Category only (``are there any cars'') & 0.760 & 0.720 & 0.680 & 0.840 \\
+Anchored on another object             & 0.320 & 0.440 & 0.352 & 0.444 \\
+Ego-relative region                    & 0.320 & 0.800 & 0.442 & 0.465 \\
+\bottomrule
+\end{tabular}
+\caption{Per family. Only the first row is stable across the two splits.}
+\end{table}
+
+\paragraph{Only one family generalises cleanly.} The attribute family is a
+large, consistent win ($+0.36$ then $+0.42$): applying ``parked'' as a filter
+is exactly what an executor does and a $1.5$B model does not. The other three
+move substantially between the splits --- the ego-relative gain falls from
+$+0.48$ to $+0.02$, and the category-only comparison changes sign. At $25$ to
+$54$ questions a family these are too noisy to carry an argument, and we do
+not build one on them: the result rests on the aggregate and the paired table.
+Had only the development split been run, the ego-relative row would have
+looked like the headline finding.
+
+\paragraph{The direct model does not scan the list.} Its errors are not
+marginal. On questions whose answer is $7$, $9$ or $10$ it answers $1$, $3$ and
+$2$; on preamble questions it answers $1$ almost regardless of the scene. With
+forty-odd object rows in the prompt, a $1.5$B model emits a small number rather
+than enumerating. Its under-counting ($1.84$ to $2.08$) dwarfs its
+over-counting ($0.31$ to $0.35$), which is the signature of not looking rather
+than of looking badly. Its answer \emph{format} was never the obstacle: all
+three hundred direct outputs were readable.
+
+\paragraph{The scene-dependence control.} Thirteen questions appear verbatim on
+two evaluation scenes with different reference answers. The direct model gives
+one answer to both in four of the thirteen and is correct on every scene of a
+group in one of them. The executed system never gives one answer to a whole
+group, and is correct across \emph{all thirteen}. A system that answers the
+same question identically whatever the scene is reciting the template's usual
+answer, and no aggregate accuracy reveals it.
+
+\paragraph{What B pays, and where it fails.} B failed on $14\%$ of development
+and $9\%$ of evaluation, all counted as wrong above: invalid programs ($12$ and
+$8$) plus refusals for an ambiguous or missing reference ($2$ and $10$). Every
+one of the twelve invalid development programs has the same cause: for
+``things'' the model emits \code{"category": "*"}, a token outside the
+vocabulary, although the prompt lists the ten classes and states the rule
+mapping ``thing'' to \code{object}. That is a failure of the model at this
+size, not a gap in the instructions, and it is the clearest candidate for the
+larger-model test. On cost the two modes are closer than the accuracy gap
+suggests: on evaluation A consumes $217\,272$ input and $400$ output tokens, B
+$178\,402$ input and $9\,731$ output --- B reads less, because it never sees
+the objects, and writes twenty-four times more, because it writes a program.
+
+\paragraph{What this does and does not show.} B brings code that already knows
+the geometry. The result shows that \emph{this} division of labour helps on
+\emph{these} questions at \emph{this} model size. It is not evidence that
+language models cannot reason about space, and the difference between $0.505$
+and $0.685$ should not be read that way. Three limits bound it. The evaluation
+rests on three drives, and answers within a drive are correlated, so the
+effective sample is nearer three than two hundred --- which is why the result
+is reported per scene ($0.758$, $0.725$, $0.569$ for B against $0.545$,
+$0.536$, $0.431$ for A: B is ahead on each, by a margin that varies). The
+object lists are ground truth, so nothing here speaks to perception. And the
+direct mode reads a prompt of some $1\,100$ tokens of object rows, so part of
+its disadvantage may be context length rather than reasoning --- a $1.5$B
+model is a weak reader of long tables, and that is precisely what the
+larger-model repetition is for. The honest statement is narrower than the
+headline: at a fixed model and fixed scene data, emitting a program for an
+executor to run was substantially more reliable than emitting the answer, and
+the only family where that held stably across both splits was the one asking
+for an attribute filter.
 
 % =====================================================================
 \section{Discussion}

@@ -1,14 +1,104 @@
 # Where the numbers stand
 
 Every figure here is traceable to a file in this directory or to a run named
-below. The point of the table is as much what is missing as what is in it: the
-comparison the project exists to make — the same language model answering
-directly against the same model writing a program — has one of its two cells
-empty.
+below.
+
+The comparison the project exists to make — the same language model answering
+directly against the same model writing a program — **has been run**; it is
+section 0. The tables after it are the earlier work, kept because they are
+what the report's argument was built on, and because two of them withdraw a
+claim.
 
 All object lists are **nuScenes ground-truth annotations**, not a detector.
 That is an oracle condition: it fixes perception so that the comparison is
 about what each system does with a scene, not about who sees it better.
+
+---
+
+## 0. The central comparison — one model, two ways of using it
+
+Source: `llm_modes/summary_{dev,eval}.json` and `rows_{dev,eval}.jsonl`
+(Colab, T4). Qwen2.5-1.5B-Instruct on **both** sides: same checkpoint, same
+loader, same greedy decoding, same 256-token budget, same object lists at the
+same rounding, same conventions stated. The example set
+(`manifests/first_comparison.json`) was fixed before either side ran, and the
+evaluation split shares no scene with development.
+
+Nothing was changed between the two splits. The development result was
+measured twice — once before a fix to the cost accounting and batching, once
+after — and every accuracy figure was identical, so the batching change is not
+a confound.
+
+| | dev A | dev B | **eval A** | **eval B** |
+|---|---:|---:|---:|---:|
+| n | 100 | 100 | 200 | 200 |
+| Accuracy (all) | 0.510 | **0.740** | 0.505 | **0.685** |
+| Answers | 100 % | 86 % | 100 % | 91 % |
+| Accuracy when answering | 0.510 | 0.860 | 0.505 | 0.753 |
+| Numeric coverage | 1.000 | 0.946 | 1.000 | 0.988 |
+| Under-counting | 2.08 | 0.54 | 1.84 | 0.34 |
+| Over-counting | 0.35 | 0.00 | 0.31 | 0.34 |
+| MAE | 2.43 | **0.54** | 2.16 | **0.68** |
+| Tokens in / out | 124 311 / 200 | 112 095 / 5 756 | 217 272 / 400 | 178 402 / 9 731 |
+| Generation time | 47.3 s | 59.3 s | 58.8 s | 101.0 s |
+
+**Paired, which is the measurement that matters:**
+
+| | A only | B only | both | neither | sign test |
+|---|---:|---:|---:|---:|---:|
+| dev | 15 | **38** | 36 | 11 | p = 0.0022 |
+| eval | 31 | **67** | 70 | 32 | **p = 0.00035** |
+
+Not sampling noise, and it survives the move to unseen scenes. The counting
+gain is not abstention either — both modes produce an integer on practically
+the same questions (1.000 against 0.988 on eval).
+
+| Family | dev A | dev B | eval A | eval B |
+|---|---:|---:|---:|---:|
+| `category_status` | 0.640 | **1.000** | 0.547 | **0.962** |
+| `count_exist_category` | **0.760** | 0.720 | 0.680 | **0.840** |
+| `category_anchor_relation` | 0.320 | 0.440 | 0.352 | 0.444 |
+| `category_ego_region` | 0.320 | **0.800** | 0.442 | 0.465 |
+
+**Only one family is stable across the two splits.** The attribute family is a
+large, consistent win (+0.36, +0.42). The other three move a lot between dev
+and eval — `category_ego_region` goes from +0.48 to +0.02, and
+`count_exist_category` changes sign. At 25–54 questions a family, these
+per-family numbers are too noisy to carry an argument; the aggregate and the
+paired table are what the result rests on.
+
+**Scene-dependence control** — questions appearing verbatim on two scenes with
+different reference answers:
+
+| | groups | A gave one answer to all | A right on every scene | B gave one answer to all | B right on every scene |
+|---|---:|---:|---:|---:|---:|
+| dev | 5 | 2 | 0 | 1 | 4 |
+| eval | 13 | 4 | **1** | **0** | **13** |
+
+On the evaluation split the executed system answers the same question
+differently for every scene that calls for a different answer, and is right in
+all thirteen groups. The direct model is right across a group once in
+thirteen. No aggregate accuracy reveals that.
+
+What each side's failures look like:
+
+* **A does not scan the list.** Where the answer is 7, 9 or 10 it answers 1, 3
+  and 2; on preamble questions it answers 1 almost regardless of the scene.
+  Its under-counting (1.84–2.08) dwarfs its over-counting (0.31–0.35) — the
+  signature of not looking rather than of looking badly. Its answer format was
+  never the problem: all 300 direct outputs were readable.
+* **B failed on 14 % of dev and 9 % of eval**, all counted as wrong above:
+  invalid programs (12 and 8) plus refusals for an ambiguous or missing
+  reference (2 and 10). Every one of the twelve invalid dev programs has the
+  same cause — for "things" the model emits `"category": "*"`, outside the
+  vocabulary, although the prompt lists the ten classes *and* states the rule
+  mapping "thing" to `object`. That is the model failing at this size, not a
+  gap in the instructions, and it is the clearest single thing to re-test with
+  a larger model.
+
+**What it does not show.** B brings code that already knows the geometry. This
+says that *this* division of labour helps on *these* questions at *this* model
+size. It is not evidence that language models cannot reason about space.
 
 ---
 
@@ -25,7 +115,9 @@ re-scoring of the rule grammars.
 | Rule grammar `STRICT` → executor | question | 0.059 | 6.5 % | 0.904 |
 | Rule grammar `EXPRESSIVE` → executor | question | 0.231 | 26.9 % | 0.856 |
 | **Qwen2.5-1.5B → program → executor** | question | **0.427** | 56.3 % | **0.759** |
-| **Qwen2.5-1.5B direct** | question + objects | *not run* | — | — |
+
+The direct mode is not in this table: it is in section 0, on the frozen
+manifest, which is the only place the two are run on the same examples.
 
 Reading it:
 

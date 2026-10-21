@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.6.19)  21 OCT 2026 13:52
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.5) (preloaded format=pdflatex 2026.6.19)  21 OCT 2026 14:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -772,8 +772,7 @@ File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 tex.def
 File: l3backend-pdftex.def 2026-02-18 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count342
-)
-No file rapport_npm3d.aux.
+) (rapport_npm3d.aux)
 \openout1 = `rapport_npm3d.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 35.
@@ -811,6 +810,7 @@ Package microtype Info: Patching command `\showhyphens'.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
+
 (C:\Users\nassi\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
@@ -875,11 +875,13 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 Package hyperref Info: Link coloring OFF on input line 35.
+(rapport_npm3d.out) (rapport_npm3d.out)
 \@outlinefile=\write4
 \openout4 = `rapport_npm3d.out'.
 
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 5
 4.
+
 (C:\Users\nassi\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -941,127 +943,41 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <8> on input line 54.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 54.
-
-
-LaTeX Warning: Citation `lidarllm' on page 1 undefined on input line 61.
-
-
-LaTeX Warning: Citation `lidarllm' on page 1 undefined on input line 92.
-
-
-LaTeX Warning: Citation `gpt4' on page 1 undefined on input line 95.
-
-
-LaTeX Warning: Reference `sec:original' on page 1 undefined on input line 99.
-
-
-LaTeX Warning: Reference `sec:question' on page 1 undefined on input line 100.
-
-[1
+ [1
 
 {C:/Users/nassi/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/nass
 i/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Users/nassi/Ap
 pData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/nassi/AppDat
 a/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/nassi/AppDat
-a/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}]
-
-LaTeX Warning: Citation `gpt2' on page 2 undefined on input line 118.
-
-
-LaTeX Warning: Citation `lora' on page 2 undefined on input line 118.
-
-
-LaTeX Warning: Citation `nuscenes' on page 2 undefined on input line 119.
-
-
-LaTeX Warning: Citation `nuscenesqa' on page 2 undefined on input line 120.
-
-
-LaTeX Warning: Citation `real3dqa' on page 2 undefined on input line 138.
-
-
-LaTeX Warning: Citation `centerpoint' on page 2 undefined on input line 158.
-
-
-LaTeX Warning: Reference `sec:probes' on page 2 undefined on input line 173.
-
-[2]
-
-LaTeX Warning: Citation `zsvg3d' on page 3 undefined on input line 178.
-
-
-LaTeX Warning: Citation `kldrive' on page 3 undefined on input line 180.
-
-
-LaTeX Warning: Citation `retrieve2localize' on page 3 undefined on input line 1
-85.
-
-
-LaTeX Warning: Citation `bevllm' on page 3 undefined on input line 188.
-
-
-LaTeX Warning: Citation `nuscenesspatialqa' on page 3 undefined on input line 1
-91.
-
-
-LaTeX Warning: Citation `3dgraphllm' on page 3 undefined on input line 195.
-
+a/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}] [2]
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/lmr/m/sc/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
-
-LaTeX Warning: Reference `sec:errors' on page 3 undefined on input line 246.
-
-[3] [4] [5]
-
-LaTeX Warning: Reference `tab:main' on page 6 undefined on input line 412.
-
-
-LaTeX Warning: Reference `sec:probes' on page 6 undefined on input line 425.
-
-
-LaTeX Warning: Reference `sec:probes' on page 6 undefined on input line 425.
-
-
-LaTeX Warning: Reference `tab:probes' on page 6 undefined on input line 440.
-
+ [3] [4] [5]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [6] [7]
-
-LaTeX Warning: Citation `kldrive' on page 8 undefined on input line 545.
-
-
-LaTeX Warning: Reference `tab:robust' on page 8 undefined on input line 569.
-
-[8] [9] (rapport_npm3d.aux)
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 5
+43.
+ (C:\Users\nassi\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
+File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+[8{C:/Users/nassi/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
+[9] [10] [11] (rapport_npm3d.aux)
  ***********
 LaTeX2e <2026-06-01>
 L3 programming layer <2026-05-26>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `rapport_npm3d.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `rapport_npm3d.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  DACA96A31F7995CC836361A9C4AB7AA4;2526.
+Package rerunfilecheck Info: File `rapport_npm3d.out' has not changed.
+(rerunfilecheck)             Checksum: F27B170CFDCF00183361117B7768CE7E;2929.
  ) 
 Here is how much of TeX's memory you used:
- 25280 strings out of 467509
- 469034 string characters out of 5408780
- 907926 words of memory out of 5000000
- 53755 multiletter control sequences out of 15000+600000
- 728383 words of font info for 239 fonts, out of 8000000 for 9000
+ 25391 strings out of 467509
+ 471273 string characters out of 5408780
+ 909446 words of memory out of 5000000
+ 53815 multiletter control sequences out of 15000+600000
+ 730378 words of font info for 255 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  102i,10n,107p,1012b,829s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/nassi/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pf
@@ -1076,9 +992,9 @@ C:/Users/nassi/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><
 C:/Users/nassi/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy7.pfb><C
 :/Users/nassi/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:
 /Users/nassi/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb>
-Output written on rapport_npm3d.pdf (9 pages, 292324 bytes).
+Output written on rapport_npm3d.pdf (11 pages, 318552 bytes).
 PDF statistics:
- 181 PDF objects out of 1000 (max. 8388607)
- 58 named destinations out of 1000 (max. 500000)
- 53773 words of extra memory for PDF output out of 61914 (max. 10000000)
+ 288 PDF objects out of 1000 (max. 8388607)
+ 70 named destinations out of 1000 (max. 500000)
+ 56485 words of extra memory for PDF output out of 61914 (max. 10000000)
 
