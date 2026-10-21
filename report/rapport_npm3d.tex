@@ -548,6 +548,58 @@ input and $9{,}731$ output: B reads less, because it never sees the objects,
 and writes twenty-four times more, because it writes a program. Wall-clock
 generation is $59$\,s against $101$\,s on one T4, both batched identically.
 
+\subsection{Does the gap close with a larger model?}
+\label{sec:size}
+
+The result above leaves two explanations entangled. The direct mode may be
+losing because a $1.5$B model cannot write the program it would need
+internally, or simply because it cannot count rows in a forty-line table of
+floats --- a weakness a larger model might not share. Repeating the comparison
+at two more sizes, changing nothing else, separates them.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lcrrrrrr}
+\toprule
+ & & \multicolumn{2}{c}{accuracy} & \multicolumn{2}{c}{counting MAE} & & \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Model & precision & A & B & A & B & B answers & invalid \\
+\midrule
+Qwen2.5-1.5B  & fp16 & 0.505 & 0.685 & 2.16 & 0.68 & 0.910 & 8 \\
+Qwen2.5-7B    & fp16 & 0.505 & 0.825 & 1.84 & 0.44 & 0.985 & 1 \\
+Qwen2.5-32B   & int4 & 0.580 & \textbf{0.845} & 1.65 & 0.60 & 0.995 & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\caption{The same $200$ held-out questions, the same three drives, the same
+prompts and decoding. ``Invalid'' counts programs the model emitted that are
+not programs. The $32$B point is quantised to $4$ bits because the checkpoint
+is $65$\,GB in bfloat16 and the card holds $40$; quantisation can only hurt
+it, so that row understates the large model.}
+\label{tab:size}
+\end{table}
+
+\paragraph{Scale does not rescue the direct mode.} It gains $0.075$ across a
+twenty-one-fold increase in parameters, and $0$ of that between $1.5$B and
+$7$B. The identical $0.505$ at the first two sizes is not a cached result: the
+$7$B changes its answer on $89$ of the $200$ questions and flips correctness on
+$52$ of them, $26$ in each direction. It answers differently and is wrong just
+as often. Whatever the direct mode is failing at, it is not something $4.7$
+times the parameters fixes.
+
+\paragraph{What scale does fix is program validity.} Programs the executor
+cannot parse fall from $8$ to $1$ to $0$, and the answered fraction rises from
+$0.910$ to $0.995$. The executed mode gains $0.160$ from $1.5$B to $7$B and
+then only $0.020$ more at $32$B: the remaining errors are no longer about
+writing a well-formed program.
+
+\paragraph{The gap widens before it stabilises} --- $+0.180$, $+0.320$,
+$+0.265$ --- and the paired tables stay decisive at every size ($p =
+3.5\times10^{-4}$, $1.2\times10^{-11}$, $1.1\times10^{-9}$). The honest
+reading is not that language models cannot do this. It is that, over the range
+we could afford to test, the capacity gained by scaling went into writing
+better programs and almost none of it into answering from the table directly.
+
 \subsection{The scene-dependence control}
 \label{sec:scene}
 

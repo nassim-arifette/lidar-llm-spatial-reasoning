@@ -58,6 +58,7 @@ from .llm_parser import QwenQuestionParser
 from .manifest import Manifest, ManifestItem, describe_objects, scene_fingerprint
 from .nuscenes_adapter import load_nuscenes_scenes
 from .objects import Scene
+from .gateway_runtime import GatewayConfig, GatewayRuntime
 from .qwen_runtime import QwenRuntime, RuntimeConfig
 from .regions import RegionConfig
 
@@ -521,6 +522,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-input-tokens", type=int, default=8192)
     p.add_argument("--batch-size", type=int, default=8)
     p.add_argument("--device", default=None)
+    p.add_argument("--backend", default="local", choices=("local", "gateway"),
+                   help="local open weights, or a hosted OpenAI-compatible "
+                        "gateway. A gateway result is a curve of its own: the "
+                        "catalogue carries no Qwen2.5, so it cannot extend the "
+                        "open-weights curve without moving family and size "
+                        "together")
     p.add_argument("--precision", default="fp16",
                    choices=("fp16", "bf16", "fp32", "awq", "gptq", "int8", "int4"),
                    help="weight precision; recorded with the result, because a "
@@ -559,15 +566,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # with each other and makes the wide runs a separate experiment from the
     # narrow ones, as the recorded fingerprint says.
     budget = max(args.max_new_tokens, 384) if args.functional else args.max_new_tokens
-    runtime_config = RuntimeConfig(
-        max_new_tokens=budget,
-        max_input_tokens=args.max_input_tokens,
-        batch_size=args.batch_size,
-        device=args.device,
-        precision=args.precision,
-        device_map=args.device_map,
-        **({"model_name": args.model} if args.model else {}))
-    runtime = QwenRuntime(runtime_config)
+    if args.backend == "gateway":
+        runtime_config = GatewayConfig(
+            max_new_tokens=budget,
+            max_input_tokens=args.max_input_tokens,
+            batch_size=args.batch_size,
+            **({"model_name": args.model} if args.model else {}))
+        runtime = GatewayRuntime(runtime_config)
+    else:
+        runtime_config = RuntimeConfig(
+            max_new_tokens=budget,
+            max_input_tokens=args.max_input_tokens,
+            batch_size=args.batch_size,
+            device=args.device,
+            precision=args.precision,
+            device_map=args.device_map,
+            **({"model_name": args.model} if args.model else {}))
+        runtime = QwenRuntime(runtime_config)
 
     os.makedirs(args.out, exist_ok=True)
     # Separate files, and separate keys. A shared cache would make the two
@@ -602,7 +617,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     print(f"{args.split}: {len(items)} examples over "
           f"{len({i.scene_token for i in items})} scenes")
-    print(f"model: {runtime_config.model_name}  precision={args.precision}  "
+    print(f"model: {runtime_config.model_name}  backend={args.backend}  "
           f"({runtime_config.identity()})")
     print(f"objects: min_lidar_points={min_lidar} -> {report.annotations_kept} "
           f"annotations")
@@ -626,6 +641,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "manifest": args.manifest,
             "split": args.split,
             "runtime": runtime_config.fingerprint(),
+            "backend": args.backend,
             "prompt_version": PROMPT_VERSION,
             "dsl_version": DSL_VERSION,
             "layout": args.layout,
