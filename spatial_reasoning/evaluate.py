@@ -59,10 +59,17 @@ def accuracy_on_answered(
 def count_mae(
     predictions: Sequence[Optional[str]], items: Sequence[QAItem]
 ) -> Optional[float]:
-    """Mean absolute error on counting questions only.
+    """Mean absolute error over counting questions the system answered numerically.
 
     Accuracy treats "4 instead of 3" and "11 instead of 3" as the same failure;
-    this does not. Returns ``None`` when there are no counting questions.
+    this does not. Returns ``None`` when nothing qualifies.
+
+    Non-numeric predictions ("yes", an empty string) are **excluded**, not
+    scored. They used to be charged an error of ``target``, i.e. treated as if
+    the system had answered zero -- a number the system never produced, which
+    made the metric depend on the answer distribution rather than on the
+    system. They are counted by :func:`count_answer_coverage` instead, so the
+    exclusion stays visible.
     """
     errors: List[float] = []
     for p, it in zip(predictions, items):
@@ -77,8 +84,41 @@ def count_mae(
         try:
             errors.append(abs(int(str(p).strip()) - target))
         except ValueError:
-            errors.append(float(target))  # a non-numeric answer is a full miss
+            continue
     return float(np.mean(errors)) if errors else None
+
+
+def count_answer_coverage(
+    predictions: Sequence[Optional[str]], items: Sequence[QAItem]
+) -> Dict[str, float]:
+    """How many counting questions the MAE above is actually computed over.
+
+    A system that answers "yes" to half the counting questions can post an
+    excellent MAE on the other half. Reporting the denominator alongside the
+    mean is what stops that reading as competence.
+    """
+    counting = [(p, it) for p, it in zip(predictions, items)
+                if it.answer_type == "count"]
+    if not counting:
+        return {"n_count_questions": 0.0, "numeric_fraction": 0.0,
+                "abstained_fraction": 0.0}
+
+    numeric = abstained = 0
+    for p, _ in counting:
+        if p is None:
+            abstained += 1
+            continue
+        try:
+            int(str(p).strip())
+            numeric += 1
+        except ValueError:
+            pass
+    n = len(counting)
+    return {
+        "n_count_questions": float(n),
+        "numeric_fraction": numeric / n,
+        "abstained_fraction": abstained / n,
+    }
 
 
 def breakdown(
@@ -275,6 +315,7 @@ class SystemReport:
     answered_fraction: float
     accuracy_when_answered: float
     count_mae: Optional[float]
+    count_coverage: Dict[str, float]
     cost: Dict[str, float]
     by_answer_type: Dict[str, Dict[str, float]] = field(default_factory=dict)
     by_template: Dict[str, Dict[str, float]] = field(default_factory=dict)
@@ -287,6 +328,7 @@ class SystemReport:
             "answered_fraction": round(self.answered_fraction, 4),
             "accuracy_when_answered": round(self.accuracy_when_answered, 4),
             "count_mae": None if self.count_mae is None else round(self.count_mae, 4),
+            "count_coverage": self.count_coverage,
             "cost": self.cost,
             "by_answer_type": self.by_answer_type,
             "by_template": self.by_template,
@@ -308,6 +350,7 @@ def evaluate_predictions(
         answered_fraction=answered,
         accuracy_when_answered=acc_answered,
         count_mae=count_mae(predictions, items),
+        count_coverage=count_answer_coverage(predictions, items),
         cost=cost.as_dict(),
         by_answer_type=breakdown(predictions, items, lambda it: it.answer_type),
         by_template=breakdown(predictions, items, lambda it: it.template),

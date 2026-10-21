@@ -218,7 +218,8 @@ def _run_probes(
             "note": ("reference answers come from the same executor the symbolic "
                      "system uses, so its score here is a sanity check, not evidence"),
             "systems": {
-                name: counterfactual_accuracy(predictors[name], counterfactuals)
+                name: counterfactual_accuracy(predictors[name], counterfactuals,
+                                              original_scenes=detected)
                 for name in names
             },
         },

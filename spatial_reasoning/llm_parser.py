@@ -154,6 +154,12 @@ _VALID_DIRECTIONS = frozenset(DIRECTIONS)
 _VALID_STATUSES = set(STATUSES)
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
 
+#: Exactly the fields the schema defines. Anything else is malformed output,
+#: not a field to ignore.
+_SELECTOR_FIELDS = frozenset(
+    {"category", "status", "negate_status", "direction", "anchor"})
+_PROGRAM_FIELDS = frozenset({"op", "target", "second", "comparison"})
+
 
 class InvalidProgram(ValueError):
     """The model produced something that is not a program in the DSL."""
@@ -179,20 +185,39 @@ def _selector_from_json(
     if depth > 2:
         raise InvalidProgram("anchor nested too deep")
 
+    unknown = set(blob) - _SELECTOR_FIELDS
+    if unknown:
+        # Ignoring an unknown field drops a constraint the model meant to
+        # express -- "radius": 10 silently became "anywhere". Rejecting makes
+        # that a counted parse failure instead of a wrong answer.
+        raise InvalidProgram(f"unknown selector field(s): {sorted(unknown)}")
+
     category = str(blob.get("category") or "object").strip().lower().replace(" ", "_")
     if category not in _VALID_CATEGORIES:
         raise InvalidProgram(f"unknown category {category!r}")
 
     status = blob.get("status")
     if status is not None:
-        status = str(status).strip().lower()
+        if not isinstance(status, str):
+            raise InvalidProgram(f"status must be a string or null, got {type(status).__name__}")
+        status = status.strip().lower()
         if status not in _VALID_STATUSES:
             raise InvalidProgram(f"unknown status {status!r}")
+
+    negate = blob.get("negate_status", False)
+    if not isinstance(negate, bool):
+        # bool("false") is True. Coercing here turned a model that correctly
+        # emitted the string "false" into a negated selector.
+        raise InvalidProgram(
+            f"negate_status must be a boolean, got {negate!r}")
 
     direction = blob.get("direction")
     region = Region(kind="any")
     if direction is not None:
-        direction = str(direction).strip().lower().replace(" ", "_")
+        if not isinstance(direction, str):
+            raise InvalidProgram(
+                f"direction must be a string or null, got {type(direction).__name__}")
+        direction = direction.strip().lower().replace(" ", "_")
         if direction not in directions:
             raise InvalidProgram(f"unknown direction {direction!r}")
         region = Region(kind="direction", direction=direction)
@@ -200,7 +225,7 @@ def _selector_from_json(
     return Selector(
         category=category,
         status=status,
-        negate_status=bool(blob.get("negate_status", False)),
+        negate_status=negate,
         region=region,
         anchor=_selector_from_json(blob.get("anchor"), depth + 1, directions),
     )
@@ -223,9 +248,21 @@ def query_from_json(
     except json.JSONDecodeError as exc:
         raise InvalidProgram(f"invalid JSON: {exc}") from exc
 
-    op_name = blob.get("op")
+    unknown = set(blob) - _PROGRAM_FIELDS
+    if unknown:
+        raise InvalidProgram(f"unknown program field(s): {sorted(unknown)}")
+
+    if "op" not in blob:
+        # An explicit {"op": null} is the model saying "not expressible" --
+        # a refusal, and a correct one. A bare {} is malformed output. Treating
+        # them alike credited the model with a judgement it never made.
+        raise InvalidProgram("missing required field 'op'")
+
+    op_name = blob["op"]
     if op_name is None:
         return None
+    if not isinstance(op_name, str):
+        raise InvalidProgram(f"op must be a string or null, got {type(op_name).__name__}")
     try:
         op = Op(str(op_name).strip().lower())
     except ValueError as exc:
@@ -263,6 +300,7 @@ class ParserStats:
     refused: int = 0          # the model said "not expressible"
     invalid: int = 0          # the model produced malformed output
     cache_hits: int = 0
+    foreign_used: int = 0     # reused from another configuration
     unique_questions: int = 0
     seconds: float = 0.0
 
@@ -275,6 +313,7 @@ class ParserStats:
             "refused": self.refused / t,
             "invalid": self.invalid / t,
             "cache_hit_rate": self.cache_hits / t,
+            "foreign_cache_used": self.foreign_used / t,
             "seconds": round(self.seconds, 1),
         }
 
@@ -302,6 +341,7 @@ class QwenQuestionParser:
         checkpoint_every: int = 5,
         directions: Optional[Sequence[str]] = None,
         schema_version: str = "dsl-1",
+        allow_foreign: bool = False,
     ) -> None:
         self.model_name = model_name
         self.cache_path = cache_path
@@ -310,8 +350,10 @@ class QwenQuestionParser:
         self.checkpoint_every = checkpoint_every   # save every N batches
         self.directions = tuple(directions) if directions else DIRECTIONS
         self.schema_version = schema_version
+        self.allow_foreign = allow_foreign
+        self.config_registry: Dict[str, object] = {}
         self.stats = ParserStats()
-        self._cache: Dict[str, str] = {}
+        self._cache: Dict[str, Dict[str, str]] = {}
         self.cache_meta: Dict[str, object] = {}
         self.foreign_entries = 0
         self._tokenizer = None
@@ -327,46 +369,83 @@ class QwenQuestionParser:
         Keying the cache on the question text alone silently mixes outputs
         from different models, prompts and token budgets. Two entries that
         disagree are then indistinguishable from two entries that agree.
+
+        The hash covers the system prompt *and* the few-shot exchanges: they
+        are part of the model's input, so changing an example changes the
+        parser just as surely as changing the instructions.
         """
         prompt = build_system_prompt(self.directions)
+        shots = json.dumps(FEW_SHOT, sort_keys=True)
+        digest = hashlib.sha256((prompt + "\x00" + shots).encode("utf-8"))
         return {
             "model": self.model_name,
-            "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16],
+            "prompt_sha256": digest.hexdigest()[:16],
             "directions": list(self.directions),
             "max_new_tokens": self.max_new_tokens,
             "schema_version": self.schema_version,
             "decoding": "greedy",
         }
 
+    def config_id(self) -> str:
+        """Short stable id for this configuration, used to tag entries."""
+        blob = json.dumps(self.config_fingerprint(), sort_keys=True)
+        return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:12]
+
     def _load_cache(self) -> None:
+        """Load the cache, keeping every entry's own provenance.
+
+        Provenance belongs to the entry, not to the file. A single ``meta``
+        block at the top meant that saving after reading a foreign cache
+        stamped the current configuration onto generations it did not produce:
+        one load/save cycle and the evidence was gone. Entries now carry the id
+        of the configuration that generated them, and saving never rewrites it.
+        """
+        self.config_registry[self.config_id()] = self.config_fingerprint()
         if not (self.cache_path and os.path.exists(self.cache_path)):
             return
+
         with open(self.cache_path, "r", encoding="utf-8") as fh:
             payload = json.load(fh)
 
+        mine = self.config_id()
+
         if isinstance(payload, dict) and "entries" in payload:
-            meta = payload.get("meta", {})
-            entries = payload.get("entries", {})
+            raw_entries = payload.get("entries", {})
+            registry = payload.get("configs", {})
+            legacy_meta = payload.get("meta")
+            for cid, fp in registry.items():
+                self.config_registry.setdefault(cid, fp)
         else:
-            # Legacy flat cache: provenance unknown. Keep the generations --
-            # they cost GPU hours -- but never claim they came from this
-            # configuration.
-            meta, entries = {}, payload
+            # Oldest format: a bare {question: output} map, no provenance at
+            # all. Keep the generations -- they cost GPU hours -- but never
+            # claim they came from this configuration.
+            raw_entries, legacy_meta = payload, None
 
-        mine = self.config_fingerprint()
-        if meta and meta != mine:
-            self.foreign_entries = len(entries)
-            differing = sorted(k for k in mine if meta.get(k) != mine.get(k))
-            print(f"[cache] {len(entries)} entries were generated under a "
-                  f"different configuration (differs on: {', '.join(differing)}); "
-                  f"they are kept but counted separately", flush=True)
-        elif not meta and entries:
-            self.foreign_entries = len(entries)
-            print(f"[cache] {len(entries)} entries carry no configuration "
-                  f"metadata; provenance unknown", flush=True)
+        for question, value in raw_entries.items():
+            if isinstance(value, dict):
+                raw, cid = value.get("raw", ""), value.get("config")
+            else:
+                # Flat value: it came either from a single-meta file (use that
+                # file's fingerprint) or from the oldest format (unknown).
+                raw = value
+                cid = self._register_legacy(legacy_meta) if legacy_meta else "unknown"
+            self._cache[question] = {"raw": raw, "config": cid}
+            if cid != mine:
+                self.foreign_entries += 1
 
-        self.cache_meta = meta
-        self._cache = entries
+        if self.foreign_entries:
+            others = sorted({e["config"] for e in self._cache.values()} - {mine})
+            print(f"[cache] {self.foreign_entries}/{len(self._cache)} entries come "
+                  f"from other configurations ({', '.join(others)}); "
+                  f"{'reused and counted separately' if self.allow_foreign else 'ignored, they will be regenerated'}",
+                  flush=True)
+
+    def _register_legacy(self, meta: Dict[str, object]) -> str:
+        """Give a legacy file-level fingerprint its own id."""
+        blob = json.dumps(meta, sort_keys=True)
+        cid = hashlib.sha256(blob.encode("utf-8")).hexdigest()[:12]
+        self.config_registry.setdefault(cid, meta)
+        return cid
 
     # -- model ------------------------------------------------------------ #
 
@@ -419,7 +498,7 @@ class QwenQuestionParser:
 
     def warm_cache(self, questions: Sequence[str], verbose: bool = True) -> None:
         """Generate programs for every question not already cached."""
-        missing = sorted({q for q in questions if q not in self._cache})
+        missing = sorted({q for q in questions if self._usable(q) is None})
         self.stats.unique_questions = len({*questions})
         if not missing:
             return
@@ -427,7 +506,7 @@ class QwenQuestionParser:
         for i in range(0, len(missing), self.batch_size):
             chunk = missing[i:i + self.batch_size]
             for q, raw in zip(chunk, self._generate(chunk)):
-                self._cache[q] = raw
+                self._cache[q] = {"raw": raw, "config": self.config_id()}
             done = min(i + self.batch_size, len(missing))
             # Checkpoint as we go. Generation is the expensive part of the
             # whole pipeline, and a saved cache makes a lost VM cost minutes
@@ -445,17 +524,40 @@ class QwenQuestionParser:
             return
         os.makedirs(os.path.dirname(os.path.abspath(self.cache_path)) or ".",
                     exist_ok=True)
-        payload = {"meta": self.config_fingerprint(), "entries": self._cache}
+        # Entries keep the config id they were generated under; this never
+        # relabels anything it did not produce.
+        payload = {
+            "current_config": self.config_id(),
+            "configs": self.config_registry,
+            "entries": self._cache,
+        }
         with open(self.cache_path, "w", encoding="utf-8") as fh:
             json.dump(payload, fh, indent=0)
+
+    def _usable(self, question: str) -> Optional[str]:
+        """The cached generation for ``question``, if we may use it.
+
+        An entry from another configuration is only reused when the caller
+        asked for it. Reusing it by default would quietly report generations
+        from one prompt as the output of another.
+        """
+        entry = self._cache.get(question)
+        if entry is None:
+            return None
+        if entry.get("config") == self.config_id():
+            return entry["raw"]
+        if self.allow_foreign:
+            self.stats.foreign_used += 1
+            return entry["raw"]
+        return None
 
     def parse(self, question: str) -> Optional[Query]:
         """Return a program, or ``None`` when the question is not expressible."""
         self.stats.total += 1
-        raw = self._cache.get(question)
+        raw = self._usable(question)
         if raw is None:
             raw = self._generate([question])[0]
-            self._cache[question] = raw
+            self._cache[question] = {"raw": raw, "config": self.config_id()}
         else:
             self.stats.cache_hits += 1
 

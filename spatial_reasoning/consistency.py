@@ -130,6 +130,7 @@ class Counterfactual:
     moved_object: str
     from_direction: Optional[str]
     to_direction: str
+    source_token: str = ""   # the unmodified sample this was derived from
 
 
 def make_counterfactuals(
@@ -214,6 +215,7 @@ def make_counterfactuals(
                 moved_object=obj.category,
                 from_direction=source,
                 to_direction=target,
+                source_token=scene.sample_token,
             ))
             break
 
@@ -221,31 +223,48 @@ def make_counterfactuals(
 
 
 def counterfactual_accuracy(
-    predict: PredictFn, counterfactuals: Sequence[Counterfactual]
+    predict: PredictFn,
+    counterfactuals: Sequence[Counterfactual],
+    original_scenes: Optional[Dict[str, Scene]] = None,
 ) -> Dict[str, float]:
-    """Accuracy on counterfactual scenes, plus how often the answer moved at all.
+    """Accuracy on counterfactual scenes, and whether the system reacted.
 
-    ``changed_fraction`` is the diagnostic: a system can score poorly either by
-    changing its answer to the wrong value, or by not reacting to the scene at
-    all. The second failure is the interesting one.
+    ``changed_fraction`` compares the system's answer on the moved scene to
+    **its own answer on the original scene**, which requires running it twice.
+    It used to compare against the original *reference* answer, which measures
+    something else entirely: a system that was already wrong before the move
+    counted as having reacted without changing its mind at all, and a system
+    that was right before and stayed right counted as reactive when the two
+    reference answers happened to differ.
+
+    Without ``original_scenes`` the second pass cannot run, and the field is
+    reported as ``None`` rather than silently falling back to the old,
+    misleading definition.
     """
     if not counterfactuals:
-        return {"accuracy": 0.0, "changed_fraction": 0.0, "n": 0.0}
+        return {"accuracy": 0.0, "changed_fraction": None, "n": 0.0}
 
     scenes = {cf.scene.sample_token: cf.scene for cf in counterfactuals}
     items = [cf.item for cf in counterfactuals]
-    preds = list(predict(items, scenes))
+    preds = [None if p is None else str(p).strip().lower()
+             for p in predict(items, scenes)]
 
-    correct = sum(
-        1 for p, cf in zip(preds, counterfactuals)
-        if p is not None and str(p).strip().lower() == cf.new_answer
-    )
-    changed = sum(
-        1 for p, cf in zip(preds, counterfactuals)
-        if p is not None and str(p).strip().lower() != cf.original_answer
-    )
     n = len(counterfactuals)
-    return {"accuracy": correct / n, "changed_fraction": changed / n, "n": float(n)}
+    correct = sum(1 for p, cf in zip(preds, counterfactuals) if p == cf.new_answer)
+
+    changed_fraction = None
+    if original_scenes is not None:
+        before_items = [
+            QAItem(cf.item.question, cf.original_answer, cf.source_token,
+                   cf.item.scene_token, cf.item.template)
+            for cf in counterfactuals
+        ]
+        before = [None if p is None else str(p).strip().lower()
+                  for p in predict(before_items, original_scenes)]
+        changed_fraction = sum(1 for b, a in zip(before, preds) if b != a) / n
+
+    return {"accuracy": correct / n, "changed_fraction": changed_fraction,
+            "n": float(n)}
 
 
 # --------------------------------------------------------------------------- #

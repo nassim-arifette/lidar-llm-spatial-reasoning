@@ -357,6 +357,11 @@ def build_system(
 ) -> LearnedSystem:
     """``kind`` is ``"question_only"``, ``"deepsets"`` or ``"counter"``."""
     config = config or TrainConfig()
+    # Seed BEFORE constructing the model. manual_seed used to run inside fit(),
+    # by which point the weights had already been drawn from whatever state
+    # the process happened to be in, so two runs with the same seed did not
+    # start from the same initialisation.
+    torch.manual_seed(config.seed)
     qdim = question_encoder.dim
     if kind == "question_only":
         model: nn.Module = QuestionOnlyModel(qdim, len(vocab))
