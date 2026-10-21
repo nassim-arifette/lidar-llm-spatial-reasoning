@@ -1,75 +1,68 @@
-data/data/
-outputs/distilled_lidar_gpt2.pt
-main.txt/main.log
-distilled_lidar_gpt2.pt
-main.txt/main.log
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
-lib/
-lib64/
-parts/
 sdist/
-var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# PyInstaller
-#  Usually these files are written by a package manager (e.g. pip)
-*.py, coverage, nosetests.xml, coverage.xml, *, cover
-*.cover
-*.py,cover
-.hypothesis/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
+# Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Testing and coverage
 .pytest_cache/
-.pytype/
-cover/
+.cache/
+.coverage
+.coverage.*
+*.cover
+.hypothesis/
+.tox/
+.nox/
 htmlcov/
 .mypy_cache/
-.dmypy.json
-dmypy.json
+.ruff_cache/
 
-# Revision 2026: experiment outputs
-outputs/spatial_reasoning/
+# Editors
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# LaTeX build artefacts. The .pdf IS tracked -- it is the deliverable.
+*.aux
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.toc
+report/*.log
+
+# Data and run outputs. Datasets are downloaded, not committed; results that
+# a document cites are committed under spatial_reasoning/results/.
+data/data/
+outputs/
+*.pt
+*.ckpt
 
 # Secrets. The repository is public: nothing holding a credential may be
-# tracked, and .env is created from .env.example by hand.
+# tracked. Nothing in the experiments needs one -- the comparison runs on
+# open weights -- so this is insurance, not configuration.
 .env
 .env.*
-!.env.example
 *.key
 *.pem
 secrets.json

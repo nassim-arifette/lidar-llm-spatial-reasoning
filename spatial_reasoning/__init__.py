@@ -1,17 +1,23 @@
-"""Low-cost spatial reasoning over pre-extracted 3D detections.
+"""Answering a spatial question versus computing its answer.
 
-This package replaces the GPT-2 answer head of the original re-implementation
-for one restricted family of questions (counting, existence, comparison) and
-makes the alternative measurable:
+Perception is fixed throughout: object lists are consumed, never computed, so
+every comparison is about reasoning rather than detection.
 
-* perception is fixed -- detections are consumed, never computed;
-* the question is turned into an explicit program (``question_parser``);
-* the program is executed on the object list (``programs``);
-* three learned baselines predict the answer directly instead (``baselines``);
-* all four are evaluated under one protocol (``evaluate``), with consistency
-  and robustness probes (``consistency``).
+The central experiment runs ONE frozen language model two ways on the same
+questions and the same objects --- it answers directly (``direct_qa``), or it
+writes a program (``llm_parser``) that a deterministic executor runs
+(``dsl``). ``compare_llm_modes`` pairs them question by question on the frozen
+example set in ``manifest``.
 
-Entry point: ``python -m spatial_reasoning.run_experiments --source synthetic``
+Supporting pieces: ``question_parser`` is the deterministic rule grammar used
+as a reference and a baseline, ``verify_executor`` checks the executor with
+reference programs and no model involved, ``analyse_failures`` triages what is
+left, and ``baselines``/``run_experiments`` hold the earlier trained-baseline
+study. ``functional`` is a CLEVR-style typed catalogue, implemented and
+deliberately not wired into any experiment.
+
+Entry point:
+``python -m spatial_reasoning.compare_llm_modes --manifest ... --split eval``
 """
 
 from .objects import (  # noqa: F401

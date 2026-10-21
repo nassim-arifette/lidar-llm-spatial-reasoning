@@ -4,6 +4,8 @@ Course project for **NPM3D** (Nuages de Points et Modélisation 3D), Master MVA,
 built around *LiDAR-LLM: Exploring the Potential of Large Language Models for
 3D LiDAR Understanding*.
 
+📄 **[Read the report (PDF)](https://github.com/nassim-arifette/lidar-llm-spatial-reasoning/blob/main/report/rapport_npm3d.pdf)** · [LaTeX source](report/rapport_npm3d.tex)
+
 The question the repository now tests, in one sentence:
 
 > Given **one** frozen language model and **one** object list, is it more
@@ -151,7 +153,11 @@ Every figure is traceable to a file:
   earlier claim.
 - `spatial_reasoning/results/llm_modes/` — per-question rows, summaries and
   the failure triage.
-- [`report/rapport_npm3d.tex`](report/rapport_npm3d.tex) — the written report.
+- `spatial_reasoning/results/symbolic_diagnostic.json` — the LiDAR-return
+  finding, produced by `python -m spatial_reasoning.run_symbolic_diagnostic`.
+- [**`report/rapport_npm3d.pdf`**](https://github.com/nassim-arifette/lidar-llm-spatial-reasoning/blob/main/report/rapport_npm3d.pdf)
+  — the written report, built from
+  [`rapport_npm3d.tex`](report/rapport_npm3d.tex).
 
 **Earlier results are kept and labelled, not deleted.** The synthetic campaign
 in `results/all_results.json` used 45° octants and is a preliminary study, not
@@ -214,7 +220,8 @@ spatial_reasoning/
   compare_llm_modes.py   the paired comparison
   verify_executor.py     the executor check, no model involved
   analyse_failures.py    the failure triage
-report/                  LaTeX report
+  run_symbolic_diagnostic.py  the LiDAR-return and grammar ablations
+report/                  the report, .tex and .pdf
 tests/                   the test suite for the above
 models/ training/ distillation/ data/ evaluation/ inference/ utils/
                          the original 2025 pipeline
