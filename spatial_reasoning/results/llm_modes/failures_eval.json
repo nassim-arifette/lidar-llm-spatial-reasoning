@@ -1,0 +1,742 @@
+{
+  "rows": "spatial_reasoning/results/llm_modes/rows_eval.jsonl",
+  "summary": {
+    "n_failures": 63,
+    "buckets": {
+      "malformed_output": 8,
+      "refused_at_execution": 10,
+      "program_says_something_else": 27,
+      "program_agrees_answer_disagrees": 18
+    },
+    "details": {
+      "malformed_output": {
+        "invalid": 8
+      },
+      "program_agrees_answer_disagrees": {
+        "see_executor": 18
+      },
+      "program_says_something_else": {
+        "wrong_operation": 22,
+        "same_tokens_different_order": 3,
+        "dropped_or_wrong_status": 2
+      },
+      "refused_at_execution": {
+        "ambiguous": 8,
+        "missing": 2
+      }
+    },
+    "by_family": {
+      "count_exist_category": 8,
+      "category_status": 2,
+      "category_ego_region": 23,
+      "category_anchor_relation": 30
+    }
+  },
+  "direct_failure_shape": {
+    "n_numeric_failures": 67,
+    "under": 46,
+    "over": 21,
+    "answers_given_when_the_truth_was_at_least_four": {
+      "4": 13,
+      "3": 10,
+      "5": 5,
+      "1": 3,
+      "2": 1
+    }
+  },
+  "failures": [
+    {
+      "question_id": "q_c6af8c559519",
+      "question": "Are any things visible?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_da46efa4a441",
+      "question": "Are any things visible?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_dc9f6d14a706",
+      "question": "Are any things visible?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_fe5baf756512",
+      "question": "Are any things visible?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_3d037ffc6910",
+      "question": "Are there any things?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_fd7455b2df04",
+      "question": "Are there any things?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_6573180ffafa",
+      "question": "Are any things visible?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_3eb9af5f172e",
+      "question": "Are there any things?",
+      "family": "count_exist_category",
+      "bucket": "malformed_output",
+      "detail": "invalid",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "",
+      "reference_program": "exists [object]"
+    },
+    {
+      "question_id": "q_cfbc221c8e2a",
+      "question": "Are there any not standing pedestrians?",
+      "family": "category_status",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "no",
+      "executed_answer": "yes",
+      "model_program": "exists [not standing pedestrian]",
+      "reference_program": "exists [not standing pedestrian]"
+    },
+    {
+      "question_id": "q_c8626bd5ca90",
+      "question": "What number of without rider things are there?",
+      "family": "category_status",
+      "bucket": "program_says_something_else",
+      "detail": "dropped_or_wrong_status",
+      "reference_answer": "0",
+      "executed_answer": "21",
+      "model_program": "count [not with rider object]",
+      "reference_program": "count [without rider object]"
+    },
+    {
+      "question_id": "q_df0d5f56a5cd",
+      "question": "Are there any without rider things to the back of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "exists [without rider object back of [object]]",
+      "reference_program": "exists [without rider object back of the ego vehicle]"
+    },
+    {
+      "question_id": "q_4f433c9c7879",
+      "question": "Are there any things to the back left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "no",
+      "executed_answer": "yes",
+      "model_program": "exists [object back left of the ego vehicle]",
+      "reference_program": "exists [object back left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_91530fa76eae",
+      "question": "Are there any motorcycles to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "no",
+      "executed_answer": "yes",
+      "model_program": "exists [motorcycle front right of the ego vehicle]",
+      "reference_program": "exists [motorcycle front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_b6cd412f6b42",
+      "question": "Are there any moving cars to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [moving car front left of the ego vehicle]",
+      "reference_program": "exists [moving car front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_814e1c7f6ca6",
+      "question": "How many cars are to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "3",
+      "executed_answer": "0",
+      "model_program": "count [car front left of the ego vehicle]",
+      "reference_program": "count [car front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_82098b628c30",
+      "question": "Are there any moving pedestrians to the back right of me?",
+      "family": "category_ego_region",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "1",
+      "model_program": "count [moving pedestrian back right of the ego vehicle]",
+      "reference_program": "exists [moving pedestrian back right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_e4e1a16ca6c5",
+      "question": "How many standing pedestrians are to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "0",
+      "executed_answer": "1",
+      "model_program": "count [standing pedestrian front right of the ego vehicle]",
+      "reference_program": "count [standing pedestrian front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_585ef10d999c",
+      "question": "Are there any cars to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "yes",
+      "executed_answer": "no",
+      "model_program": "exists [car front left of the ego vehicle]",
+      "reference_program": "exists [car front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_9790c0f85189",
+      "question": "Are there any without rider things to the back left of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "missing",
+      "reference_answer": "no",
+      "executed_answer": null,
+      "model_program": "exists [object back left of [without rider pedestrian]]",
+      "reference_program": "exists [without rider object back left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_86bc4e080fcb",
+      "question": "Are there any things to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "no",
+      "executed_answer": "yes",
+      "model_program": "exists [object front right of the ego vehicle]",
+      "reference_program": "exists [object front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_995f583b2911",
+      "question": "What number of parked things are to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "6",
+      "executed_answer": "0",
+      "model_program": "count [parked object front left of the ego vehicle]",
+      "reference_program": "count [parked object front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_b0330647b580",
+      "question": "Are there any stopped cars to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "1",
+      "model_program": "count [stopped car front right of the ego vehicle]",
+      "reference_program": "exists [stopped car front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_993d95f73586",
+      "question": "Are there any without rider motorcycles to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "no",
+      "executed_answer": null,
+      "model_program": "count [without rider motorcycle front right of [object]]",
+      "reference_program": "exists [without rider motorcycle front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_eb5c285a4a15",
+      "question": "Are there any parked things to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "no",
+      "executed_answer": "yes",
+      "model_program": "exists [parked object front right of the ego vehicle]",
+      "reference_program": "exists [parked object front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_5f0bbd1e6953",
+      "question": "Are there any moving cars to the back left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [moving car back left of the ego vehicle]",
+      "reference_program": "exists [moving car back left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_5b21661aa89b",
+      "question": "How many with rider things are to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "2",
+      "executed_answer": "1",
+      "model_program": "count [with rider object front left of the ego vehicle]",
+      "reference_program": "count [with rider object front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_b6ee3cc391c3",
+      "question": "Are there any without rider bicycles to the back right of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "count [without rider bicycle back right of [object]]",
+      "reference_program": "exists [without rider bicycle back right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_ddc68ef96184",
+      "question": "Are there any with rider things to the front right of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "no",
+      "executed_answer": null,
+      "model_program": "exists [with rider object front right of [pedestrian]]",
+      "reference_program": "exists [with rider object front right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_fb5adf664065",
+      "question": "Are there any with rider things to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "exists [with rider object front left of [pedestrian]]",
+      "reference_program": "exists [with rider object front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_6a0a6d95ac67",
+      "question": "Are there any with rider motorcycles to the back right of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "no",
+      "executed_answer": null,
+      "model_program": "exists [with rider motorcycle back right of [pedestrian]]",
+      "reference_program": "exists [with rider motorcycle back right of the ego vehicle]"
+    },
+    {
+      "question_id": "q_6d0f90974c2b",
+      "question": "Are there any without rider bicycles to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "yes",
+      "executed_answer": "no",
+      "model_program": "exists [without rider bicycle front left of the ego vehicle]",
+      "reference_program": "exists [without rider bicycle front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_a9e29aab8a21",
+      "question": "What number of cars are to the front left of me?",
+      "family": "category_ego_region",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "6",
+      "executed_answer": "0",
+      "model_program": "count [car front left of the ego vehicle]",
+      "reference_program": "count [car front left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_d0c9286858c6",
+      "question": "Are there any without rider motorcycles to the back left of me?",
+      "family": "category_ego_region",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "no",
+      "executed_answer": null,
+      "model_program": "count [without rider motorcycle back left of [object]]",
+      "reference_program": "exists [without rider motorcycle back left of the ego vehicle]"
+    },
+    {
+      "question_id": "q_3a6e4ce2556e",
+      "question": "Are there any motorcycles to the front of the moving bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [moving motorcycle front of [moving bus]]",
+      "reference_program": "exists [motorcycle front of [moving bus]]"
+    },
+    {
+      "question_id": "q_79a3fb58d37c",
+      "question": "Are there any cars to the front left of the with rider thing?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [moving car front left of [with rider object]]",
+      "reference_program": "exists [car front left of [with rider object]]"
+    },
+    {
+      "question_id": "q_c47a8b3296cb",
+      "question": "There is a bus; how many without rider things are to the back left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "0",
+      "executed_answer": "6",
+      "model_program": "count [without rider object back left of [bus]]",
+      "reference_program": "count [without rider object back left of [bus]]"
+    },
+    {
+      "question_id": "q_c1381d05f9f4",
+      "question": "There is a bus; what number of moving pedestrians are to the back right of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "3",
+      "executed_answer": "0",
+      "model_program": "count [moving pedestrian back right of [bus]]",
+      "reference_program": "count [moving pedestrian back right of [bus]]"
+    },
+    {
+      "question_id": "q_c893bacad1f6",
+      "question": "There is a stopped bus; what number of pedestrians are to the back of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "same_tokens_different_order",
+      "reference_answer": "1",
+      "executed_answer": "0",
+      "model_program": "count [stopped pedestrian back of [stopped bus]]",
+      "reference_program": "count [pedestrian back of [stopped bus]]"
+    },
+    {
+      "question_id": "q_46d184840fa5",
+      "question": "There is a stopped bus; are there any moving buss to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "refused_at_execution",
+      "detail": "missing",
+      "reference_answer": "yes",
+      "executed_answer": null,
+      "model_program": "count [parked bus front left of [parked bus]]",
+      "reference_program": "exists [moving bus front left of [stopped bus]]"
+    },
+    {
+      "question_id": "q_16a7af6ca052",
+      "question": "Are there any pedestrians to the front of the motorcycle?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "5",
+      "model_program": "count [pedestrian front of [motorcycle]]",
+      "reference_program": "exists [pedestrian front of [motorcycle]]"
+    },
+    {
+      "question_id": "q_300478497c46",
+      "question": "Are there any stopped cars to the front right of the stopped bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [stopped car front right of [stopped bus]]",
+      "reference_program": "exists [stopped car front right of [stopped bus]]"
+    },
+    {
+      "question_id": "q_dbca921d7eb6",
+      "question": "There is a with rider thing; are there any cars to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [moving car front left of [with rider object]]",
+      "reference_program": "exists [car front left of [with rider object]]"
+    },
+    {
+      "question_id": "q_30d9ecc90fb4",
+      "question": "There is a bus; are there any motorcycles to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [motorcycle front left of [bus]]",
+      "reference_program": "exists [motorcycle front left of [bus]]"
+    },
+    {
+      "question_id": "q_ab74e772e695",
+      "question": "There is a moving bus; are there any without rider motorcycles to the back right of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [without rider motorcycle back right of [moving bus]]",
+      "reference_program": "exists [without rider motorcycle back right of [moving bus]]"
+    },
+    {
+      "question_id": "q_dbb2ad0ca17f",
+      "question": "Are there any parked cars to the back left of the standing pedestrian?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [parked car back left of [standing pedestrian]]",
+      "reference_program": "exists [parked car back left of [standing pedestrian]]"
+    },
+    {
+      "question_id": "q_8f8890e1968b",
+      "question": "Are there any motorcycles to the front left of the moving bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [moving motorcycle front left of [moving bus]]",
+      "reference_program": "exists [motorcycle front left of [moving bus]]"
+    },
+    {
+      "question_id": "q_128f807b0abe",
+      "question": "There is a stopped bus; are there any standing pedestrians to the back right of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [standing pedestrian back right of [stopped bus]]",
+      "reference_program": "exists [standing pedestrian back right of [stopped bus]]"
+    },
+    {
+      "question_id": "q_c497daabf935",
+      "question": "There is a moving bus; are there any trucks to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [moving truck front left of [moving bus]]",
+      "reference_program": "exists [truck front left of [moving bus]]"
+    },
+    {
+      "question_id": "q_48297834e05b",
+      "question": "How many standing pedestrians are to the back right of the moving bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "1",
+      "executed_answer": "0",
+      "model_program": "count [standing pedestrian back right of [moving bus]]",
+      "reference_program": "count [standing pedestrian back right of [moving bus]]"
+    },
+    {
+      "question_id": "q_27b3da3c252a",
+      "question": "There is a moving bus; are there any standing pedestrians to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [standing pedestrian front left of [moving bus]]",
+      "reference_program": "exists [standing pedestrian front left of [moving bus]]"
+    },
+    {
+      "question_id": "q_6ac1f27f4b27",
+      "question": "There is a standing pedestrian; what number of trucks are to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "dropped_or_wrong_status",
+      "reference_answer": "1",
+      "executed_answer": "0",
+      "model_program": "count [moving truck front left of [standing pedestrian]]",
+      "reference_program": "count [truck front left of [standing pedestrian]]"
+    },
+    {
+      "question_id": "q_273a127c4656",
+      "question": "There is a bus; how many pedestrians are to the back right of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "1",
+      "executed_answer": "0",
+      "model_program": "count [pedestrian back right of [bus]]",
+      "reference_program": "count [pedestrian back right of [bus]]"
+    },
+    {
+      "question_id": "q_eb8c87a92d8f",
+      "question": "Are there any things to the front right of the bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "no",
+      "executed_answer": "yes",
+      "model_program": "exists [object front right of [bus]]",
+      "reference_program": "exists [object front right of [bus]]"
+    },
+    {
+      "question_id": "q_f241958680f7",
+      "question": "There is a moving bus; are there any moving pedestrians to the back left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "6",
+      "model_program": "count [moving pedestrian back left of [moving bus]]",
+      "reference_program": "exists [moving pedestrian back left of [moving bus]]"
+    },
+    {
+      "question_id": "q_4369467c601c",
+      "question": "There is a moving bus; how many cars are to the back of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "same_tokens_different_order",
+      "reference_answer": "5",
+      "executed_answer": "2",
+      "model_program": "count [moving car back of [moving bus]]",
+      "reference_program": "count [car back of [moving bus]]"
+    },
+    {
+      "question_id": "q_8c3c4ccf73f7",
+      "question": "Are there any motorcycles to the front left of the stopped bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [moving motorcycle front left of [stopped bus]]",
+      "reference_program": "exists [motorcycle front left of [stopped bus]]"
+    },
+    {
+      "question_id": "q_a2572e0a7838",
+      "question": "There is a stopped bus; are there any without rider bicycles to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "2",
+      "model_program": "count [without rider bicycle front left of [stopped bus]]",
+      "reference_program": "exists [without rider bicycle front left of [stopped bus]]"
+    },
+    {
+      "question_id": "q_2ce36df1c3c3",
+      "question": "There is a moving bus; are there any buss to the back right of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "yes",
+      "executed_answer": "0",
+      "model_program": "count [moving bus back right of [moving bus]]",
+      "reference_program": "exists [moving bus back right of [moving bus]]"
+    },
+    {
+      "question_id": "q_0ed50fd9b8aa",
+      "question": "How many buss are to the front left of the not standing pedestrian?",
+      "family": "category_anchor_relation",
+      "bucket": "refused_at_execution",
+      "detail": "ambiguous",
+      "reference_answer": "1",
+      "executed_answer": null,
+      "model_program": "count [not moving bus front left of [standing pedestrian]]",
+      "reference_program": "count [not standing pedestrian front left of [not standing pedestrian]]"
+    },
+    {
+      "question_id": "q_7aaea28ca7a8",
+      "question": "There is a moving bus; what number of things are to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "same_tokens_different_order",
+      "reference_answer": "2",
+      "executed_answer": "1",
+      "model_program": "count [moving object front left of [moving bus]]",
+      "reference_program": "count [object front left of [moving bus]]"
+    },
+    {
+      "question_id": "q_39b665924057",
+      "question": "Are there any moving things to the back of the stopped bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [moving object back of [stopped bus]]",
+      "reference_program": "exists [moving object back of [stopped bus]]"
+    },
+    {
+      "question_id": "q_ff59bc06f72d",
+      "question": "How many stopped things are to the back right of the stopped bus?",
+      "family": "category_anchor_relation",
+      "bucket": "program_agrees_answer_disagrees",
+      "detail": "see_executor",
+      "reference_answer": "1",
+      "executed_answer": "0",
+      "model_program": "count [stopped object back right of [stopped bus]]",
+      "reference_program": "count [stopped object back right of [stopped bus]]"
+    },
+    {
+      "question_id": "q_9625119b0e84",
+      "question": "There is a moving bus; are there any without rider things to the front left of it?",
+      "family": "category_anchor_relation",
+      "bucket": "program_says_something_else",
+      "detail": "wrong_operation",
+      "reference_answer": "no",
+      "executed_answer": "0",
+      "model_program": "count [moving object front left of [moving bus]]",
+      "reference_program": "exists [without rider object front left of [moving bus]]"
+    }
+  ]
+}

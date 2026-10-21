@@ -1,11 +1,14 @@
 % =====================================================================
-%  NPM3D project report -- revised version
+%  NPM3D project report
 %  Author: Nassim Arifette
 %  Build:  pdflatex rapport_npm3d.tex  (twice, for references)
 %
-%  All numbers in Section 6 come from
-%      python -m spatial_reasoning.run_experiments --source synthetic
-%  aggregated over seeds 0,1,2 in spatial_reasoning/results/summary.md
+%  Provenance of every number:
+%    Section 6  spatial_reasoning/results/llm_modes/summary_{dev,eval}.json
+%    Section 7  spatial_reasoning/results/llm_modes/failures_eval.json
+%    Section 4.3 spatial_reasoning/results/symbolic_diagnostic.json
+%    Section 8  spatial_reasoning/results/all_results.json  (synthetic)
+%    collected in spatial_reasoning/results/state_of_results.md
 % =====================================================================
 
 \documentclass[11pt,a4paper]{article}
@@ -27,7 +30,7 @@
 \newcommand{\code}[1]{\texttt{\small #1}}
 
 \title{\textbf{Low-cost LiDAR spatial reasoning:\\
-learned answers versus explicit geometric operations}}
+answering a question versus computing its answer}}
 \author{Nassim Arifette\\
 \small MVA --- Nuages de Points et Modélisation 3D (NPM3D)}
 \date{\today}
@@ -35,51 +38,32 @@ learned answers versus explicit geometric operations}}
 \begin{document}
 \maketitle
 
-\begin{center}
-\fbox{\begin{minipage}{0.92\textwidth}
-\small\textbf{Status of the numbers in this version.} Section~6 reports the
-\emph{synthetic} campaign, under $45^{\circ}$ octant sectors
-(\code{spatial\_reasoning/results/all\_results.json}). Work since has moved to
-real nuScenes-QA questions under that benchmark's six $60^{\circ}$ sectors, a
-convention since checked against the gold answers rather than assumed. Under
-those conditions the measured figures differ from the ones below --- the
-learned baselines do not reliably beat a scene-blind prior, and swapping
-ground-truth objects for detections barely moves them. The current state is
-tracked in \code{spatial\_reasoning/results/state\_of\_results.md}, and the
-comparison this report argues for --- one language model answering directly
-against the same model writing an executable program --- is Section~7, on real
-nuScenes-QA questions. The synthetic results in Section~6 are kept because the
-argument they illustrate is unchanged; they should not be cited as results on
-nuScenes-QA.
-\end{minipage}}
-\end{center}
-
-\vspace{1em}
-
 \begin{abstract}
 \noindent
 LiDAR-LLM \cite{lidarllm} couples a frozen LiDAR encoder to a large language
 model so that spatial questions about a driving scene can be answered in
 natural language. Our original project reimplemented a reduced version of that
 architecture and showed, honestly, that it could not be trained on the
-hardware available: a GPT-2 answer head on filtered nuScenes-mini data, with no
-completed training run. This revised report changes the question rather than
-the hardware. Holding perception fixed --- consuming 3D detections computed
-once and never retrained --- we ask whether a spatial question is better
-answered by \emph{learning} the answer or by \emph{computing} it: parse the
-question into an explicit program, select the relevant objects, and apply a
-geometric operation. Four systems are compared under one protocol with
-scene-level splits: a question-only language prior, a deep-sets answer
-classifier, a differentiable counter, and a parameter-free symbolic program.
-On a balanced synthetic corpus the symbolic system reaches $0.916$ accuracy
-against $0.656$ for the best learned system --- which does not beat the
-question-only prior --- with a counting error of $0.13$ against $0.53$, no
-trained parameters, and three times less inference time. Contrast pairs make
-the gap starker still: $0.643$ against $0.08$ and below. Every symbolic error
-traces to perception, none to question understanding or geometry. The whole
-study runs on a CPU in under a minute per configuration, which is the point:
-the contribution is a comparison that is affordable, reproducible, and capable
-of a negative result.
+hardware available. This report changes the question rather than the hardware.
+Holding perception fixed, we ask whether a spatial question about a LiDAR
+scene is better answered by \emph{producing} the answer or by \emph{computing}
+it, and we ask it of one model so that the two are genuinely comparable: the
+same frozen Qwen2.5-1.5B-Instruct either answers from the object list, or
+writes a small program that a deterministic executor runs on that same list.
+On $200$ held-out questions from three unseen nuScenes drives the executed
+mode reaches $0.685$ against $0.505$; paired question by question it is alone
+correct on $67$ and alone wrong on $31$ ($p = 3.5\times10^{-4}$), and its
+counting error is $0.68$ against $2.16$ at equal numeric coverage. The sharper
+instrument is a scene-dependence control: of thirteen questions asked verbatim
+of two scenes with different answers, the executed mode is right on all
+thirteen and the direct mode on one. Two findings about the data matter beyond
+this comparison. The six nuScenes-QA relations are recovered empirically from
+box geometry --- uniform $60^{\circ}$ bearing sectors fit the reference
+answers better than five alternatives including the six camera frusta --- and
+$23\%$ of nuScenes annotations carry \emph{zero} LiDAR returns while
+nuScenes-QA counts them anyway, so filtering objects by LiDAR support, the
+obvious thing to do, costs $49$ accuracy points. Nothing here is trained, and
+the whole study runs on one free T4.
 \end{abstract}
 
 % =====================================================================
@@ -90,495 +74,371 @@ Interpreting a LiDAR scene in natural language is attractive for autonomous
 driving: a system that can answer ``how many cars are ahead of us?'' exposes
 its scene understanding in a form a human can audit. LiDAR-LLM
 \cite{lidarllm} pursues this by aligning a LiDAR representation with the
-embedding space of a language model through a three-stage curriculum ---
-cross-modal alignment, perception learning, and high-level instruction tuning
---- with GPT-4 \cite{gpt4} used to improve the captions that form the training
-data, and LLaMA-7B as the model that learns from LiDAR.
+embedding space of a language model through a three-stage curriculum, with
+GPT-4 \cite{gpt4} improving the captions that form the training data and
+LLaMA-7B as the model that learns from LiDAR.
 
-Our first report reimplemented a reduced version of this architecture. Section
-\ref{sec:original} restates what that implementation did and, more usefully,
-what it failed to establish. Section \ref{sec:question} then argues for a
-different question, one the same hardware can actually answer.
+Our first report reimplemented a reduced version of this architecture.
+Section~\ref{sec:original} restates what that implementation did and, more
+usefully, what it failed to establish. Section~\ref{sec:question} argues for a
+different question, one the same hardware can answer.
 
 The shift is motivated by an observation about counting and directional
 questions. When the correct answer to ``how many cars are in front?'' is
-determined by the detected object list and a geometric predicate, asking a
-generative model to emit the digit is asking it to re-derive, inside its
-weights, a computation that is already exact and essentially free. Whether
-that re-derivation buys anything is testable, and this report tests it.
+determined by the object list and a geometric predicate, asking a generative
+model to emit the digit is asking it to re-derive, inside its weights, a
+computation that is already exact and essentially free. Whether that
+re-derivation buys anything is testable, and this report tests it on one model
+used two ways.
 
 % =====================================================================
 \section{The original re-implementation and what it did not show}
 \label{sec:original}
 % =====================================================================
 
-The first version of this project implemented the LiDAR-LLM pipeline in
-reduced form: a small PointNet as the LiDAR encoder, a view-aware transformer
-with six view-position embeddings, an MLP adapter projecting into the token
-embedding space, and GPT-2 \cite{gpt2} fine-tuned with LoRA \cite{lora} as the
-language model. Data came from nuScenes-mini \cite{nuscenes} filtered to the
-samples present in the mini split, together with nuScenes-QA \cite{nuscenesqa}
-questions: 323 training samples from 8 scenes and 81 validation samples from 2
-scenes.
+The first version implemented the LiDAR-LLM pipeline in reduced form: a small
+PointNet encoder, a view-aware transformer with six view-position embeddings,
+an MLP adapter projecting into the token embedding space, and GPT-2
+\cite{gpt2} fine-tuned with LoRA \cite{lora}. Data came from nuScenes-mini
+\cite{nuscenes} with nuScenes-QA \cite{nuscenesqa} questions: 323 training
+samples from 8 scenes, 81 validation samples from 2 scenes.
 
-The honest summary is that it produced a debugged pipeline and no evidence.
-Training ran on laptops with roughly 6\,GB of RAM and no GPU. The functional
-check was that the model could be driven to emit a fixed string regardless of
-the LiDAR input, which shows that gradients flow and nothing more. A
-distillation stage was implemented and its loss decreased, which again shows
-that the optimisation is wired correctly, not that the student retains any
-spatial ability.
+It produced a debugged pipeline and no evidence. Training ran on laptops with
+roughly 6\,GB of RAM and no GPU. The functional check was that the model could
+be driven to emit a fixed string regardless of the LiDAR input, which shows
+that gradients flow and nothing more.
 
-Three weaknesses matter for what follows.
+Three weaknesses shape what follows.
 
 \paragraph{The evaluation could not separate competence from priors.}
-nuScenes-QA answers are heavily skewed towards ``no'' and small integers. With
-no question-only control, an accuracy figure cannot distinguish a model that
-reads the scene from one that has learned the answer distribution. Real-3DQA
-\cite{real3dqa} demonstrates how severe this is: on SQA3D a model fine-tuned on
-question-answer pairs \emph{with no 3D input at all} matches or beats existing
-3D-LLMs, and once the blind-answerable questions are filtered out, LEO's exact
-match collapses from $49.4\%$ to $14.3\%$ and Chat-Scene's to $17.0\%$.
+nuScenes-QA answers are skewed towards ``no'' and small integers. With no
+question-only control, an accuracy figure cannot distinguish a model that reads
+the scene from one that has learned the answer distribution. Real-3DQA
+\cite{real3dqa} shows how severe this is: on SQA3D a model fine-tuned on
+question--answer pairs \emph{with no 3D input at all} matches or beats existing
+3D-LLMs, and filtering the blind-answerable questions collapses LEO's exact
+match from $49.4\%$ to $14.3\%$.
 
-\paragraph{The split invited leakage.}
-Splitting questions rather than scenes places different questions about the
-same LiDAR sample on both sides of the split, so memorising ``this scene has
-three cars'' is rewarded.
+\paragraph{The split invited leakage.} Splitting questions rather than scenes
+puts different questions about the same LiDAR sample on both sides, rewarding
+``this scene has three cars''.
 
-\paragraph{The target task did not need a language model.}
-Counting, existence and directional questions have answers that are functions
-of the object list. Nothing about them requires text generation.
+\paragraph{The target task did not need a language model.} Counting, existence
+and directional questions have answers that are functions of the object list.
 
 % =====================================================================
 \section{A question the available hardware can answer}
 \label{sec:question}
 % =====================================================================
 
-We fix perception and vary only the reasoning stage. Detections are computed
-once --- CenterPoint-style 3D boxes \cite{centerpoint}, as shipped with
-nuScenes-QA, or ground-truth boxes for an oracle condition --- and every system
-receives exactly the same object list. The research question is:
+We fix perception and vary only the reasoning stage. Every system receives
+exactly the same object list, and the question becomes:
 
 \begin{quote}
-\emph{At fixed perception and comparable budget, is it better to learn the
-answer to a spatial question directly, or to select objects and then apply
-explicit geometric operations?}
+\emph{At a fixed language model and fixed scene data, is it more reliable to
+produce the answer to a spatial question, or to produce an executable program
+and let a deterministic executor compute the answer?}
 \end{quote}
 
-This is narrower than ``can LiDAR-LLM be made smaller?'', and that is
-deliberate: it yields an interpretable result either way. If explicit
-computation wins, the learned head was spending capacity on arithmetic. If the
-learned head wins, robustness to imperfect detections outweighs exactness ---
-the more interesting finding, which the perturbation study of Section
-\ref{sec:probes} is designed to detect.
+Posed between \emph{two uses of one model}, this is answerable without
+confounds. A learned answer head and a program-writing model differ in
+architecture, in training and in what they see, so a gap between them says
+little; the same checkpoint, the same decoding and the same objects differ in
+exactly one respect.
 
-\paragraph{Relation to existing work.}
-Separating language understanding from geometric execution is not new, and our
-contribution is not the idea but its controlled measurement. ZSVG3D
-\cite{zsvg3d} already produced programs from language for zero-shot 3D
-grounding, composing view-independent, view-dependent and functional modules.
-KLDrive \cite{kldrive} is the closest system to the design tested here: it
-merges multi-source evidence into a scene knowledge graph and lets a frozen
-Qwen3-7B agent reason over it through a Plan--Execute--Observe loop restricted
-to a fixed action space, reaching $65.04\%$ overall accuracy on nuScenes-QA and
-$64.46\%$ on counting against $18.45\%$ for its strongest baseline.
-Retrieve-to-Localize \cite{retrieve2localize} makes the complementary argument
-for coordinates: rather than generating them as text, it retrieves
-language-conditioned spatial proposals and refines the position from local
-LiDAR points. BEV-LLM \cite{bevllm} extends LiDAR-LLM directly --- the authors
-state that their method builds upon it --- by adding camera images through
-BEVFusion and an absolute positional encoding, with a frozen Llama and a LoRA
-adapter. NuScenes-SpatialQA \cite{nuscenesspatialqa} builds spatial questions
-from nuScenes scene graphs and finds that a spatially enhanced VLM improves on
-qualitative questions while remaining uncompetitive on quantitative ones, which
-is precisely the counting gap this report targets. 3DGraphLLM
+\paragraph{Relation to existing work.} The idea is not ours. CLEVR
+\cite{clevr} established the template: represent a question as a functional
+program over a small catalogue of operations --- filter, unique, relate,
+count, exist, query, compare --- and execute it on the scene graph.
+Neural-symbolic VQA \cite{nsvqa} then showed that recovering such a program
+and executing it on a structured scene representation is far more accurate on
+CLEVR than predicting the answer end to end. Our qualitative result is a
+reproduction of that finding on real driving data with a frozen $1.5$B model
+and no training at all; the contribution is the controlled measurement and the
+two data findings of Section~\ref{sec:method}, not the idea.
+
+Closer in domain, ZSVG3D \cite{zsvg3d} produces programs from language for
+zero-shot 3D grounding. KLDrive \cite{kldrive} merges multi-source evidence
+into a scene knowledge graph and lets a frozen Qwen3-7B agent reason over it
+through a Plan--Execute--Observe loop, reaching $65.04\%$ overall and $64.46\%$
+on counting against $18.45\%$ for its strongest baseline. Retrieve-to-Localize
+\cite{retrieve2localize} makes the complementary argument for coordinates.
+BEV-LLM \cite{bevllm} extends LiDAR-LLM with camera images through BEVFusion.
+NuScenes-SpatialQA \cite{nuscenesspatialqa} finds a spatially enhanced VLM
+improving on qualitative questions while remaining uncompetitive on
+quantitative ones --- precisely the counting gap targeted here. 3DGraphLLM
 \cite{3dgraphllm} learns a scene-graph representation carrying semantic
-relations between objects, evaluated indoors on ScanRefer, Multi3DRefer,
-ScanQA, SQA3D and Scan2Cap.
+relations.
 
-Two things prevent a direct numerical comparison with our results. First,
-these systems change more than the reasoning module: KLDrive's accuracy is
-obtained with three detectors (RayDN, FocalFormer3D and IS-Fusion) over 39{,}704
-selected questions under a random $8{:}2$ split that is not stratified by
-scene, so part of the gain is perception and part is protocol. Second, ``frozen
-LLM'' does not mean cheap: KLDrive runs on RTX A6000 GPUs,
-Retrieve-to-Localize trains on four A6000s with 48\,GB each, and BEV-LLM's
-1B-parameter variant takes 48 hours on eight A100s despite freezing both
-BEVFusion and the language model. The experiment reported below runs in 49
-seconds on a CPU. It is a much smaller claim, measured properly, rather than a
-larger claim taken on faith.
+Two things prevent a direct numerical comparison. These systems change more
+than the reasoning module --- KLDrive's accuracy is obtained with three
+detectors over $39{,}704$ selected questions under a random $8{:}2$ split that
+is not stratified by scene, so part of the gain is perception and part is
+protocol. And ``frozen LLM'' does not mean cheap: KLDrive runs on RTX A6000s,
+Retrieve-to-Localize trains on four A6000s, BEV-LLM's 1B variant takes 48
+hours on eight A100s. The experiment below runs in under three minutes on one
+free T4.
 
 % =====================================================================
 \section{Method}
+\label{sec:method}
 % =====================================================================
 
 \subsection{Object-level scene representation}
 
 A scene is a list of objects, each with a canonical class (the ten nuScenes
-detection classes), a centre, a box size, a yaw and a detection score. All
-coordinates are in the ego frame: $x$ forward, $y$ left, $z$ up. Detection
-results released for nuScenes are in global coordinates, so the conversion
-through the sample's ego pose is performed explicitly and in one place; a
-mistake there mirrors the scene and would be indistinguishable from a reasoning
-failure.
+detection classes), a centre, a box size, a yaw, a detection score and, where
+the annotation carries one, a \emph{status} --- moving, parked, stopped,
+standing, sitting/lying down, with rider, without rider. All coordinates are
+in the ego frame: $x$ forward, $y$ left, $z$ up. nuScenes boxes and released
+detection results are in global coordinates, so the conversion through the
+sample's ego pose and the quaternion-to-yaw step are performed explicitly and
+in one place; a sign error there mirrors the scene and would be
+indistinguishable from a reasoning failure.
 
-\subsection{Directions as bearing sectors}
+An unknown status is treated as neither the attribute nor its negation. A
+traffic cone carries no attribute, so it is not ``standing'' and not ``not
+standing''; counting it under the negation would assert something the
+annotation does not support.
 
-Directional words are $45^{\circ}$ bearing sectors centred on front,
-front-left, left, back-left, back, back-right, right and front-right. Sectors,
-rather than axis-aligned half-planes, give two properties we rely on: an object
-belongs to at most one named direction, and a car $40$\,m ahead and $2$\,m to
-the left is ``front'' rather than simultaneously ``front'' and ``left''.
+\subsection{Directions as bearing sectors, recovered rather than assumed}
+\label{sec:sectors}
+
+nuScenes-QA uses six spatial relations. Our first implementation used eight
+$45^{\circ}$ octants, which silently answered a different question: an object
+at a bearing of $50^{\circ}$ is ``front left'' under one convention and
+``left'' under the other, and ``left'' does not exist in the six-relation
+vocabulary at all.
+
+Rather than replace one assumption with another, the convention was
+\emph{measured} against the benchmark's own answers. Over the $68$
+ego-anchored directional questions of the evaluation manifest we scored five
+candidate definitions by exact agreement with the reference answer:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Candidate convention & Exact & Count MAE & Bias \\
+\midrule
+\textbf{Uniform $60^{\circ}$ sectors, $y$ left, no range limit}
+                                   & \textbf{76.5\%} & 1.24 & $-1.14$ \\
+Same, with $y$ pointing right      & 72.1\% & 0.76 & $-0.76$ \\
+The six nuScenes camera frusta     & 67.6\% & 1.76 & $-0.62$ \\
+Eight $45^{\circ}$ octants         & 61.8\% & 1.62 & $-1.62$ \\
+Overlapping quadrants ($x>0$, $y>0$, \ldots) & 51.5\% & 3.86 & $+2.62$ \\
+\bottomrule
+\end{tabular}
+\caption{Recovering the relation definition from the gold answers. The camera
+row uses the real calibration: each camera's optical axis and horizontal field
+of view are computed from \code{calibrated\_sensor.json} and the intrinsics,
+and an object belongs to a camera if it projects inside that image.}
+\label{tab:sectors}
+\end{table}
+
+The six-camera hypothesis is tempting --- six relations, six cameras, named
+\code{CAM\_FRONT\_LEFT} and so on --- and it is wrong: the frusta overlap and
+are unequal in width ($64$--$89^{\circ}$ from the intrinsics), and they fit
+worse than uniform sectors. Every maximum-range cut from $25$ to $60$\,m also
+makes the fit worse, so nuScenes-QA counts objects at any distance.
+
+The residual is structured: on the development split the executor agrees with
+$50/50$ non-directional questions, $17/18$ axial ones (front, back) and
+$24/32$ diagonal ones, with \emph{front left} alone at $5/10$. The boundaries
+were deliberately \emph{not} fitted to close that gap. An executor whose
+sector edges were tuned on the reference answers would help the branch that
+computes with those edges far more than the branch that only reads them in
+prose, and the comparison of Section~\ref{sec:results} would be measuring the
+tuning.
+
 Objects closer than $1$\,m to the ego origin are excluded from directional
-queries, because a $10$\,cm localisation error flips the sign of their bearing.
+queries, because a $10$\,cm localisation error flips the sign of their
+bearing. Relative directions (``left of the truck'') are ambiguous between the
+viewer's frame and the object's own frame; both are implemented, and the
+viewer-centric reading is the default, matching nuScenes-QA.
 
-Relative directions (``left of the truck'') are ambiguous between the viewer's
-frame and the object's own frame. Both are implemented and the choice is an
-explicit parameter; the viewer-centric reading is the default, matching
-nuScenes-QA.
+\subsection{What the LiDAR returns say about the labels}
+\label{sec:lidar}
+
+nuScenes annotates every object a human could see, and records how many LiDAR
+points fall inside each box. Building a scene from LiDAR, the natural move is
+to keep only annotations the sensor actually hit. On the mini split that
+discards \textbf{$4{,}278$ of $18{,}538$ annotations --- $23\%$ --- for having
+zero LiDAR returns}.
+
+It is also wrong for this benchmark. Holding the programs fixed and changing
+only the object list, over the $125$ counting questions that both conditions
+answer numerically:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Object list & Accuracy & Under-counting & MAE \\
+\midrule
+Keep only annotations with $\geq 1$ LiDAR return & 0.336 & 1.672 & 1.76 \\
+\textbf{Keep every annotation}                   & \textbf{0.824} & \textbf{0.568} & \textbf{0.69} \\
+\bottomrule
+\end{tabular}
+\caption{Same questions, same programs, same geometry; only the object list
+changes. Filtering by LiDAR support costs $49$ accuracy points.}
+\label{tab:lidar}
+\end{table}
+
+So nuScenes-QA's reference answers count objects the LiDAR never saw. This is
+a fact about the benchmark rather than about reasoning, and it is worth stating
+plainly because the filter is the obvious engineering choice and it is
+expensive. Every experiment below therefore uses the unfiltered list, and the
+choice is recorded in the manifest so both compared systems inherit it.
 
 \subsection{From question to program}
 
-A rule-based parser maps a question onto a structured query: an operation
-(\textsc{count}, \textsc{exists}, \textsc{compare}), a category or category
-group, and a region (anywhere, a direction sector, near, far, or a radius). The
-parser never sees the scene, which is what makes the error decomposition of
-Section \ref{sec:errors} possible: a wrong answer is a comprehension error if
-and only if the parser produced the wrong query, independently of what the
-detector saw.
+A program is an operation (\textsc{count}, \textsc{exists},
+\textsc{compare}) over a selector: a category or category group, an optional
+status, an optional region (a bearing sector, near, far, or a radius), and an
+optional anchor making the region relative to another object. Two parsers emit
+this language. A deterministic rule grammar serves as a reference and as a
+baseline; the frozen language model is the system under test.
 
-The parser \emph{declines} questions outside its grammar instead of guessing.
-Coverage and accuracy are therefore separate numbers, and the results contain
-two symbolic variants: one that abstains, and one that falls back to the
-majority training answer so that it is directly comparable to a model which
-always emits something.
+The grammar declines what it cannot represent rather than guessing. This
+matters more than it sounds: an earlier version had no slot for a status word
+and silently dropped it, so ``what number of stopped things are there'' was
+executed as ``how many objects are there'' and answered $71$ against a
+reference of $10$. Making the grammar able to carry the attribute and the
+preamble referent raised its end-to-end accuracy on all $5{,}916$ mini
+questions from $0.156$ (drop what you cannot express) to $0.231$ at the same
+coverage, with accuracy-when-answering rising from $0.632$ to $0.856$.
 
 \subsection{Execution}
 
-Executing a query is a filter followed by an arithmetic operation. It is
-deterministic, has no learned parameters, and returns the list of objects it
-selected, which is what allows an error to be attributed to perception rather
-than to reasoning. A definite reference whose resolution is ambiguous (``the
-truck'', when the scene contains three) is refused rather than resolved by
-taking the first match: silently choosing would hide the failure and inflate
-the score.
+Executing a program is a filter followed by an arithmetic operation. It is
+deterministic, has no learned parameters, and returns the objects it selected,
+which is what allows an error to be attributed to perception rather than to
+reasoning. A definite reference whose resolution is ambiguous (``the truck'',
+when the scene has three) is refused rather than resolved by taking the first
+match. CLEVR avoids such questions at generation time, calling them ill-posed
+\cite{clevr}; on data we did not generate, well-posedness has to be detected
+instead, and a refusal is counted as a wrong answer throughout.
 
 \begin{figure}[t]
 \centering
 \begin{tikzpicture}[
-  node distance=7mm,
+  node distance=6mm,
   box/.style={draw, rounded corners=2pt, align=center, inner sep=4pt,
               minimum height=8mm, font=\small},
   fixed/.style={box, fill=gray!12},
   learn/.style={box, fill=blue!8},
   arr/.style={-{Latex[length=2mm]}}
 ]
-\node[fixed] (det)  {Pre-extracted 3D detections\\\scriptsize(computed once, never trained)};
-\node[fixed, below=of det] (objs) {Object list: class, box, position};
-\node[box, right=28mm of det] (q) {Question};
-\node[learn, below=of q] (parse) {Structured query\\\scriptsize operation, category, region};
-\node[learn, below=14mm of objs] (exec) {Select objects $+$ geometric operation};
-\node[box, below=of exec] (ans) {Answer};
+\node[fixed] (objs) {Object list in the ego frame\\\scriptsize class, box, status --- identical for both};
+\node[box, above=10mm of objs] (q) {Question};
+\node[learn, left=16mm of objs] (direct) {\textbf{A} \ Qwen\\\scriptsize answers from the list};
+\node[learn, right=16mm of objs] (prog) {\textbf{B} \ Qwen\\\scriptsize writes a program};
+\node[fixed, below=8mm of prog] (exec) {Executor\\\scriptsize filter $+$ sector $+$ count};
+\node[box, below=8mm of objs] (ans) {Answer};
 
-\draw[arr] (det)   -- (objs);
-\draw[arr] (q)     -- (parse);
-\draw[arr] (objs)  -- (exec);
-\draw[arr] (parse) -- (exec);
-\draw[arr] (exec)  -- (ans);
+\draw[arr] (q) -- (direct);
+\draw[arr] (q) -- (prog);
+\draw[arr] (objs) -- (direct);
+\draw[arr] (objs) -- (exec);
+\draw[arr] (prog) -- (exec);
+\draw[arr] (direct) |- (ans);
+\draw[arr] (exec) |- (ans);
 \end{tikzpicture}
-\caption{The symbolic pipeline. Grey is fixed perception, shared with every
-baseline; blue is the only part that varies between the compared systems. No
-language model appears anywhere.}
+\caption{The two modes. Grey is fixed and shared; blue is the same frozen
+checkpoint used two ways. Both branches see the same objects and are told the
+same conventions.}
 \label{fig:pipeline}
 \end{figure}
-
-\subsection{The learned baselines}
-
-Three learned systems consume the same object lists.
-
-\begin{description}[leftmargin=1.4em,style=nextline]
-\item[Question-only.] A bag-of-words encoding of the question feeds an MLP
-  over the answer vocabulary. It never sees the scene. Its accuracy is the
-  language prior, and it is the threshold any other system must clearly clear
-  before it can be said to use the 3D input.
-\item[Deep sets.] The question vector is concatenated to every object feature;
-  a shared encoder is applied per object; sum and mean pooling are concatenated
-  and classified. Sum pooling carries cardinality, which counting needs; mean
-  pooling is scale-stable. This is the ``predict the answer directly''
-  condition --- a miniature of the LiDAR-LLM answer head without the language
-  model.
-\item[Deep sets $+$ explicit counter.] The same backbone with an additional
-  per-object relevance head in $[0,1]$ whose sum is trained, with an $L_1$
-  loss, to equal the count. The inductive bias is ``an answer of $N$ comes from
-  $N$ objects'', without hard-coding which ones.
-\end{description}
-
-The text encoder is deliberately the cheapest possible: CRC32-hashed unigrams
-and bigrams, no pretrained weights. The experiment is about where the
-computation happens, and a gain that required a large text encoder would
-confound that.
 
 % =====================================================================
 \section{Experimental protocol}
 % =====================================================================
 
-\subsection{Data}
+\subsection{The frozen example set}
 
-\textbf{Synthetic (used here).} Scenes are sampled with nuScenes-like class
-frequencies and sizes, and questions are generated \emph{from} queries, so the
-gold program of every question is known --- which is what makes the
-comprehension/geometry split possible. A detector-failure model (12\% drops,
-5\% duplicates, $0.6$\,m localisation jitter) turns the ground-truth list into
-the ``detected'' list the systems consume, so an oracle and a realistic
-perception condition exist for every sample. Ten scenes, 20 samples each, 8
-questions per sample: 1600 questions over 200 samples.
+Both systems are measured on one set, fixed before either ran
+(\code{manifests/first\_comparison.json}): $100$ development and $200$
+evaluation questions drawn from nuScenes-QA mini, over nuScenes ground-truth
+annotations.
 
-A second, \emph{degenerate} setting is reported alongside. Without balancing,
-75\% of answers mean ``nothing is there'' --- a question about a rare class
-inside a $45^{\circ}$ sector is almost always answered ``none''. The default
-setting caps that share at 35\%. The comparison between the two settings is
-itself a result, and it reproduces Real-3DQA's finding on our own data.
+\paragraph{Split by scene, never by sample.} Consecutive samples of one drive
+show the same vehicles, so splitting by sample would make the evaluation set a
+paraphrase of the development set. Development holds seven drives, evaluation
+three, with no overlap.
 
-\textbf{nuScenes.} The same code runs on released CenterPoint detections plus
-a nuScenes-QA style question file, with ground-truth boxes optionally supplied
-for the oracle condition. Those runs are not reported here.
+\paragraph{Selection by what the question asks, not by what a parser manages.}
+Families are assigned from the question's surface structure --- does it name an
+attribute, a direction, a reference object --- using the lexicons directly.
+Keeping the questions the grammar happens to parse would quietly select the
+examples that favour the executed branch. Of the $5{,}916$ mini questions
+$1{,}626$ are in scope; the $4{,}290$ excluded are recorded with their reason
+($2{,}199$ need an operation the frozen language lacks, $1{,}005$ bind an
+attribute to another object, $86$ name no known class).
 
-\subsection{Splits, metrics, probes}
+\paragraph{Four families}, in increasing structural demand: category only
+(``are there any cars''), category with an attribute (``how many parked
+cars''), category in an ego-relative region, and category anchored on another
+object (``behind the truck''). The reference answer is available to the
+evaluator and not to either inference function.
 
-Splits are by scene, never by question. Accuracy is exact match, with an
-abstention counted as an error; for counting questions we also report mean
-absolute error, which separates ``4 instead of 3'' from ``11 instead of 3''.
-Cost is wall-clock time per item, measured identically for all systems; the
-one-off cost of running the detector is excluded from all systems equally.
-Three probes are run.
+\paragraph{An oracle perception condition.} Object lists are ground-truth
+annotations, not detections. This is deliberate: it fixes perception so the
+comparison is about what each system does with a scene rather than who sees it
+better. It also bounds the claim --- nothing in Section~\ref{sec:results}
+speaks to detection quality.
 
-\label{sec:probes}
-\paragraph{Contrast pairs.} The same question text paired with two samples
-having different correct answers; a pair counts only if both are right. A
-system answering from the language prior cannot score here.
+\subsection{The executor, checked before any model ran}
 
-\paragraph{Counterfactual moves.} One object is moved from one sector to
-another and the reference answer is recomputed. We report accuracy and how
-often the answer changed at all, because failing to react is the more
-diagnostic failure. The reference answers come from the same executor the
-symbolic system uses, so that system scores $1.000$ by construction; the probe
-is evidence about the learned baselines and a regression test for the symbolic
-one.
+Attributing a wrong answer to the model requires knowing the executor is
+right. On the development split, reference programs produced by the rule
+grammar and read by hand were executed on the frozen object lists with no
+model involved: \textbf{$91/100$}, with the category-only and attribute
+families at $25/25$. All nine disagreements were read and categorised:
+\emph{eight} are the diagonal-sector residual of Section~\ref{sec:sectors},
+and \emph{one} is a question whose definite reference (``the not standing
+pedestrian'') matches $22$ objects --- nuScenes-QA answers it anyway, so its
+one-hop templates appear to read the reference existentially rather than as a
+definite description. That disagreement is left as a refusal and charged
+against the executed system, not excused.
 
-\paragraph{Perception degradation.} Detections are dropped, duplicated and
-jittered, one failure mode at a time. This perturbs detections, not the point
-cloud, and therefore models detector failures rather than sensor noise.
+\subsection{Matched conditions}
 
-\subsection{Error decomposition}
-\label{sec:errors}
+Both modes use the same checkpoint (Qwen2.5-1.5B-Instruct) loaded through one
+shared runtime, the same dtype, greedy decoding, and the same $256$-token
+budget. Both receive the same object rows at the same rounding, in an order
+that does not depend on the question --- no list pre-filtered by what is being
+asked, no precomputed counts. Both are told the same conventions: the ego
+frame, the six sectors with their numeric bounds, and the treatment of unknown
+status.
 
-Each symbolic error is attributed to a stage: \textbf{perception} (the same
-parsed program on ground-truth objects gives the right answer),
-\textbf{comprehension} (the parsed query differs from the gold query),
-\textbf{geometry} (query and objects both right, region maths wrong),
-\textbf{declined} (outside the grammar), or \textbf{unattributed} (no oracle
-boxes or gold program available).
+Two safeguards are worth naming. Prompts longer than the context budget are
+\emph{refused} rather than trimmed, because trimming deletes objects and the
+loss would be scored as a reasoning error; and every generation records
+whether it stopped on its own or ran out of budget, after an earlier run lost
+$26\%$ of its programs to a $96$-token budget, $97\%$ of them to truncation ---
+a configuration choice that had been read as a model failure. In the runs
+reported here no generation was truncated.
 
-% =====================================================================
-\section{Results}
-% =====================================================================
-
-All figures are means over seeds $0,1,2$ with population standard deviations,
-test split $n=320$ per seed. The balanced setting has $37.1\%$ trivial answers
-and a majority-answer accuracy of $0.296$; the degenerate setting has $75.0\%$
-and $0.412$. Parser coverage is $1.000$ in both, by construction: the questions
-were generated from the same grammar, so coverage here measures the instrument,
-not the language.
-
-\begin{table}[h]
-\centering
-\caption{Main comparison at fixed perception, balanced setting. All systems see
-the same detections and the same scene-level split.}
-\label{tab:main}
-\small
-\begin{tabular}{lrrrr}
-\toprule
-System & Accuracy & Count MAE & Params & ms/item \\
-\midrule
-Majority answer          & 0.296 & --- & 0 & --- \\
-Question only            & $0.656 \pm 0.012$ & $0.722 \pm 0.093$ & 35\,863 & 0.68 \\
-Deep sets                & $0.655 \pm 0.020$ & $0.654 \pm 0.088$ & 120\,855 & 0.88 \\
-Deep sets $+$ counter    & $0.644 \pm 0.018$ & $0.534 \pm 0.035$ & 129\,176 & 1.09 \\
-\textbf{Symbolic}        & $\mathbf{0.916 \pm 0.027}$ & $\mathbf{0.132 \pm 0.053}$ & \textbf{0} & \textbf{0.23} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Three things stand out in Table \ref{tab:main}. The symbolic system is $26$
-accuracy points above the best learned system and its counting error is four
-times smaller, with no trained parameters and three times less inference time.
-Neither learned model beats the question-only control: deep sets matches it to
-within noise and the counter is marginally below it. And the counter does what
-it was designed to do, but only partially --- it cuts the counting error from
-$0.654$ to $0.534$ without improving accuracy, so the inductive bias improves
-the magnitude of the estimate without making it exact.
-
-\begin{table}[h]
-\centering
-\caption{Consistency probes, balanced setting. Pair accuracy requires both
-members of a contrast pair to be correct. The symbolic system's counterfactual
-score is $1.000$ by construction (Section \ref{sec:probes}).}
-\label{tab:probes}
-\small
-\begin{tabular}{lrrr}
-\toprule
-System & Pair accuracy & Counterfactual acc. & Answer changed \\
-\midrule
-Question only         & 0.000 & 0.433 & 0.531 \\
-Deep sets             & 0.022 & 0.443 & 0.558 \\
-Deep sets $+$ counter & 0.076 & 0.406 & 0.521 \\
-Symbolic              & 0.643 & 1.000$^{\dagger}$ & 1.000$^{\dagger}$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table \ref{tab:probes} is the sharper result. A question-only model scores
-exactly zero on contrast pairs, as it must: given one question text and two
-different correct answers it can produce only one of them. Deep sets reaches
-$0.022$ and the counter $0.076$ --- both far closer to the blind model than to
-the symbolic system's $0.643$. On the accuracy table one could argue the
-learned models were using the scene a little; on contrast pairs they are
-essentially not using it at all.
-
-\begin{table}[h]
-\centering
-\caption{Accuracy under detector degradation, balanced setting.}
-\label{tab:robust}
-\small
-\begin{tabular}{lrrrr}
-\toprule
-Setting & Question only & Deep sets & $+$ counter & Symbolic \\
-\midrule
-clean                & 0.656 & 0.655 & 0.644 & 0.916 \\
-drop $10\%$          & 0.656 & 0.652 & 0.641 & 0.867 \\
-drop $20\%$          & 0.656 & 0.646 & 0.636 & 0.811 \\
-drop $30\%$          & 0.656 & 0.648 & 0.620 & 0.750 \\
-duplicate $10\%$     & 0.656 & 0.661 & 0.639 & 0.878 \\
-duplicate $20\%$     & 0.656 & 0.654 & 0.617 & 0.832 \\
-jitter $0.5$\,m      & 0.656 & 0.655 & 0.644 & 0.915 \\
-jitter $1.5$\,m      & 0.656 & 0.656 & 0.646 & 0.907 \\
-jitter $3.0$\,m      & 0.656 & 0.657 & 0.646 & 0.899 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The hypothesis that a learned counter would prove more robust than exact
-arithmetic is not supported. The symbolic system does degrade, and steeply
-under dropped detections --- $0.916 \to 0.750$ at a $30\%$ drop rate, by far
-the most damaging failure mode --- while localisation jitter costs it almost
-nothing, as $45^{\circ}$ sectors are coarse relative to a $3$\,m error. But it
-stays above every learned system at every level tested. The learned curves are
-flat, and that flatness is not robustness: a model that ignores the object list
-cannot be harmed by corrupting it. Reading those two rows as ``more robust''
-would be a mistake, and the contrast-pair column is what prevents it.
-
-\begin{table}[h]
-\centering
-\caption{Where the symbolic system's errors come from, balanced setting
-(mean counts over 320 test items).}
-\label{tab:errors}
-\small
-\begin{tabular}{lrr}
-\toprule
-Error kind & Count & Fraction \\
-\midrule
-Correct        & 293.0 & 0.916 \\
-Perception     & 27.0  & 0.084 \\
-Comprehension  & 0.0   & 0.000 \\
-Geometry       & 0.0   & 0.000 \\
-Declined       & 0.0   & 0.000 \\
-Unattributed   & 0.0   & 0.000 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Every symbolic error traces to perception: re-running the identical program on
-ground-truth boxes answers all of them correctly. Zero comprehension errors and
-zero geometry errors are the expected outcome on questions generated from the
-same grammar the parser implements, and should be read as a check that the
-instrument works rather than as a claim about natural language. On real
-nuScenes-QA text the comprehension row would be non-empty, and the value of the
-decomposition is that it would say by how much.
-
-\paragraph{Benchmark design changes the conclusion.} In the degenerate setting
-every number inflates and the differences compress: question-only reaches
-$0.757$, deep sets $0.766$, the counter $0.775$ and the symbolic system
-$0.950$. Reported alone, those figures would suggest the learned models do use
-the scene --- they beat the blind model --- when in fact they are riding a
-$75\%$ base rate of ``nothing there''. Contrast-pair accuracy stays at $0.000$,
-$0.045$ and $0.063$ respectively, exposing it. This is Real-3DQA's argument
-reproduced on our own data, and it is the strongest methodological lesson of
-the project: with a skewed answer distribution, a headline accuracy is close to
-uninformative.
+The caches are separate and keyed differently. A program depends on the
+question; a direct answer depends on the question \emph{and} the scene.
+Sharing a key would serve one scene's answer for another's, destroying the
+control of Section~\ref{sec:scene}.
 
 % =====================================================================
-\section{One model, two ways of using it}
+\section{Results: one model, two ways of using it}
+\label{sec:results}
 % =====================================================================
-
-The results above compare an executed system against \emph{trained} baselines.
-That leaves the comparison the argument actually needs unmade: a learned model
-and a program-writing model differ in architecture, in training and in what
-they are given, so a gap between them is not attributable to the division of
-labour this report defends. The experiment below removes every difference but
-that one.
-
-\subsection{Protocol}
-
-Both systems use \textbf{the same checkpoint} (Qwen2.5-1.5B-Instruct), loaded
-once through a shared runtime, decoded greedily, with the same token budget.
-Both are given \textbf{the same object list} --- ground-truth nuScenes
-annotations, an oracle condition that fixes perception so the comparison is
-about what each system does with a scene and not about who sees it better ---
-at the same rounding, in an order that does not depend on the question. Both
-are told \textbf{the same conventions}: the ego frame, the six
-$60^{\circ}$ sectors, and that an unknown attribute is not a different
-attribute. They differ in one respect:
-
-\begin{itemize}[nosep]
-\item \textbf{A, direct.} Question $+$ objects $\rightarrow$ model
-      $\rightarrow$ answer.
-\item \textbf{B, executed.} Question $\rightarrow$ the same model
-      $\rightarrow$ program $\rightarrow$ executor on the same objects
-      $\rightarrow$ answer.
-\end{itemize}
-
-The example set is fixed in advance (\code{manifests/first\_comparison.json}):
-$100$ development and $200$ evaluation questions, \textbf{split by scene} so no
-drive appears on both sides, drawn from the four question families the frozen
-language can represent. Families are assigned from the question's surface
-structure, never by checking which questions the parser copes with --- that
-would select the examples favouring~B. Of the $5916$ nuScenes-QA mini
-questions, $1626$ are in scope; the $4290$ excluded are recorded with their
-reason.
-
-Before any model was run, the executor was checked on the development split
-with reference programs and no model involved: $91/100$, with the
-category-only and attribute families at $25/25$. All nine disagreements were
-read and categorised. Eight are boundary disagreements on the diagonal
-sectors; the sector convention itself was checked against the gold answers
-rather than assumed, and uniform $60^{\circ}$ sectors with no range limit
-($76.5\%$ exact over the $68$ ego-anchored directional questions) beat a
-mirrored $y$ axis ($72.1\%$), the six nuScenes camera fields of view
-($67.6\%$), $45^{\circ}$ octants ($61.8\%$) and overlapping quadrants
-($51.5\%$). The boundaries were deliberately \emph{not} fitted to close the
-residual: an executor tuned on the gold answers would help the branch that
-computes with those boundaries far more than the branch that only reads them
-in prose.
-
-\subsection{Result}
 
 Nothing was changed between the two splits. The development result was
-measured twice, once before and once after a fix to the cost accounting and
-the batching, and every accuracy figure was identical, so that change is not a
-confound.
+measured twice, before and after a fix to cost accounting and batching, and
+every accuracy figure was identical.
 
 \begin{table}[h]
 \centering
+\small
 \begin{tabular}{lrrrr}
 \toprule
  & \multicolumn{2}{c}{development ($n{=}100$)} & \multicolumn{2}{c}{evaluation ($n{=}200$)} \\
@@ -594,38 +454,48 @@ Under-counting            & 2.08  & 0.54  & 1.84  & 0.34 \\
 Over-counting             & 0.35  & 0.00  & 0.31  & 0.34 \\
 Mean absolute error       & 2.43  & \textbf{0.54} & 2.16 & \textbf{0.68} \\
 \midrule
-Input / output tokens     & \multicolumn{1}{c}{124\,311 / 200} &
-                            \multicolumn{1}{c}{112\,095 / 5\,756} &
-                            \multicolumn{1}{c}{217\,272 / 400} &
-                            \multicolumn{1}{c}{178\,402 / 9\,731} \\
+Input / output tokens     & 124\,311 / 200 & 112\,095 / 5\,756
+                          & 217\,272 / 400 & 178\,402 / 9\,731 \\
 Generation time (T4)      & 47.3\,s & 59.3\,s & 58.8\,s & 101.0\,s \\
 \bottomrule
 \end{tabular}
 \caption{Both modes of Qwen2.5-1.5B-Instruct. Refusals and invalid programs
 count as wrong answers in the accuracy row. The evaluation split shares no
 scene with development.}
+\label{tab:ab}
 \end{table}
 
 The aggregate hides the measurement that matters. Paired question by question:
 
 \begin{center}
+\small
 \begin{tabular}{lrrrrr}
 \toprule
  & A only & B only & both & neither & sign test \\
 \midrule
-development & 15 & \textbf{38} & 36 & 11 & $p = 0.0022$ \\
-evaluation  & 31 & \textbf{67} & 70 & 32 & $p = 0.00035$ \\
+development & 15 & \textbf{38} & 36 & 11 & $p = 2.2\times10^{-3}$ \\
+evaluation  & 31 & \textbf{67} & 70 & 32 & $p = 3.5\times10^{-4}$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The advantage is not sampling noise and it survives the move to
-unseen scenes. The counting improvement is not an artefact of abstention
-either --- the two modes produce an integer on practically the same questions
-($1.000$ against $0.988$ on evaluation).
+\noindent The advantage survives the move to unseen scenes, and the counting
+improvement is not an artefact of abstention: the two modes produce an integer
+on practically the same questions ($1.000$ against $0.988$).
+
+\paragraph{The sign test is optimistic, and here is by how much.} It assumes
+independent questions. Two hundred questions over three drives are not
+independent --- answers within a drive share a scene --- so the effective
+sample is nearer three than two hundred. Per drive the margin is $+0.212$,
+$+0.188$ and $+0.138$ (B at $0.758$, $0.725$, $0.569$ against A at $0.545$,
+$0.536$, $0.431$): same sign, same order of magnitude, on all three. That
+consistency is the honest claim. A cluster bootstrap over three clusters can
+only draw ten distinct resamples and returns a spuriously tight interval; we
+do not report one.
 
 \begin{table}[h]
 \centering
+\small
 \begin{tabular}{lrrrr}
 \toprule
  & \multicolumn{2}{c}{development} & \multicolumn{2}{c}{evaluation} \\
@@ -639,6 +509,7 @@ Ego-relative region                    & 0.320 & 0.800 & 0.442 & 0.465 \\
 \bottomrule
 \end{tabular}
 \caption{Per family. Only the first row is stable across the two splits.}
+\label{tab:family}
 \end{table}
 
 \paragraph{Only one family generalises cleanly.} The attribute family is a
@@ -646,114 +517,229 @@ large, consistent win ($+0.36$ then $+0.42$): applying ``parked'' as a filter
 is exactly what an executor does and a $1.5$B model does not. The other three
 move substantially between the splits --- the ego-relative gain falls from
 $+0.48$ to $+0.02$, and the category-only comparison changes sign. At $25$ to
-$54$ questions a family these are too noisy to carry an argument, and we do
-not build one on them: the result rests on the aggregate and the paired table.
-Had only the development split been run, the ego-relative row would have
-looked like the headline finding.
+$54$ questions per family these are too noisy to carry an argument, and we do
+not build one on them. Had only the development split been run, the
+ego-relative row would have looked like the headline finding; it is the
+clearest argument in this report for holding scenes back.
 
 \paragraph{The direct model does not scan the list.} Its errors are not
-marginal. On questions whose answer is $7$, $9$ or $10$ it answers $1$, $3$ and
-$2$; on preamble questions it answers $1$ almost regardless of the scene. With
+marginal. Where the reference is $7$, $9$ or $10$ it answers $1$, $3$ and $2$;
+on preamble questions it answers $1$ almost regardless of the scene. With
 forty-odd object rows in the prompt, a $1.5$B model emits a small number rather
-than enumerating. Its under-counting ($1.84$ to $2.08$) dwarfs its
-over-counting ($0.31$ to $0.35$), which is the signature of not looking rather
-than of looking badly. Its answer \emph{format} was never the obstacle: all
-three hundred direct outputs were readable.
+than enumerating. Its under-counting ($1.84$--$2.08$) dwarfs its over-counting
+($0.31$--$0.35$), the signature of not looking rather than of looking badly.
+Its answer \emph{format} was never the obstacle: all three hundred direct
+outputs parsed.
 
-\paragraph{The scene-dependence control.} Thirteen questions appear verbatim on
-two evaluation scenes with different reference answers. The direct model gives
-one answer to both in four of the thirteen and is correct on every scene of a
-group in one of them. The executed system never gives one answer to a whole
-group, and is correct across \emph{all thirteen}. A system that answers the
-same question identically whatever the scene is reciting the template's usual
-answer, and no aggregate accuracy reveals it.
+\paragraph{Cost.} The two modes are closer than the accuracy gap suggests. On
+evaluation A consumes $217{,}272$ input and $400$ output tokens, B $178{,}402$
+input and $9{,}731$ output: B reads less, because it never sees the objects,
+and writes twenty-four times more, because it writes a program. Wall-clock
+generation is $59$\,s against $101$\,s on one T4, both batched identically.
 
-\paragraph{What B pays, and where it fails.} B failed on $14\%$ of development
-and $9\%$ of evaluation, all counted as wrong above: invalid programs ($12$ and
-$8$) plus refusals for an ambiguous or missing reference ($2$ and $10$). Every
-one of the twelve invalid development programs has the same cause: for
-``things'' the model emits \code{"category": "*"}, a token outside the
-vocabulary, although the prompt lists the ten classes and states the rule
-mapping ``thing'' to \code{object}. That is a failure of the model at this
-size, not a gap in the instructions, and it is the clearest candidate for the
-larger-model test. On cost the two modes are closer than the accuracy gap
-suggests: on evaluation A consumes $217\,272$ input and $400$ output tokens, B
-$178\,402$ input and $9\,731$ output --- B reads less, because it never sees
-the objects, and writes twenty-four times more, because it writes a program.
+\subsection{The scene-dependence control}
+\label{sec:scene}
 
-\paragraph{What this does and does not show.} B brings code that already knows
-the geometry. The result shows that \emph{this} division of labour helps on
-\emph{these} questions at \emph{this} model size. It is not evidence that
-language models cannot reason about space, and the difference between $0.505$
-and $0.685$ should not be read that way. Three limits bound it. The evaluation
-rests on three drives, and answers within a drive are correlated, so the
-effective sample is nearer three than two hundred --- which is why the result
-is reported per scene ($0.758$, $0.725$, $0.569$ for B against $0.545$,
-$0.536$, $0.431$ for A: B is ahead on each, by a margin that varies). The
-object lists are ground truth, so nothing here speaks to perception. And the
-direct mode reads a prompt of some $1\,100$ tokens of object rows, so part of
-its disadvantage may be context length rather than reasoning --- a $1.5$B
-model is a weak reader of long tables, and that is precisely what the
-larger-model repetition is for. The honest statement is narrower than the
-headline: at a fixed model and fixed scene data, emitting a program for an
-executor to run was substantially more reliable than emitting the answer, and
-the only family where that held stably across both splits was the one asking
-for an attribute filter.
+Thirteen evaluation questions appear verbatim on two scenes with different
+reference answers. A system that does not read the objects gives the same
+answer to both and scores on whichever scene matches its prior.
+
+\begin{center}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+ & groups & \multicolumn{2}{c}{A, direct} & \multicolumn{2}{c}{B, executed} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+ & & one answer to all & right on every scene & one answer to all & right on every scene \\
+\midrule
+development & 5  & 2 & 0 & 1 & 4 \\
+evaluation  & 13 & 4 & \textbf{1} & \textbf{0} & \textbf{13} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent On the evaluation split the executed system never gives one answer to
+a whole group and is correct across all thirteen; the direct model is correct
+across a group once. No aggregate accuracy reveals that, and this is the
+instrument Real-3DQA \cite{real3dqa} argues for.
+
+% =====================================================================
+\section{Where the executed system fails}
+\label{sec:failures}
+% =====================================================================
+
+An accuracy of $0.685$ says nothing about what to do next. The $31.5\%$ that is
+wrong contains four problems with four different remedies, and they are
+separable without a model: where the model's program matches the deterministic
+grammar's and the answer is still wrong, the program is not at fault.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrl}
+\toprule
+Failure & $n$ & share & what it asks for \\
+\midrule
+Program says something else   & 27 & 43\% & better prompt, examples, bigger model \\
+\quad wrong operation         & 22 &      & \code{count} written for an existence question \\
+\quad wrong or dropped status & 2  &      & \code{not with rider} for \code{without rider} \\
+\quad other                   & 3  &      & \\
+Program right, answer wrong   & 18 & 29\% & the executor and the data \\
+Refused at execution          & 10 & 16\% & ambiguous (8) or missing (2) reference \\
+Malformed output              & 8  & 13\% & a budget, or constrained decoding \\
+\midrule
+Total                         & 63 & 100\% & \\
+\bottomrule
+\end{tabular}
+\caption{The executed system's $63$ evaluation failures, triaged.}
+\label{tab:triage}
+\end{table}
+
+Three conclusions follow, and they decide where effort should go.
+
+\paragraph{The bottleneck is writing the program, not executing it.} Forty-five
+of $63$ failures ($71\%$) are the model producing a program that does not match
+the question, or no program at all. Only $18$ ($29\%$) survive to the executor
+and disagree there, and those are the diagonal-sector residual of
+Section~\ref{sec:sectors}. Widening the target language --- the obvious next
+engineering move, and one we deliberately did not make --- would address almost
+none of this.
+
+\paragraph{The largest single failure is a format mismatch, not a
+misunderstanding.} In $22$ cases the model writes \code{count} for a question
+asking \code{exists}: ``are there any moving cars to the front left of me?''
+becomes a counting program. The selector is usually right; the answer is then
+an integer, which can never match a yes/no reference. One third of all failures
+is a model that understood the scene query and chose the wrong return type.
+
+\paragraph{The malformed outputs have one cause.} All eight emit
+\code{"category": "*"} for ``things'', a token outside the vocabulary, although
+the prompt lists the ten classes \emph{and} states the rule mapping ``thing''
+to \code{object}. The instructions are not at fault; a $1.5$B model is. This is
+the clearest single thing to re-test with a larger model, and the one category
+of failure that grammar-constrained decoding would eliminate by construction.
+
+% =====================================================================
+\section{A preliminary study on synthetic scenes}
+\label{sec:synthetic}
+% =====================================================================
+
+Before the nuScenes protocol existed, the same executor was compared against
+\emph{trained} baselines on a synthetic corpus, under the earlier
+$45^{\circ}$ octant convention. Those numbers are reported here as a
+preliminary study, not as results on nuScenes-QA, and the convention alone
+makes them non-comparable with Section~\ref{sec:results}.
+
+Scenes are sampled with nuScenes-like class frequencies, questions are
+generated \emph{from} programs so every gold program is known, and a
+detector-failure model (12\% drops, 5\% duplicates, $0.6$\,m jitter) produces
+a ``detected'' list. \textbf{This simulates detector behaviour; it does not
+measure a detector.} No 3D detector was run anywhere in this project, and no
+claim about detection quality is made from it.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+System & Accuracy & Count MAE & Pair acc. & Params \\
+\midrule
+Majority answer          & 0.296 & --- & --- & 0 \\
+Question only (blind)    & $0.656 \pm 0.012$ & $0.722$ & 0.000 & 35\,863 \\
+Deep sets                & $0.655 \pm 0.020$ & $0.654$ & 0.022 & 120\,855 \\
+Deep sets $+$ counter    & $0.644 \pm 0.018$ & $0.534$ & 0.076 & 129\,176 \\
+\textbf{Symbolic}        & $\mathbf{0.916 \pm 0.027}$ & $\mathbf{0.132}$ & \textbf{0.643} & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\caption{Synthetic corpus, $45^{\circ}$ octants, means over seeds $0,1,2$.
+Pair accuracy requires both members of a contrast pair --- one question text,
+two scenes with different answers --- to be correct.}
+\label{tab:synthetic}
+\end{table}
+
+Neither learned model beats the question-only control. On contrast pairs the
+gap is starker: a blind model must score zero, deep sets reaches $0.022$ and
+the counter $0.076$, against $0.643$. On the accuracy column one could argue
+the learned models use the scene a little; on contrast pairs they essentially
+do not.
+
+Two cautions that the nuScenes work later confirmed. First, benchmark design
+changes the conclusion: on an unbalanced version of the same corpus, where
+$75\%$ of answers mean ``nothing there'', the learned models appear to beat the
+blind baseline while their contrast-pair accuracy stays near zero. Second,
+these learned baselines were also run on real nuScenes-QA questions, where
+deep sets does \emph{not} reliably beat the blind prior --- paired by seed the
+margins are $-0.021$, $+0.032$, $+0.025$ --- and where replacing ground-truth
+objects with simulated detections moves it by $+0.019$, $-0.030$, $+0.010$. A
+model whose score is unchanged when the 3D input is corrupted has not been
+shown to use it.
 
 % =====================================================================
 \section{Discussion}
 % =====================================================================
 
-\paragraph{What the study establishes.}
-On this task and this corpus, decomposing a spatial question into explicit
-operations is better on every axis measured: accuracy, counting error,
-consistency, parameter count and inference time. The margin is large enough
-that it does not depend on tuning. The learned baselines were given the same
-object lists and the same budget and did not clear a model that never looks at
-the scene.
+\paragraph{What this establishes.} At a fixed language model, fixed scene data
+and fixed conventions, emitting an executable program was substantially more
+reliable than emitting the answer: $0.685$ against $0.505$ on held-out drives,
+with a paired advantage of $67$ to $31$ and a counting error three times
+smaller at equal coverage. The scene-dependence control separates the two
+modes more sharply than any aggregate. The study is also cheap enough to
+repeat: nothing is trained, and the whole comparison is three minutes on a free
+T4.
 
-\paragraph{What it does not establish.}
-It does not establish an improvement to LiDAR-LLM. Demonstrating that requires
-integrating the module into the full system and evaluating against a comparable
-baseline; a result obtained with a small answer head does not transfer by
-assumption. The corpus is synthetic --- no occlusion, no range-dependent class
-confusion, uniform layout --- so it bounds what is worth trying on nuScenes
-rather than standing in for it. Parser coverage of $1.000$ is an artefact of
-generating questions from the grammar; on real text it would drop, and the
-abstention column exists for that reason. And the restricted grammar means the
-symbolic system is not a general question answerer: outside counting, existence
-and comparison it has nothing to say.
+\paragraph{What it does not establish.} Branch B brings hand-written code that
+implements the benchmark's semantics, verified at $91/100$. Its ceiling is high
+by construction, and the question is really whether the \emph{model} can write
+the program --- which it does validly $92$--$96\%$ of the time, reaching
+$0.753$ when it does. The result is not evidence that language models cannot
+reason about space. The baseline is also weak in a specific way: a $1.5$B model
+asked to count rows in a $44$-line table of floats is being tested on something
+it is known to be poor at, and part of A's disadvantage may be context length
+rather than reasoning. Objects are ground truth, so nothing here speaks to
+perception. And the evaluation rests on three drives.
 
-\paragraph{If the architecture must stay LiDAR $+$ LLM.}
-The natural integration keeps a small frozen language model for the language
-interface and lets it call the executor, as KLDrive \cite{kldrive} does over
-its knowledge graph: the model decides \emph{what} to compute, the executor
-decides \emph{what the value is}. KLDrive's $64.46\%$ counting accuracy against
-$18.45\%$ for a direct-prediction baseline is consistent with what we measure
-at much smaller scale, and is the obvious next experiment.
+\paragraph{The one experiment that would settle the open question.} Repeating
+the comparison with a substantially larger checkpoint, changing nothing else,
+separates the two explanations currently confounded: ``the model cannot write
+the program'' and ``the model cannot count from a table''. If the direct mode
+catches up at scale, the result is a fact about model size; if it does not, it
+is a fact about the division of labour. Section~\ref{sec:failures} predicts
+which failures should move --- the $8$ malformed outputs and the $22$ wrong
+return types are exactly the kind a more capable model fixes.
 
-\paragraph{Why the distillation line was dropped.}
-The previous report proposed distilling the fine-tuned LLM into a smaller
-student. Distillation reduces the cost of a demonstrated capability; it cannot
-create one. Since no spatial competence was established in the teacher,
-distilling it would have measured compression quality against an unmeasured
-reference.
+\paragraph{Why the DSL was frozen.} A composable, CLEVR-style catalogue of
+typed operations \cite{clevr} --- \code{filter}, \code{unique}, \code{relate},
+\code{same\_status}, \code{query}, with explicit input and output types --- is
+implemented in the repository and deliberately \emph{not} wired into any
+experiment. It would widen coverage from four families to the whole benchmark,
+but Table~\ref{tab:triage} says the current failures are overwhelmingly not
+expressiveness. Building a new language and changing model size at once would
+leave neither attributable.
+
+\paragraph{Why the distillation line was dropped.} The previous report proposed
+distilling the fine-tuned LLM into a smaller student. Distillation reduces the
+cost of a demonstrated capability; it cannot create one, and no spatial
+competence was established in the teacher.
 
 % =====================================================================
 \section{Conclusion}
 % =====================================================================
 
 The original project established that the LiDAR-LLM architecture can be wired
-up on a laptop, and nothing more. Rather than repeat that attempt with a
-smaller language model, this revision asks whether, at fixed perception,
-decomposing a spatial question into explicit operations beats predicting the
-answer directly. On a balanced synthetic corpus it does, decisively and at zero
-training cost, and the learned alternatives fail to beat a blind baseline. The
-protocol was built to admit the opposite conclusion --- a learned counter more
-robust to detector noise would have shown up in Table \ref{tab:robust} --- and
-it did not appear. The most transferable finding is methodological: the same
-systems compared on an unbalanced version of the same corpus look three times
-closer together than they are.
+up on a laptop, and nothing more. This revision asks a narrower question that
+the same hardware answers: given one frozen $1.5$B model and one object list,
+is it better to produce the answer or to produce a program? On held-out
+nuScenes drives, the program. The margin is large, paired, and consistent
+across all three drives, and the scene-dependence control shows the direct mode
+largely reciting template answers while the executed mode tracks the scene.
+
+The two findings most likely to be useful elsewhere are not about the
+comparison. The six nuScenes-QA relations are uniform $60^{\circ}$ bearing
+sectors, recovered by fitting the reference answers rather than assumed, and
+the appealing six-camera reading is wrong. And $23\%$ of nuScenes annotations
+have no LiDAR return at all while the benchmark counts them, so filtering
+objects by LiDAR support --- the obvious thing to do when building from a point
+cloud --- costs $49$ accuracy points on otherwise correct programs.
 
 % =====================================================================
 \begin{thebibliography}{99}
@@ -771,6 +757,15 @@ closer together than they are.
 \bibitem{nuscenesqa} T. Qian, J. Chen, L. Zhuo, Y. Jiao, Y.-G. Jiang.
   \emph{NuScenes-QA: A Multi-Modal Visual Question Answering Benchmark for
   Autonomous Driving Scenario}. AAAI, pp.\ 4542--4550, 2024.
+
+\bibitem{clevr} J. Johnson, B. Hariharan, L. van der Maaten, L. Fei-Fei,
+  C. L. Zitnick, R. Girshick. \emph{CLEVR: A Diagnostic Dataset for
+  Compositional Language and Elementary Visual Reasoning}.
+  CVPR, 2017. arXiv:1612.06890.
+
+\bibitem{nsvqa} K. Yi, J. Wu, C. Gan, A. Torralba, P. Kohli, J. B. Tenenbaum.
+  \emph{Neural-Symbolic VQA: Disentangling Reasoning from Vision and Language
+  Understanding}. NeurIPS, 2018. arXiv:1810.02338.
 
 \bibitem{centerpoint} T. Yin, X. Zhou, P. Kr\"ahenb\"uhl.
   \emph{Center-Based 3D Object Detection and Tracking}.
