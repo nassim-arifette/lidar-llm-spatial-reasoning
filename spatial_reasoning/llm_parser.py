@@ -289,7 +289,16 @@ def query_from_json(
 
     comparison = blob.get("comparison")
     if op is Op.COMPARE_COUNT:
-        comparison = str(comparison or "more").strip().lower()
+        # The last surviving `str(x or default)`. Any falsy value of any type
+        # collapsed to "more", so a model that emitted `false` for a "fewer"
+        # question had its program silently inverted -- and counted as a
+        # successful parse, so the error appeared as reasoning, not parsing.
+        if comparison is None:
+            raise InvalidProgram("compare_count requires an explicit comparison")
+        if not isinstance(comparison, str):
+            raise InvalidProgram(
+                f"comparison must be a string, got {type(comparison).__name__}")
+        comparison = comparison.strip().lower()
         if comparison not in ("more", "fewer"):
             raise InvalidProgram(f"unknown comparison {comparison!r}")
     else:

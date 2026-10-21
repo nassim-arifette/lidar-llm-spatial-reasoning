@@ -344,19 +344,27 @@ def load_simple_scenes(path: str) -> Dict[str, Scene]:
         payload = json.load(fh)
 
     scenes: Dict[str, Scene] = {}
+    dropped_unknown = 0
     for entry in payload:
-        objs = [
-            Object3D(
-                category=canonical_category(o["category"]) or o["category"],
+        objs = []
+        for o in entry.get("objects", []):
+            name = canonical_category(o["category"])
+            if name is None:
+                # canonical_category returns None deliberately for classes we
+                # ignore. Falling back to the raw value kept an unmapped (or
+                # non-string) label in a field the executors match on, so two
+                # executors disagreed on the same scene with no error.
+                dropped_unknown += 1
+                continue
+            objs.append(Object3D(
+                category=name,
                 center=o["center"],
                 size=o.get("size", [1.0, 1.0, 1.0]),
                 yaw=o.get("yaw", 0.0),
                 score=o.get("score", 1.0),
                 token=o.get("token"),
                 status=o.get("status"),
-            )
-            for o in entry.get("objects", [])
-        ]
+            ))
         token = entry["sample_token"]
         scenes[token] = Scene(
             sample_token=token,
@@ -364,6 +372,8 @@ def load_simple_scenes(path: str) -> Dict[str, Scene]:
             scene_token=entry.get("scene_token"),
             source=entry.get("source", "detection"),
         )
+    if dropped_unknown:
+        print(f"[scenes] dropped {dropped_unknown} objects with an unmappable category")
     return scenes
 
 

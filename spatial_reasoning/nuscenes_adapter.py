@@ -82,6 +82,8 @@ class ConversionReport:
     annotations_kept: int = 0
     dropped_no_lidar_points: int = 0
     dropped_unknown_category: int = 0
+    samples_without_pose: int = 0
+    questions_without_answer: int = 0
 
     def as_dict(self) -> Dict[str, int]:
         return {
@@ -91,6 +93,7 @@ class ConversionReport:
             "annotations_kept": self.annotations_kept,
             "dropped_no_lidar_points": self.dropped_no_lidar_points,
             "dropped_unknown_category": self.dropped_unknown_category,
+            "samples_without_pose": self.samples_without_pose,
         }
 
 
@@ -140,6 +143,9 @@ def load_nuscenes_scenes(
         token = sample["token"]
         pose = pose_of_sample.get(token)
         if pose is None:
+            # Counted, not silently skipped: a sample absent from the output
+            # is a sample the whole evaluation never saw.
+            report.samples_without_pose += 1
             continue
 
         global_objects: List[Object3D] = []
@@ -212,13 +218,17 @@ def load_nuscenes_qa(
         records = records.get("questions", list(records.values()))
 
     items = []
-    skipped = 0
+    skipped = no_answer = 0
     for r in records:
         token = r.get(token_field) or r.get("sample_token")
         if token is None:
             continue
         if scenes is not None and token not in scenes:
             skipped += 1
+            continue
+        if r.get("answer") in (None, ""):
+            # str(None) is 'none', indistinguishable from a real answer word.
+            no_answer += 1
             continue
         items.append(QAItem(
             question=r.get("question", ""),

@@ -68,9 +68,17 @@ def load_qa_json(path: str, scene_lookup: Optional[Dict[str, str]] = None) -> Li
     records = payload.get("questions", payload) if isinstance(payload, dict) else payload
 
     items: List[QAItem] = []
+    dropped_no_token = dropped_no_answer = 0
     for r in records:
         token = r.get("sample_token") or r.get("token") or r.get("sample")
         if token is None:
+            dropped_no_token += 1
+            continue
+        if r.get("answer") in (None, ""):
+            # A missing answer became '' and a null one became the string
+            # 'none', both scored as ordinary items against which no system
+            # could ever be right.
+            dropped_no_answer += 1
             continue
         items.append(QAItem(
             question=r.get("question") or r.get("text") or "",
@@ -79,6 +87,9 @@ def load_qa_json(path: str, scene_lookup: Optional[Dict[str, str]] = None) -> Li
             scene_token=r.get("scene_token") or (scene_lookup or {}).get(token),
             template=r.get("template_type") or r.get("question_type") or "unknown",
         ))
+    if dropped_no_token or dropped_no_answer:
+        print(f"[qa] dropped {dropped_no_token} records without a sample token "
+              f"and {dropped_no_answer} without an answer")
     return items
 
 

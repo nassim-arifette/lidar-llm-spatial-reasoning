@@ -78,7 +78,7 @@ def symbolic_predictor(system: SymbolicSpatialQA) -> PredictFn:
         return [
             system.answer(
                 it.question,
-                scenes.get(it.sample_token) or Scene(it.sample_token, []),
+                scenes[it.sample_token],
             ).answer
             for it in items
         ]
@@ -97,7 +97,7 @@ def learned_predictor(system: LearnedSystem) -> PredictFn:
 
 def load_from_files(
     detections_path: str,
-    qa_path: str,
+    qa_paths: Sequence[str],
     oracle_path: Optional[str] = None,
     min_score: float = 0.3,
     ego_poses: Optional[Dict[str, dict]] = None,
@@ -118,7 +118,11 @@ def load_from_files(
 
     oracle = load_simple_scenes(oracle_path) if oracle_path else None
     scene_lookup = {t: s.scene_token for t, s in detected.items() if s.scene_token}
-    items = load_qa_json(qa_path, scene_lookup)
+    # --qa is nargs='+' and documented as concatenating; the files branch used
+    # to take args.qa[0] and discard the rest without a word.
+    items = []
+    for qa_path in qa_paths:
+        items.extend(load_qa_json(qa_path, scene_lookup))
     return detected, oracle, items, {}
 
 
@@ -279,7 +283,10 @@ def run(
         },
         "data": {
             "n_items": len(items),
-            "n_samples": len(detected),
+            # Samples the loaded questions actually reference, not the size of
+            # the perception store.
+            "n_samples": len({it.sample_token for it in items}),
+            "n_samples_in_perception": len(detected),
             "train": len(train), "val": len(val), "test": len(test),
             "answer_vocabulary": len(vocab),
             # Descriptive only: the encoder no longer truncates. Kept to show
@@ -508,7 +515,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                   file=sys.stderr)
             return 2
         detected, oracle, items, gold = load_from_files(
-            args.detections, args.qa[0], args.oracle, args.min_score
+            args.detections, args.qa, args.oracle, args.min_score
         )
 
     run(detected, oracle, items, gold,
