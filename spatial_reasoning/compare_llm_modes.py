@@ -291,8 +291,17 @@ def run(
     direct_answers = {a.question_id: a
                       for a in direct.answer_batch(items, scenes, verbose=verbose)}
 
+    # Generate the programs in batches too. Asking for them one at a time
+    # inside the loop below measured the batch size, not the mode: the first
+    # run put the direct branch at 47 s and the executed branch at 228 s, and
+    # the whole of that gap was that one batched eight prompts and the other
+    # batched one.
     if verbose:
-        print(f"executed: parsing {len(items)} questions")
+        print(f"executed: generating programs for {len(items)} questions")
+    parser.warm_cache([item.question for item in items], verbose=verbose)
+
+    if verbose:
+        print(f"executed: executing {len(items)} programs")
     for index, item in enumerate(items):
         scene = scenes[item.sample_token]
         row = Row(
@@ -319,12 +328,16 @@ def run(
             row.direct_output_tokens = answer.output_tokens
             row.direct_seconds = answer.seconds
 
-        start = time.perf_counter()
         attempt = parser.parse_detailed(item.question)
-        row.program_seconds = time.perf_counter() - start
+        # The generation's own time, not this loop's: by here the program has
+        # already been produced in a batch, and timing the cache lookup would
+        # report the executed branch as free.
+        row.program_seconds = attempt.seconds
         row.program_raw = attempt.raw
         row.program_status = attempt.status
         row.program_valid = attempt.ok
+        row.program_input_tokens = attempt.input_tokens
+        row.program_output_tokens = attempt.output_tokens
 
         if attempt.ok and attempt.query is not None:
             row.program = attempt.query.describe()

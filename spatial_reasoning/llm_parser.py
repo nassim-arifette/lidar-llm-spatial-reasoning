@@ -321,6 +321,13 @@ class ProgramAttempt:
     status: str = "ok"          # ok | refused | invalid
     reason: str = ""
     from_cache: bool = False
+    # Cost, cached alongside the generation. A cached entry that reported zero
+    # tokens would make the executed branch look free in the comparison table,
+    # which is the opposite of the truth: it pays for a program AND the
+    # executor's time.
+    input_tokens: int = 0
+    output_tokens: int = 0
+    seconds: float = 0.0
 
     @property
     def ok(self) -> bool:
@@ -509,6 +516,10 @@ class QwenQuestionParser:
         self._device = self._runtime.device
 
     def _generate(self, questions: Sequence[str]) -> List[str]:
+        return [g.text for g in self._generate_full(questions)]
+
+    def _generate_full(self, questions: Sequence[str]):
+        """Generate, keeping the token counts the comparison has to report."""
         self._ensure_model()
         assert self._runtime is not None
         generations = self._runtime.generate(
@@ -520,7 +531,7 @@ class QwenQuestionParser:
                 # earlier run lost 26% of its programs this way, 97% of them to
                 # truncation, and the number was read as a model failure.
                 self.stats.truncated += 1
-        return [g.text for g in generations]
+        return generations
 
     # -- public ------------------------------------------------------------ #
 
@@ -533,8 +544,12 @@ class QwenQuestionParser:
         start = time.perf_counter()
         for i in range(0, len(missing), self.batch_size):
             chunk = missing[i:i + self.batch_size]
-            for q, raw in zip(chunk, self._generate(chunk)):
-                self._cache[q] = {"raw": raw, "config": self.config_id()}
+            for q, generation in zip(chunk, self._generate_full(chunk)):
+                self._cache[q] = {
+                    "raw": generation.text, "config": self.config_id(),
+                    "input_tokens": generation.input_tokens,
+                    "output_tokens": generation.output_tokens,
+                    "seconds": generation.seconds}
             done = min(i + self.batch_size, len(missing))
             # Checkpoint as we go. Generation is the expensive part of the
             # whole pipeline, and a saved cache makes a lost VM cost minutes
@@ -602,22 +617,33 @@ class QwenQuestionParser:
         raw = self._usable(question)
         from_cache = raw is not None
         if raw is None:
-            raw = self._generate([question])[0]
-            self._cache[question] = {"raw": raw, "config": self.config_id()}
+            generation = self._generate_full([question])[0]
+            raw = generation.text
+            self._cache[question] = {
+                "raw": raw, "config": self.config_id(),
+                "input_tokens": generation.input_tokens,
+                "output_tokens": generation.output_tokens,
+                "seconds": generation.seconds}
         else:
             self.stats.cache_hits += 1
             if self._is_foreign(question):
                 self.stats.foreign_used += 1
 
+        entry = self._cache.get(question, {})
+        cost = {"input_tokens": int(entry.get("input_tokens", 0) or 0),
+                "output_tokens": int(entry.get("output_tokens", 0) or 0),
+                "seconds": float(entry.get("seconds", 0.0) or 0.0)}
+
         try:
             query = query_from_json(raw, frozenset(self.directions))
         except InvalidProgram as exc:
             self.stats.invalid += 1
-            return ProgramAttempt(question, raw, None, "invalid", str(exc), from_cache)
+            return ProgramAttempt(question, raw, None, "invalid", str(exc),
+                                  from_cache, **cost)
         if query is None:
             self.stats.refused += 1
             return ProgramAttempt(question, raw, None, "refused",
                                   "the model declined to express the question",
-                                  from_cache)
+                                  from_cache, **cost)
         self.stats.parsed += 1
-        return ProgramAttempt(question, raw, query, "ok", "", from_cache)
+        return ProgramAttempt(question, raw, query, "ok", "", from_cache, **cost)
