@@ -389,6 +389,7 @@ class QwenQuestionParser:
         allow_foreign: bool = False,
         precision: str = "fp16",
         device_map: Optional[str] = None,
+        runtime=None,
     ) -> None:
         self.model_name = model_name
         self.cache_path = cache_path
@@ -400,6 +401,11 @@ class QwenQuestionParser:
         self.allow_foreign = allow_foreign
         self.precision = precision
         self.device_map = device_map
+        # A shared runtime is not an optimisation. Building one here while the
+        # direct mode holds another loads the checkpoint TWICE: at 1.5B that
+        # merely wastes memory, at 32B in 4-bit it exhausts a 40 GB card and
+        # the run dies after the first mode has already generated.
+        self._runtime = runtime
         self.config_registry: Dict[str, object] = {}
         self.stats = ParserStats()
         self._cache: Dict[str, Dict[str, str]] = {}
@@ -507,6 +513,8 @@ class QwenQuestionParser:
         between the two executors in this package.
         """
         if self._runtime is not None:
+            self._runtime.ensure_loaded()
+            self._device = self._runtime.device
             return
         from .qwen_runtime import QwenRuntime, RuntimeConfig
 

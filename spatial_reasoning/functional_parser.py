@@ -239,10 +239,13 @@ class FunctionalQwenParser:
         region_config: Optional[RegionConfig] = None,
         precision: str = "fp16",
         device_map: Optional[str] = None,
+        runtime: Optional[QwenRuntime] = None,
     ) -> None:
         self.region_config = region_config or DEFAULT_REGION_CONFIG
         self.catalogue = catalogue(self.region_config)
-        self.runtime = QwenRuntime(RuntimeConfig(
+        # Share the caller's runtime when given one: three modes that each
+        # load their own copy of the checkpoint cannot run a large model.
+        self.runtime = runtime or QwenRuntime(RuntimeConfig(
             max_new_tokens=max_new_tokens, batch_size=batch_size,
             device=device, precision=precision, device_map=device_map,
             **({"model_name": model_name} if model_name else {})))

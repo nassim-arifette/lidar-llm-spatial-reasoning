@@ -375,8 +375,18 @@ attribute, a direction, a reference object --- using the lexicons directly.
 Keeping the questions the grammar happens to parse would quietly select the
 examples that favour the executed branch. Of the $5{,}916$ mini questions
 $1{,}626$ are in scope; the $4{,}290$ excluded are recorded with their reason
-($2{,}199$ need an operation the frozen language lacks, $1{,}005$ bind an
+($2{,}199$ belong to a template outside this scope, $1{,}005$ bind an
 attribute to another object, $86$ name no known class).
+
+\paragraph{What fixes the scope, precisely.} It is the \emph{rule grammar},
+not the flat language. The flat language has operations for identifying an
+object, querying its attribute and comparing two objects' attributes, so it
+could attempt the \code{object}, \code{status} and \code{comparison}
+templates. The rule grammar cannot, and the rule grammar is what produces the
+reference programs that let the executor be checked before any model runs
+(Section~\ref{sec:verify}). Restricting the first comparison to what can be
+independently verified is the reason; it is a smaller claim than ``what the
+language can express'', and Section~\ref{sec:wide} measures the difference.
 
 \paragraph{Four families}, in increasing structural demand: category only
 (``are there any cars''), category with an attribute (``how many parked
@@ -391,6 +401,7 @@ better. It also bounds the claim --- nothing in Section~\ref{sec:results}
 speaks to detection quality.
 
 \subsection{The executor, checked before any model ran}
+\label{sec:verify}
 
 Attributing a wrong answer to the model requires knowing the executor is
 right. On the development split, reference programs produced by the rule

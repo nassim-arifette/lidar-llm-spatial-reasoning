@@ -553,8 +553,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar)
     config = RegionConfig(layout=args.layout)
 
+    # One budget for every mode, because one runtime now serves all of them.
+    # A functional program is a longer string than a flat record, so enabling
+    # that mode raises the budget for all three -- which keeps them comparable
+    # with each other and makes the wide runs a separate experiment from the
+    # narrow ones, as the recorded fingerprint says.
+    budget = max(args.max_new_tokens, 384) if args.functional else args.max_new_tokens
     runtime_config = RuntimeConfig(
-        max_new_tokens=args.max_new_tokens,
+        max_new_tokens=budget,
         max_input_tokens=args.max_input_tokens,
         batch_size=args.batch_size,
         device=args.device,
@@ -576,22 +582,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = QwenQuestionParser(
         model_name=runtime_config.model_name,
         cache_path=program_cache,
-        max_new_tokens=args.max_new_tokens,
+        max_new_tokens=budget,
         device=args.device,
         batch_size=args.batch_size,
         precision=args.precision,
         device_map=args.device_map,
-        directions=config.directions())
+        directions=config.directions(),
+        runtime=runtime)
 
     functional = None
     if args.functional:
         functional = FunctionalQwenParser(
             model_name=runtime_config.model_name,
             cache_path=os.path.join(args.out, "cache_functional.json"),
-            max_new_tokens=max(args.max_new_tokens, 384),
+            max_new_tokens=budget,
             device=args.device, batch_size=args.batch_size,
             region_config=config, precision=args.precision,
-            device_map=args.device_map)
+            device_map=args.device_map, runtime=runtime)
 
     print(f"{args.split}: {len(items)} examples over "
           f"{len({i.scene_token for i in items})} scenes")
