@@ -42,7 +42,6 @@ from .programs import execute
 from .question_parser import DEFAULT_PARSER, RuleBasedQuestionParser
 from .regions import (
     DEFAULT_REGION_CONFIG,
-    DIRECTIONS,
     RegionConfig,
     direction_of,
     sample_position_in_direction,
@@ -172,7 +171,10 @@ def make_counterfactuals(
 
         obj = movable[int(rng.integers(len(movable)))]
         source = direction_of(obj, config)
-        targets = [d for d in DIRECTIONS if d != source]
+        # Enumerate the ACTIVE layout, not the module-global eight. Under the
+        # six-relation nuScenes-QA layout, 'left' and 'right' do not exist and
+        # sampling a position in them raises.
+        targets = [d for d in config.directions() if d != source]
         rng.shuffle(targets)
 
         for target in targets:

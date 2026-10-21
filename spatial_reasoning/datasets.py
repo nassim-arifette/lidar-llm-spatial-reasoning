@@ -248,7 +248,19 @@ def encode_scene(
     return feats, mask
 
 
-def truncation_rate(scenes: Iterable[Scene], max_objects: int = 64) -> float:
+def truncation_rate(
+    scenes: Iterable[Scene], max_objects: Optional[int] = None
+) -> float:
+    """Fraction of scenes that ``max_objects`` would cut.
+
+    ``max_objects=None`` means no cap, so the rate is zero by construction.
+    The default used to be 64, which meant the figure kept reporting
+    truncation after the encoder had stopped truncating -- a false claim about
+    the run rather than a loss of data. Callers must now pass the cap they
+    actually applied.
+    """
+    if max_objects is None:
+        return 0.0
     scenes = list(scenes)
     if not scenes:
         return 0.0

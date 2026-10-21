@@ -150,7 +150,7 @@ def build_messages(question: str, directions: Sequence[str] = DIRECTIONS) -> Lis
 # --------------------------------------------------------------------------- #
 
 _VALID_CATEGORIES = set(CANONICAL_CATEGORIES) | {"object", "thing", "vehicle"}
-_VALID_DIRECTIONS = set(DIRECTIONS)
+_VALID_DIRECTIONS = frozenset(DIRECTIONS)
 _VALID_STATUSES = set(STATUSES)
 _JSON_RE = re.compile(r"\{.*\}", re.DOTALL)
 
@@ -159,7 +159,19 @@ class InvalidProgram(ValueError):
     """The model produced something that is not a program in the DSL."""
 
 
-def _selector_from_json(blob: Optional[dict], depth: int = 0) -> Optional[Selector]:
+def _selector_from_json(
+    blob: Optional[dict],
+    depth: int = 0,
+    valid_directions: Optional[frozenset] = None,
+) -> Optional[Selector]:
+    """Validate one selector.
+
+    ``valid_directions`` defaults to every direction any layout defines, but
+    callers that know which layout is active must pass its own set: the prompt,
+    the validator and the executor have to agree on the legal values, or the
+    validator will wave through a program the executor must then refuse.
+    """
+    directions = _VALID_DIRECTIONS if valid_directions is None else valid_directions
     if blob is None:
         return None
     if not isinstance(blob, dict):
@@ -181,7 +193,7 @@ def _selector_from_json(blob: Optional[dict], depth: int = 0) -> Optional[Select
     region = Region(kind="any")
     if direction is not None:
         direction = str(direction).strip().lower().replace(" ", "_")
-        if direction not in _VALID_DIRECTIONS:
+        if direction not in directions:
             raise InvalidProgram(f"unknown direction {direction!r}")
         region = Region(kind="direction", direction=direction)
 
@@ -190,11 +202,13 @@ def _selector_from_json(blob: Optional[dict], depth: int = 0) -> Optional[Select
         status=status,
         negate_status=bool(blob.get("negate_status", False)),
         region=region,
-        anchor=_selector_from_json(blob.get("anchor"), depth + 1),
+        anchor=_selector_from_json(blob.get("anchor"), depth + 1, directions),
     )
 
 
-def query_from_json(text: str) -> Optional[Query]:
+def query_from_json(
+    text: str, valid_directions: Optional[frozenset] = None
+) -> Optional[Query]:
     """Validate the model's output. Returns ``None`` for an explicit refusal.
 
     Raises :class:`InvalidProgram` when the output is malformed, which is
@@ -217,10 +231,10 @@ def query_from_json(text: str) -> Optional[Query]:
     except ValueError as exc:
         raise InvalidProgram(f"unknown op {op_name!r}") from exc
 
-    target = _selector_from_json(blob.get("target"))
+    target = _selector_from_json(blob.get("target"), 0, valid_directions)
     if target is None:
         raise InvalidProgram("missing target selector")
-    second = _selector_from_json(blob.get("second"))
+    second = _selector_from_json(blob.get("second"), 0, valid_directions)
 
     if op in (Op.SAME_STATUS, Op.COMPARE_COUNT) and second is None:
         raise InvalidProgram(f"{op.value} needs a second selector")
@@ -446,7 +460,7 @@ class QwenQuestionParser:
             self.stats.cache_hits += 1
 
         try:
-            query = query_from_json(raw)
+            query = query_from_json(raw, frozenset(self.directions))
         except InvalidProgram:
             self.stats.invalid += 1
             return None

@@ -35,7 +35,13 @@ from dataclasses import dataclass, field, replace
 from typing import List, Optional, Tuple
 
 from .objects import Object3D, Scene, expand_category
-from .regions import DEFAULT_REGION_CONFIG, Region, RegionConfig, select
+from .regions import (
+    DEFAULT_REGION_CONFIG,
+    Region,
+    RegionConfig,
+    select,
+    validate_region,
+)
 
 ANY = Region(kind="any")
 
@@ -160,6 +166,14 @@ def resolve(
     """
     if _depth > 3:
         return [], ExecStatus.UNSUPPORTED, "anchor chain too deep"
+
+    # Validate the program against the active layout BEFORE touching the scene.
+    # Deferring this to the per-object predicate means an empty candidate list
+    # never triggers it, and an invalid program quietly answers "0".
+    try:
+        validate_region(selector.region, config)
+    except KeyError as exc:
+        return [], ExecStatus.UNSUPPORTED, str(exc).strip('"')
 
     candidates = [o for o in scene.objects if _matches(o, selector)]
 

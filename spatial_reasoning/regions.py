@@ -286,6 +286,25 @@ class Region:
 ANY_REGION = Region(kind="any")
 
 
+def validate_region(region: Region, config: RegionConfig = DEFAULT_REGION_CONFIG) -> None:
+    """Raise ``KeyError`` if ``region`` cannot be evaluated under ``config``.
+
+    Must be called *before* filtering, not during it. ``in_direction`` is
+    applied per object, so a region naming a direction the layout does not
+    define raises nothing at all when the candidate list happens to be empty:
+    the program is invalid, yet a count returns "0" and scores as a correct
+    answer whenever the true answer is zero. Validating the program
+    independently of the data is the only way that cannot happen.
+    """
+    if region.kind in ("direction", "relative"):
+        name = DIRECTION_ALIASES.get(region.direction, region.direction)
+        if name not in config.sectors:
+            raise KeyError(
+                f"direction {region.direction!r} does not exist in layout "
+                f"{config.layout!r}; available: {sorted(config.sectors)}"
+            )
+
+
 def select(
     objects: Sequence[Object3D],
     region: Region,

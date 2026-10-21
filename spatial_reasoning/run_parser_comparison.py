@@ -161,7 +161,7 @@ def majority_accuracy(items: Sequence[QAItem]) -> float:
 # Main
 # --------------------------------------------------------------------------- #
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--metadata-root", required=True)
@@ -185,7 +185,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument("--drive-dir", default=None,
                    help="mounted Drive folder to mirror the results and the "
                         "parse cache into, e.g. /content/drive/MyDrive/npm3d")
-    args = p.parse_args(argv)
+    return p
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    args = build_arg_parser().parse_args(argv)
 
     os.makedirs(args.out, exist_ok=True)
 
@@ -234,9 +238,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if not args.skip_llm:
         from .llm_parser import QwenQuestionParser
 
+        # The prompt advertises the legal directions, so the parser must be
+        # built from the SAME layout the executor runs under. Otherwise the
+        # model is told it may emit 'left' and the executor then refuses it.
         llm = QwenQuestionParser(model_name=args.model, cache_path=args.cache,
                                  batch_size=args.batch_size,
-                                 max_new_tokens=args.max_new_tokens)
+                                 max_new_tokens=args.max_new_tokens,
+                                 directions=region_config.directions())
         print(f"\nwarming the parse cache with {args.model} ...")
         llm.warm_cache([it.question for it in items])
 

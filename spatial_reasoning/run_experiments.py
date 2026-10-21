@@ -60,6 +60,7 @@ from .evaluate import (
 from .objects import Scene, load_nuscenes_detections, load_simple_scenes
 from .programs import SymbolicSpatialQA
 from .question_parser import Query, RuleBasedQuestionParser, coverage
+from .regions import SECTOR_LAYOUTS, RegionConfig
 from .synthetic import default_detector, generate_corpus
 
 #: A system, seen by the evaluation harness: questions + scenes -> answers.
@@ -161,6 +162,7 @@ def _evaluate_symbolic_systems(
     detected: Dict[str, Scene],
     parser: RuleBasedQuestionParser,
     majority_answer: str,
+    region_config: RegionConfig,
     verbose: bool,
 ) -> Tuple[List[Dict], Dict[str, PredictFn]]:
     """Two variants: one that abstains, one that always answers.
@@ -173,7 +175,8 @@ def _evaluate_symbolic_systems(
 
     for label, fallback in (("symbolic_abstain", None),
                             ("symbolic_fallback", majority_answer)):
-        system = SymbolicSpatialQA(parser=parser, fallback_answer=fallback)
+        system = SymbolicSpatialQA(parser=parser, config=region_config,
+                                   fallback_answer=fallback)
         predict = symbolic_predictor(system)
         preds, cost = measure_cost(lambda p=predict: p(test, detected), len(test))
         entry = evaluate_predictions(
@@ -196,12 +199,14 @@ def _run_probes(
     detected: Dict[str, Scene],
     parser: RuleBasedQuestionParser,
     seed: int,
+    region_config: RegionConfig,
 ) -> Dict[str, object]:
     """Contrast pairs, counterfactual moves and the perturbation sweep."""
     names = [n for n in predictors if n != "symbolic_abstain"]
 
     pairs = build_contrast_pairs(test, seed=seed)
-    counterfactuals = make_counterfactuals(test, detected, parser, seed=seed)
+    counterfactuals = make_counterfactuals(test, detected, parser,
+                                          config=region_config, seed=seed)
     sweep = default_perturbation_sweep(seed=seed)
 
     return {
@@ -238,6 +243,7 @@ def run(
     epochs: int = 40,
     device: str = "cpu",
     allow_relative: bool = False,
+    layout: str = "octant",
     verbose: bool = True,
 ) -> Dict:
     os.makedirs(output_dir, exist_ok=True)
@@ -256,6 +262,9 @@ def run(
     question_encoder = HashingQuestionEncoder(dim=256)
     train_config = TrainConfig(epochs=epochs, seed=seed, device=device, verbose=False)
     parser = RuleBasedQuestionParser(allow_relative_regions=allow_relative)
+    region_config = RegionConfig(layout=layout)
+    if verbose:
+        print(f"sector layout: {layout} -> {region_config.directions()}")
 
     results: Dict[str, object] = {
         "environment": {
@@ -268,10 +277,14 @@ def run(
             "n_samples": len(detected),
             "train": len(train), "val": len(val), "test": len(test),
             "answer_vocabulary": len(vocab),
-            "object_truncation_rate": truncation_rate(detected.values()),
+            # Descriptive only: the encoder no longer truncates. Kept to show
+            # how many scenes would have been cut by the old cap of 64.
+            "scenes_over_64_objects": truncation_rate(detected.values(), 64),
+            "object_truncation_rate": 0.0,
             "warnings": warnings,
         },
         "seed": seed,
+        "sector_layout": layout,
         "majority_baseline_accuracy": majority_baseline(train, test),
         # Share of test answers meaning "nothing is there". When this is high
         # the benchmark rewards a system that never looks at the scene, and the
@@ -286,15 +299,15 @@ def run(
         train, val, test, detected, vocab, question_encoder, train_config, verbose
     )
     symbolic_entries, symbolic_predictors = _evaluate_symbolic_systems(
-        test, detected, parser, vocab.majority(train), verbose
+        test, detected, parser, vocab.majority(train), region_config, verbose
     )
     predictors.update(symbolic_predictors)
     results["systems"] = learned_entries + symbolic_entries
 
-    results.update(_run_probes(predictors, test, detected, parser, seed))
+    results.update(_run_probes(predictors, test, detected, parser, seed, region_config))
 
     analysis = decompose_errors(
-        SymbolicSpatialQA(parser=parser, fallback_answer=None),
+        SymbolicSpatialQA(parser=parser, config=region_config, fallback_answer=None),
         test, detected, oracle, gold_queries or None,
     )
     results["error_decomposition"] = {
@@ -415,6 +428,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-trivial-fraction", type=float, default=0.35,
                    help="synthetic only: cap the share of '0'/'no' answers "
                         "(1.0 disables the balancing)")
+    p.add_argument("--layout", default=None, choices=sorted(SECTOR_LAYOUTS),
+                   help="sector convention; defaults to nuscenes_qa for "
+                        "--source nuscenes and octant otherwise")
     p.add_argument("--allow-relative", action="store_true",
                    help="also parse questions anchored on another object")
     return p
@@ -467,9 +483,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             args.detections, args.qa, args.oracle, args.min_score
         )
 
+    layout = args.layout or ("nuscenes_qa" if args.source == "nuscenes" else "octant")
     run(detected, oracle, items, gold,
         output_dir=args.output_dir, seed=args.seed, epochs=args.epochs,
-        device=args.device, allow_relative=args.allow_relative)
+        device=args.device, allow_relative=args.allow_relative, layout=layout)
     return 0
 
 
