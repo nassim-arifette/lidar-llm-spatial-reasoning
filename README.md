@@ -168,18 +168,59 @@ nuScenes-QA the learned baselines do **not** reliably beat a scene-blind prior
 (paired per seed: −0.021, +0.032, +0.025) and are barely affected by replacing
 ground-truth objects with simulated detections (+0.019, −0.030, +0.010).
 
-## Deliberately not done
+## Does scale close the gap? No.
 
-- **A larger checkpoint.** It is the one experiment that would settle the open
-  question — it separates "the model cannot write the program" from "the model
-  cannot count from a table" — but it changes nothing about the protocol and
-  was out of scope here.
-- **A composable, CLEVR-style typed operation catalogue**
-  (`spatial_reasoning/functional.py`) — implemented, tested by hand, and
-  deliberately **not wired into any experiment**. It would widen coverage from
-  four families to the whole benchmark, but the failure triage says the current
-  failures are overwhelmingly not expressiveness. Building a new language and
-  changing model size at once would leave neither attributable.
+Same 200 held-out questions, same prompts, same decoding, three sizes of one
+open-weights family:
+
+| Model | precision | A direct | B executed | B answers | invalid programs |
+|---|---|---:|---:|---:|---:|
+| Qwen2.5-1.5B | fp16 | 0.505 | 0.685 | 91.0 % | 8 |
+| Qwen2.5-7B | fp16 | **0.505** | 0.825 | 98.5 % | 1 |
+| Qwen2.5-32B | int4 | **0.580** | 0.845 | 99.5 % | **0** |
+
+The direct mode gains 0.075 across a 21× increase in parameters, and **nothing
+at all** between 1.5B and 7B. That is not a cached result: the 7B changes its
+answer on 89 of 200 questions and flips correctness on 52 of them, 26 in each
+direction. It answers differently and is wrong just as often.
+
+What scale fixes is **program validity**: 8 → 1 → 0. The executed mode gains
+0.160 from 1.5B to 7B and then only 0.020 more. The 32B row is 4-bit because
+65 GB does not fit on a 40 GB card, so it *understates* the large model.
+
+**It replicates in another family.** Through a hosted gateway,
+`alibaba/qwen-3-32b` gives direct 0.560 and executed 0.840 — within 0.005 of
+the Qwen2.5-32B figures, with 200/200 valid programs and the executed mode
+correct on 13/13 scene-dependence groups.
+
+## Does a wider language help? Also no.
+
+`spatial_reasoning/functional.py` is CLEVR's representation adapted to
+nuScenes — typed nodes, 19 functions, indices into earlier nodes, type-checked
+before execution. A second manifest built by the same rules covers **98.5 %**
+of the benchmark instead of 27.5 %.
+
+| Qwen2.5-1.5B, wide scope (n=280) | A direct | B flat | C typed |
+|---|---:|---:|---:|
+| Accuracy | **0.521** | 0.457 | 0.296 |
+| Answers | 100 % | 57.1 % | 34.6 % |
+| Accuracy when answering | 0.521 | 0.800 | **0.856** |
+
+The typed language is the most accurate of the three *when it produces a
+program*, and it produces one for barely a third of the questions.
+
+Of 280 typed programs, 165 do not type-check — and **51 of the 85 input-type
+errors are a missing `unique`**, the model passing a set where a function needs
+one object. On the same questions the flat language produces 240 valid programs
+and then loses 80 at execution: 42 ambiguous references, 38 missing. Both
+languages are defeated by the same thing — resolving a definite reference in a
+real scene — and differ only in where it surfaces.
+
+Checked before claiming it: the flat language rejects `"trailers"` exactly as
+the typed one does, so this is not an artefact of normalisation.
+
+The typed catalogue ships in the repository and is **not** wired into the
+headline comparison. That is the result, not an omission.
 
 ## The two layers of this repository
 

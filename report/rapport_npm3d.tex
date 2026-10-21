@@ -683,6 +683,98 @@ the clearest single thing to re-test with a larger model, and the one category
 of failure that grammar-constrained decoding would eliminate by construction.
 
 % =====================================================================
+\section{Does a wider language help?}
+\label{sec:wide}
+
+Everything above is measured inside one target language: an operation over one
+or two selectors, each carrying a category, an attribute, a region and at most
+one anchor. That shape covers the counting and existence templates and refuses
+the rest. The obvious next move --- and the one the error analysis of
+Section~\ref{sec:failures} argues against --- is to widen it.
+
+We built the wider language anyway, and measured it, because ``obvious next
+move'' is not a result.
+
+\subsection{The second target language}
+
+It is CLEVR's representation \cite{clevr}, adapted to nuScenes: a program is a
+list of typed nodes, each naming a function, its constant argument and the
+indices of earlier nodes it consumes, in topological order. The catalogue has
+nineteen functions --- \code{scene}, \code{filter\_category},
+\code{filter\_status}, \code{unique}, \code{relate}, \code{relate\_ego},
+\code{and\_}, \code{or\_}, \code{same\_status}, \code{count}, \code{exist},
+\code{query\_category}, \code{query\_status}, \code{equal\_value}, the integer
+comparisons --- with input and output types checked before execution, so an
+ill-typed program is a reported error and never a plausible answer.
+
+Three adaptations are claims about the data rather than conveniences. The
+attributes are nuScenes' ten classes and seven statuses, not CLEVR's size,
+colour, material and shape; there is no colour, which is why colour questions
+are unanswerable here and not merely unimplemented. There is an ego vehicle,
+so \code{relate} (anchored on a resolved object) and \code{relate\_ego}
+(anchored on the sensor platform) are separate functions. And \code{unique}
+can fail: CLEVR prunes ill-posed questions when it generates them, but we did
+not generate ours, so well-posedness is detected at run time and reported.
+
+The wider language admits a wider question set. A second manifest, built by
+the same rules on the same drives, covers nine families instead of four and
+$5{,}830$ of the $5{,}916$ mini questions --- $98.5\%$, against $27.5\%$ for
+the flat scope. The $86$ it still excludes name no class the adapter knows.
+
+\subsection{Result}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Qwen2.5-1.5B, wide scope ($n = 280$) & A, direct & B, flat & C, typed \\
+\midrule
+Accuracy (all)          & \textbf{0.521} & 0.457 & 0.296 \\
+Answers                 & 1.000 & 0.571 & 0.346 \\
+Accuracy when answering & 0.521 & 0.800 & \textbf{0.856} \\
+\bottomrule
+\end{tabular}
+\caption{A wider language made things worse. Paired, the direct mode beats the
+typed one $102$ to $39$ ($p = 1.1\times10^{-7}$) and the flat one beats it $65$
+to $20$ ($p = 1.0\times10^{-6}$).}
+\label{tab:wide}
+\end{table}
+
+The typed language is the most accurate of the three \emph{when it produces a
+program at all}, and it produces one for barely a third of the questions. That
+is the whole of the result: expressiveness bought nothing because the model
+could not use it.
+
+\paragraph{Where it fails is specific.} Of $280$ typed programs, $165$ do not
+type-check. Seventy use a constant outside the vocabulary. Eighty-five wire
+the wrong type into a function, and \emph{fifty-one of those eighty-five are a
+missing \code{unique}} --- the model passes a set where \code{relate},
+\code{query\_status} or \code{same\_status} requires one object.
+
+\paragraph{The same difficulty, moved.} On the same questions the flat
+language produces $240$ valid programs and then loses $80$ of them at
+execution: $42$ ambiguous references and $38$ missing ones. Both languages are
+defeated by the same thing --- resolving a definite reference in a real scene
+--- and they differ only in where it surfaces. The flat language performs
+uniqueness implicitly inside the executor and fails there; the typed language
+makes it an explicit node and fails at the type check. Making the step visible
+did not make the model take it.
+
+\paragraph{Checked before claiming it.} The obvious suspicion is that the
+typed language is merely stricter about spelling, since many of its vocabulary
+errors are plurals. It is not: the flat language rejects \code{"trailers"}
+exactly as the typed one does. The comparison is not an artefact of
+normalisation.
+
+\paragraph{What this changes about the recommendation.} The failure triage of
+Section~\ref{sec:failures} found that $71\%$ of the flat language's errors
+happen before the executor. Widening the target language addresses none of
+those, and this experiment shows it adds a harder generation task on top. The
+language was not the binding constraint. That is a negative result, it cost
+one afternoon, and it is the reason the typed catalogue ships in the
+repository without being wired into the headline comparison.
+
 \section{A preliminary study on synthetic scenes}
 \label{sec:synthetic}
 % =====================================================================

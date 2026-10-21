@@ -102,6 +102,78 @@ size. It is not evidence that language models cannot reason about space.
 
 ---
 
+## 0b. Does scale close the gap?
+
+Same 200 held-out questions, same three drives, same prompts and decoding.
+Sources: `llm_modes/`, `llm_modes_7b/`, `llm_modes_32b/`.
+
+| Model | precision | A direct | B executed | A MAE | B MAE | B answers | invalid | A only / B only | sign test |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Qwen2.5-1.5B | fp16 | 0.505 | 0.685 | 2.16 | 0.68 | 0.910 | 8 | 31 / 67 | 3.5e-04 |
+| Qwen2.5-7B | fp16 | **0.505** | 0.825 | 1.84 | 0.44 | 0.985 | 1 | 15 / 79 | 1.2e-11 |
+| Qwen2.5-32B | int4 | **0.580** | 0.845 | 1.65 | 0.60 | 0.995 | **0** | 13 / 66 | 1.1e-09 |
+
+* The direct mode gains **0.075 across a 21× increase in parameters**, and
+  nothing between 1.5B and 7B. Not a cache artefact: the 7B changes its answer
+  on 89 of 200 and flips correctness on 52, 26 in each direction.
+* What scale fixes is **program validity**: 8 → 1 → 0 invalid programs,
+  answered fraction 0.910 → 0.995.
+* The 32B row is 4-bit (65 GB does not fit on a 40 GB card), so it understates
+  the large model. That makes the flat *direct* curve the safer half.
+* Scene-dependence, correct across every scene of a group: direct 1/13, 1/13,
+  4/13; executed 13/13, 12/13, 13/13.
+
+**It replicates in another family.** Through the hosted gateway
+(`gw_qwen3_32b/`), `alibaba/qwen-3-32b` gives direct 0.560 and executed 0.840 —
+within 0.005 of the Qwen2.5-32B figures — with 200/200 valid programs, paired
+69 to 13 (p = 2.3e-10), and executed correct on 13/13 scene groups.
+
+Caveat on gateway rows: `temperature=0` is *requested*, not the exact greedy
+loop the local runtime performs, and token counts come from the provider's
+tokenizer. Gateway and local numbers should not be compared token for token.
+
+---
+
+## 0c. Does a wider target language help?
+
+`functional.py` is CLEVR's representation adapted to nuScenes: typed nodes, 19
+functions, indices into earlier nodes, type-checked before execution. A second
+manifest built by the same rules on the same drives covers **5830 of 5916
+questions (98.5 %)** against 1626 (27.5 %) for the flat scope.
+Source: `wide_1p5b/`.
+
+| Qwen2.5-1.5B, wide scope (n = 280) | A direct | B flat | C typed |
+|---|---:|---:|---:|
+| Accuracy (all) | **0.521** | 0.457 | 0.296 |
+| Answers | 1.000 | 0.571 | 0.346 |
+| Accuracy when answering | 0.521 | 0.800 | **0.856** |
+
+Paired: direct beats typed 102 to 39 (p = 1.1e-07); flat beats typed 65 to 20
+(p = 1.0e-06). Direct beats flat 72 to 54, which is **not** significant
+(p = 0.13) — on the wider question set the flat language's advantage
+disappears.
+
+The typed language is the most accurate of the three *when it produces a
+program*, and it produces one for barely a third of the questions.
+
+**Where it fails.** Of 280 typed programs 165 do not type-check: 70 use a
+constant outside the vocabulary, 85 wire the wrong type, and **51 of those 85
+are a missing `unique`** — a set passed where `relate`, `query_status` or
+`same_status` needs one object. On the same questions the flat language
+produces 240 valid programs and loses 80 at execution: 42 ambiguous
+references, 38 missing.
+
+**The same difficulty, moved.** Both languages are defeated by resolving a
+definite reference in a real scene. The flat one does uniqueness implicitly
+inside the executor and fails there; the typed one makes it an explicit node
+and fails at the type check. Making the step visible did not make the model
+take it.
+
+Checked before claiming it: the flat language rejects `"trailers"` exactly as
+the typed one does, so this is not an artefact of normalisation.
+
+---
+
 ## 1. No training, all 5916 questions
 
 Same questions, same objects (`min_lidar_points=0`), same six 60° sectors,
