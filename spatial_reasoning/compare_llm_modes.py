@@ -52,6 +52,8 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 from .direct_qa import PROMPT_VERSION, DirectQwenQA, asks_for_a_count
 from .dsl import ExecStatus, execute
+from .functional import execute as execute_functional
+from .functional_parser import SCHEMA_VERSION, FunctionalQwenParser
 from .llm_parser import QwenQuestionParser
 from .manifest import Manifest, ManifestItem, describe_objects, scene_fingerprint
 from .nuscenes_adapter import load_nuscenes_scenes
@@ -98,6 +100,20 @@ class Row:
     program_input_tokens: int = 0
     program_output_tokens: int = 0
     program_seconds: float = 0.0
+
+    # C -- the typed functional catalogue, a separate target language and a
+    # separate experiment. Left empty when the mode is not run.
+    functional_raw: str = ""
+    functional_valid: bool = False
+    functional_status: str = ""       # ok | refused | malformed | ill_typed
+    functional_program: str = ""
+    functional_answer: Optional[str] = None
+    functional_execution_status: str = ""
+    functional_reason: str = ""
+    functional_correct: bool = False
+    functional_input_tokens: int = 0
+    functional_output_tokens: int = 0
+    functional_seconds: float = 0.0
 
     # provenance
     n_objects: int = 0
@@ -174,23 +190,42 @@ def count_errors(rows: Sequence[Row], field_name: str) -> Dict[str, object]:
     }
 
 
-def paired(rows: Sequence[Row]) -> Dict[str, int]:
-    """The only table that says whether one mode is better than the other."""
+def paired(rows: Sequence[Row], left: str = "direct",
+           right: str = "executed") -> Dict[str, int]:
+    """The only table that says whether one mode is better than another."""
     table = collections.Counter()
     for row in rows:
-        key = ("both" if row.direct_correct and row.executed_correct else
-               "direct_only" if row.direct_correct else
-               "executed_only" if row.executed_correct else "neither")
+        a = getattr(row, f"{left}_correct")
+        b = getattr(row, f"{right}_correct")
+        key = ("both" if a and b else f"{left}_only" if a
+               else f"{right}_only" if b else "neither")
         table[key] += 1
     return {k: table.get(k, 0) for k in
-            ("both", "direct_only", "executed_only", "neither")}
+            ("both", f"{left}_only", f"{right}_only", "neither")}
+
+
+def sign_test(table: Dict[str, int], left: str, right: str) -> float:
+    """Two-sided sign test over the discordant pairs.
+
+    It assumes the questions are independent. They are not --- a handful of
+    drives supplies all of them, and answers within a drive are correlated ---
+    so this is an optimistic bound, reported next to the per-scene margins
+    rather than instead of them.
+    """
+    from math import comb
+
+    a, b = table[f"{left}_only"], table[f"{right}_only"]
+    n, k = a + b, max(a, b)
+    if n == 0:
+        return 1.0
+    return min(1.0, 2 * sum(comb(n, i) for i in range(k, n + 1)) / 2 ** n)
 
 
 def summarise(rows: Sequence[Row]) -> Dict[str, object]:
     n = max(len(rows), 1)
     direct_answered = sum(1 for r in rows if r.direct_answer is not None)
     executed_answered = sum(1 for r in rows if r.executed_answer is not None)
-    return {
+    out: Dict[str, object] = {
         "n": len(rows),
         "direct": {
             "accuracy": sum(r.direct_correct for r in rows) / n,
@@ -220,6 +255,29 @@ def summarise(rows: Sequence[Row]) -> Dict[str, object]:
         "by_family": _grouped(rows, lambda r: r.family),
         "by_scene": _grouped(rows, lambda r: r.scene_token),
     }
+    if any(r.functional_status for r in rows):
+        answered = sum(1 for r in rows if r.functional_answer is not None)
+        out["functional"] = {
+            "accuracy": sum(r.functional_correct for r in rows) / n,
+            "answered_fraction": answered / n,
+            "accuracy_when_answered":
+                sum(r.functional_correct for r in rows) / max(answered, 1),
+            "program_statuses": dict(collections.Counter(
+                r.functional_status for r in rows)),
+            "execution_statuses": dict(collections.Counter(
+                r.functional_execution_status for r in rows if r.functional_valid)),
+            "count_errors": count_errors(rows, "functional_answer"),
+            "input_tokens": sum(r.functional_input_tokens for r in rows),
+            "output_tokens": sum(r.functional_output_tokens for r in rows),
+            "seconds": round(sum(r.functional_seconds for r in rows), 1),
+        }
+        out["paired_tables"] = {
+            f"{a}_vs_{b}": {"table": paired(rows, a, b),
+                            "sign_test": sign_test(paired(rows, a, b), a, b)}
+            for a, b in (("direct", "executed"), ("direct", "functional"),
+                         ("executed", "functional"))
+        }
+    return out
 
 
 def _grouped(rows: Sequence[Row], key) -> Dict[str, Dict[str, object]]:
@@ -285,6 +343,7 @@ def run(
     parser: QwenQuestionParser,
     config: RegionConfig,
     verbose: bool = True,
+    functional: Optional[FunctionalQwenParser] = None,
 ) -> List[Row]:
     rows: List[Row] = []
 
@@ -299,6 +358,11 @@ def run(
     if verbose:
         print(f"executed: generating programs for {len(items)} questions")
     parser.warm_cache([item.question for item in items], verbose=verbose)
+
+    if functional is not None:
+        if verbose:
+            print(f"functional: generating programs for {len(items)} questions")
+        functional.warm_cache([item.question for item in items], verbose=verbose)
 
     if verbose:
         print(f"executed: executing {len(items)} programs")
@@ -352,6 +416,27 @@ def run(
             row.execution_status = "not_attempted"
             row.execution_reason = attempt.reason
 
+        if functional is not None:
+            tried = functional.parse_detailed(item.question)
+            row.functional_raw = tried.raw
+            row.functional_status = tried.status
+            row.functional_valid = tried.ok
+            row.functional_input_tokens = tried.input_tokens
+            row.functional_output_tokens = tried.output_tokens
+            row.functional_seconds = tried.seconds
+            if tried.ok and tried.program is not None:
+                row.functional_program = tried.program.describe()
+                outcome = execute_functional(tried.program, scene, config)
+                row.functional_execution_status = (
+                    outcome.failure.value if outcome.failure else "ok")
+                row.functional_reason = outcome.reason
+                if outcome.ok:
+                    row.functional_answer = str(outcome.answer)
+                    row.functional_correct = _correct(outcome.answer, item.answer)
+            else:
+                row.functional_execution_status = "not_attempted"
+                row.functional_reason = tried.reason
+
         rows.append(row)
         if verbose and (index + 1) % 50 == 0:
             print(f"  executed {index + 1}/{len(items)}", flush=True)
@@ -400,6 +485,20 @@ def render(summary: Dict[str, object]) -> str:
     ]
     for name, row in summary["by_family"].items():      # type: ignore[index]
         lines.append(f"{name:<28}{row['n']:>5}{row['direct']:>9.3f}{row['executed']:>10.3f}")
+    if "functional" in summary:
+        fn = summary["functional"]      # type: ignore[index]
+        lines += ["",
+            f"{'functional (typed)':<22}{'':>10}{fn['accuracy']:>10.3f}",
+            f"{'  answers':<22}{'':>10}{fn['answered_fraction']:>10.3f}",
+            f"{'  acc when answering':<22}{'':>10}{fn['accuracy_when_answered']:>10.3f}",
+            f"{'  counting MAE':<22}{'':>10}"
+            f"{fn['count_errors']['mae'] if fn['count_errors']['mae'] is not None else float('nan'):>10}",
+            f"  statuses: {fn['program_statuses']}",
+            f"  execution: {fn['execution_statuses']}",
+            f"  cost: {fn['input_tokens']}in/{fn['output_tokens']}out {fn['seconds']}s",
+            ""]
+        for name, block in summary["paired_tables"].items():   # type: ignore[index]
+            lines.append(f"  {name:<24} {block['table']}  p={block['sign_test']:.2e}")
     lines.append("")
     lines.append(f"{'scene':<28}{'n':>5}{'direct':>9}{'executed':>10}")
     for name, row in summary["by_scene"].items():       # type: ignore[index]
@@ -422,9 +521,21 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-input-tokens", type=int, default=8192)
     p.add_argument("--batch-size", type=int, default=8)
     p.add_argument("--device", default=None)
+    p.add_argument("--precision", default="fp16",
+                   choices=("fp16", "bf16", "fp32", "awq", "gptq", "int8", "int4"),
+                   help="weight precision; recorded with the result, because a "
+                        "size comparison that quantises only the large model "
+                        "changes two things at once")
+    p.add_argument("--device-map", default=None,
+                   help='e.g. "auto"; required for a model too large for one '
+                        "allocation")
     p.add_argument("--out", default="spatial_reasoning/results/llm_modes")
     p.add_argument("--direct-cache", default=None)
     p.add_argument("--program-cache", default=None)
+    p.add_argument("--functional", action="store_true",
+                   help="also run the typed functional catalogue as a third "
+                        "mode; a separate target language and a separate "
+                        "experiment, recorded under its own schema version")
     p.add_argument("--limit", type=int, default=0)
     return p
 
@@ -447,6 +558,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         max_input_tokens=args.max_input_tokens,
         batch_size=args.batch_size,
         device=args.device,
+        precision=args.precision,
+        device_map=args.device_map,
         **({"model_name": args.model} if args.model else {}))
     runtime = QwenRuntime(runtime_config)
 
@@ -466,17 +579,30 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         max_new_tokens=args.max_new_tokens,
         device=args.device,
         batch_size=args.batch_size,
+        precision=args.precision,
+        device_map=args.device_map,
         directions=config.directions())
+
+    functional = None
+    if args.functional:
+        functional = FunctionalQwenParser(
+            model_name=runtime_config.model_name,
+            cache_path=os.path.join(args.out, "cache_functional.json"),
+            max_new_tokens=max(args.max_new_tokens, 384),
+            device=args.device, batch_size=args.batch_size,
+            region_config=config, precision=args.precision,
+            device_map=args.device_map)
 
     print(f"{args.split}: {len(items)} examples over "
           f"{len({i.scene_token for i in items})} scenes")
-    print(f"model: {runtime_config.model_name}  ({runtime_config.identity()})")
+    print(f"model: {runtime_config.model_name}  precision={args.precision}  "
+          f"({runtime_config.identity()})")
     print(f"objects: min_lidar_points={min_lidar} -> {report.annotations_kept} "
           f"annotations")
     print(f"layout: {args.layout} -> {config.directions()}\n")
 
     started = time.time()
-    rows = run(items, scenes, direct, parser, config)
+    rows = run(items, scenes, direct, parser, config, functional=functional)
     summary = summarise(rows)
     summary["scene_dependence"] = scene_dependence(rows)
 
@@ -497,7 +623,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "dsl_version": DSL_VERSION,
             "layout": args.layout,
             "min_lidar_points": min_lidar,
+            "scope": manifest.config.get("scope", "narrow"),
             "parser_stats": parser.stats.as_dict(),
+            "functional_schema": SCHEMA_VERSION if functional else None,
+            "functional_stats": functional.stats.as_dict() if functional else None,
             "wall_seconds": round(time.time() - started, 1),
             "summary": summary,
         }, fh, indent=2, default=str)

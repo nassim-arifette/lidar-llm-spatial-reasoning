@@ -73,9 +73,28 @@ FAMILIES: Tuple[str, ...] = (
     "category_anchor_relation",  # "How many cars are behind the truck?"
 )
 
-#: Templates the frozen DSL can answer at all. ``object``, ``status`` and
-#: ``comparison`` need operations it does not have; they are the second step.
-IN_SCOPE_TEMPLATES: Tuple[str, ...] = ("count", "exist")
+#: The three templates the flat language cannot reach at all, each needing an
+#: operation it does not have: query an attribute, compare two attributes,
+#: filter by another object's attribute.
+WIDE_FAMILIES: Tuple[str, ...] = (
+    "identify_object",     # "There is a parked thing; what is it?"
+    "query_status",        # "The construction vehicle is in what status?"
+    "compare_attribute",   # "Do the trailer and the truck have the same status?"
+    "compare_count",       # "Are there more cars than trucks?"
+    "same_attribute_set",  # "How many other things are in the same status as X?"
+)
+
+#: What each scope admits. ``narrow`` is the flat language of ``dsl``;
+#: ``wide`` is the typed catalogue of ``functional``. They are separate
+#: manifests and separate experiments: comparing a system measured on one
+#: against a system measured on the other would compare question sets.
+SCOPES: Dict[str, Tuple[str, ...]] = {
+    "narrow": ("count", "exist"),
+    "wide": ("count", "exist", "object", "status", "comparison"),
+}
+
+#: Kept for callers written before scopes existed.
+IN_SCOPE_TEMPLATES: Tuple[str, ...] = SCOPES["narrow"]
 
 #: Attribute comparisons between objects: "the same status as the bicycle".
 #: Representing these needs a filter bound to another object's attribute,
@@ -132,6 +151,26 @@ class Excluded:
 # Reading the question, without reading the parser's mind
 # --------------------------------------------------------------------------- #
 
+def _wide_family(text: str, template: str, same_attribute: bool) -> str:
+    """Family for a question the flat language cannot reach."""
+    if same_attribute:
+        # "do X and Y have the same status" compares two resolved objects;
+        # "the other things in the same status as X" filters a set by one
+        # object's attribute. Different operations, different failure modes.
+        return ("compare_attribute" if _TWO_OBJECT_COMPARISON_RE.search(text)
+                else "same_attribute_set")
+    if template == "object":
+        return "identify_object"
+    if template == "status":
+        return "query_status"
+    return "compare_count"
+
+
+#: "do the trailer and the truck have ..." -- two definite objects joined by
+#: "and", as opposed to a set measured against one of them.
+_TWO_OBJECT_COMPARISON_RE = re.compile(r"\bdo(?:es)? the\b.*\band the\b")
+
+
 def _question_id(sample_token: str, question: str) -> str:
     digest = hashlib.sha1(f"{sample_token}|{question}".encode("utf-8"))
     return "q_" + digest.hexdigest()[:12]
@@ -159,13 +198,24 @@ def _directions_in(text: str) -> List[Tuple[int, str]]:
     return kept
 
 
-def classify(question: str, template: str) -> Tuple[Optional[str], str, Dict[str, bool]]:
+def classify(
+    question: str, template: str, scope: str = "narrow"
+) -> Tuple[Optional[str], str, Dict[str, bool]]:
     """Return ``(family, reason, flags)``; ``family`` is ``None`` when excluded.
 
     Everything here reads the question. Nothing here runs the parser: a family
     is a statement about what is being asked, so that the examples are not
     chosen by whether a particular implementation copes with them.
+
+    ``scope`` selects the target language. Under ``wide`` the three templates
+    the flat language cannot reach are admitted, and attribute comparisons stop
+    being an exclusion because the typed catalogue has a function for them.
+    Colour stays excluded in every scope: nuScenes does not annotate it, so no
+    language can answer it without inventing data.
     """
+    templates = SCOPES.get(scope)
+    if templates is None:
+        raise ValueError(f"unknown scope {scope!r}; expected one of {sorted(SCOPES)}")
     raw = question.strip().lower()
     text = _normalise(raw)
     flags = {"has_status": False, "has_direction": False, "has_anchor": False}
@@ -176,15 +226,21 @@ def classify(question: str, template: str) -> Tuple[Optional[str], str, Dict[str
         # blamed for those and including them would depress both scores.
         return None, "truncated_question_text", flags
 
-    if template not in IN_SCOPE_TEMPLATES:
+    if template not in templates:
         return None, f"template_out_of_scope:{template}", flags
 
-    if _SAME_ATTRIBUTE_RE.search(text):
+    attribute = _SAME_ATTRIBUTE_RE.search(text)
+    if attribute and attribute.group(1) in ("colour", "color"):
+        return None, "colour_is_not_annotated", flags
+    if attribute and scope == "narrow":
         return None, "attribute_bound_to_another_object", flags
 
     categories = [m.start() for m in _CATEGORY_PATTERN.finditer(text)]
     if not categories:
         return None, "no_known_category", flags
+
+    if template in ("object", "status", "comparison") or attribute:
+        return _wide_family(text, template, attribute is not None), "", flags
 
     flags["has_status"] = _STATUS_PATTERN.search(text) is not None
 
@@ -289,6 +345,7 @@ def build_manifest(
     n_eval: int = 200,
     seed: int = 0,
     min_eval_scenes: int = 3,
+    scope: str = "narrow",
     config: Optional[Dict[str, object]] = None,
 ) -> Manifest:
     """Select the examples, splitting development and evaluation by scene.
@@ -321,7 +378,7 @@ def build_manifest(
                                      "sample_not_in_object_lists"))
             continue
 
-        family, reason, flags = classify(question, template)
+        family, reason, flags = classify(question, template, scope)
         if family is None:
             excluded.append(Excluded(question, sample_token, template, reason))
             continue
@@ -361,10 +418,11 @@ def build_manifest(
         by_split["eval" if token in eval_scenes else "dev"].append(
             (family, row, flags))
 
+    families = FAMILIES if scope == "narrow" else FAMILIES + WIDE_FAMILIES
     items: List[ManifestItem] = []
     for split_name, target in (("dev", n_dev), ("eval", n_eval)):
         pool = by_split[split_name]
-        buckets: Dict[str, List] = {f: [] for f in FAMILIES}
+        buckets: Dict[str, List] = {f: [] for f in families}
         for entry in pool:
             buckets[entry[0]].append(entry)
         for bucket in buckets.values():
@@ -376,14 +434,14 @@ def build_manifest(
                 str(e[1].get("question"))))
             rng.shuffle(bucket)
 
-        share = max(target // len(FAMILIES), 1)
+        share = max(target // len(families), 1)
         chosen: List = []
-        for family in FAMILIES:
+        for family in families:
             chosen.extend(buckets[family][:share])
         # Any shortfall is made up from the families that still have examples,
         # in a fixed order, so the mix is reported rather than silently uneven.
         if len(chosen) < target:
-            leftovers = [e for family in FAMILIES for e in buckets[family][share:]]
+            leftovers = [e for family in families for e in buckets[family][share:]]
             rng.shuffle(leftovers)
             chosen.extend(leftovers[:target - len(chosen)])
 
@@ -403,8 +461,10 @@ def build_manifest(
                 **flags,
             ))
 
+    settings = dict(config or {})
+    settings["scope"] = scope
     manifest = Manifest(version=MANIFEST_VERSION, items=items, excluded=excluded,
-                        config=dict(config or {}))
+                        config=settings)
     overlap = ({it.scene_token for it in manifest.split("dev")}
                & {it.scene_token for it in manifest.split("eval")})
     if overlap:

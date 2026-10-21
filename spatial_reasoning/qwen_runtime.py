@@ -56,11 +56,21 @@ class RuntimeConfig:
     #: Greedy, always. Sampling would make the run unreproducible and a
     #: best-of-n search would give one mode more attempts than the other.
     decoding: str = "greedy"
+    #: Weight precision, recorded because it is a property of the run and not
+    #: of the model. A 32B checkpoint does not fit on one 40 GB card in
+    #: bfloat16, so a size comparison that quantises only the large model
+    #: changes two things at once; the intermediate 7B point exists to keep
+    #: precision fixed across at least one size step.
+    precision: str = "fp16"          # fp16 | bf16 | awq | gptq | int8 | int4
+    #: Shard across devices and offload instead of calling ``.to(device)``.
+    #: Required for anything that does not fit in one allocation.
+    device_map: Optional[str] = None
 
     def fingerprint(self) -> Dict[str, object]:
         return {"model": self.model_name,
                 "max_new_tokens": self.max_new_tokens,
                 "max_input_tokens": self.max_input_tokens,
+                "precision": self.precision,
                 "decoding": self.decoding}
 
     def identity(self) -> str:
@@ -116,16 +126,54 @@ class QwenRuntime:
             self._tokenizer.pad_token = self._tokenizer.eos_token
         self._tokenizer.padding_side = "left"    # required for batched generation
 
-        dtype = torch.float16 if self._device == "cuda" else torch.float32
+        kwargs: Dict[str, object] = {}
+        precision = self.config.precision.lower()
+        if precision in ("int4", "int8"):
+            # Quantise on load. A 32B checkpoint is 65 GB in bfloat16 and does
+            # not fit on one 40 GB card, so the large point of a size curve
+            # cannot be measured at the small point's precision. That is a
+            # confound, and it is why the curve has an intermediate model
+            # measured in fp16 like the small one.
+            from transformers import BitsAndBytesConfig
+
+            kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=(precision == "int4"),
+                load_in_8bit=(precision == "int8"),
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_use_double_quant=True)
+            kwargs["device_map"] = self.config.device_map or "auto"
+            dtype = None
+        elif precision in ("awq", "gptq"):
+            # Pre-quantised checkpoints carry their own config; passing a dtype
+            # would override it. They are also too large to materialise and
+            # then move, so they are placed as they load.
+            kwargs["device_map"] = self.config.device_map or "auto"
+            dtype = None
+        else:
+            dtype = {"bf16": torch.bfloat16, "fp32": torch.float32}.get(
+                precision, torch.float16 if self._device == "cuda"
+                else torch.float32)
+            if self.config.device_map:
+                kwargs["device_map"] = self.config.device_map
+
         # transformers renamed `torch_dtype` to `dtype` in v5; support both so
         # the run is not tied to one release.
+        def _load(dtype_key: Optional[str]):
+            extra = dict(kwargs)
+            if dtype is not None and dtype_key is not None:
+                extra[dtype_key] = dtype
+            return AutoModelForCausalLM.from_pretrained(
+                self.config.model_name, **extra)
+
         try:
-            model = AutoModelForCausalLM.from_pretrained(
-                self.config.model_name, dtype=dtype)
+            model = _load("dtype")
         except TypeError:
-            model = AutoModelForCausalLM.from_pretrained(
-                self.config.model_name, torch_dtype=dtype)
-        self._model = model.to(self._device).eval()
+            model = _load("torch_dtype")
+
+        if "device_map" not in kwargs:
+            model = model.to(self._device)
+        self._model = model.eval()
         self.model_revision = getattr(
             getattr(self._model, "config", None), "_commit_hash", None)
 
@@ -173,8 +221,11 @@ class QwenRuntime:
         tokenizer_kwargs = ({"truncation": True,
                              "max_length": self.config.max_input_tokens}
                             if not self.refuse_overlong else {"truncation": False})
+        # With device_map the embedding layer decides where inputs must live,
+        # so ask the model rather than assuming the configured device.
+        target = getattr(self._model, "device", self._device)
         batch = self._tokenizer(prompts, return_tensors="pt", padding=True,
-                                **tokenizer_kwargs).to(self._device)
+                                **tokenizer_kwargs).to(target)
         with torch.no_grad():
             out = self._model.generate(
                 **batch,

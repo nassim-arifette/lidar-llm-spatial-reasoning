@@ -387,6 +387,8 @@ class QwenQuestionParser:
         directions: Optional[Sequence[str]] = None,
         schema_version: str = "dsl-1",
         allow_foreign: bool = False,
+        precision: str = "fp16",
+        device_map: Optional[str] = None,
     ) -> None:
         self.model_name = model_name
         self.cache_path = cache_path
@@ -396,6 +398,8 @@ class QwenQuestionParser:
         self.directions = tuple(directions) if directions else DIRECTIONS
         self.schema_version = schema_version
         self.allow_foreign = allow_foreign
+        self.precision = precision
+        self.device_map = device_map
         self.config_registry: Dict[str, object] = {}
         self.stats = ParserStats()
         self._cache: Dict[str, Dict[str, str]] = {}
@@ -427,6 +431,7 @@ class QwenQuestionParser:
             "directions": list(self.directions),
             "max_new_tokens": self.max_new_tokens,
             "schema_version": self.schema_version,
+            "precision": self.precision,
             "decoding": "greedy",
         }
 
@@ -509,7 +514,9 @@ class QwenQuestionParser:
             model_name=self.model_name,
             max_new_tokens=self.max_new_tokens,
             batch_size=self.batch_size,
-            device=self._device))
+            device=self._device,
+            precision=self.precision,
+            device_map=self.device_map))
         self._runtime.ensure_loaded()
         self._device = self._runtime.device
 
