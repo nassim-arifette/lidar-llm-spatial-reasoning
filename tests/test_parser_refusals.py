@@ -55,6 +55,24 @@ def test_preamble_questions_are_refused(question):
     assert res.query is None
 
 
+@pytest.mark.parametrize("question", [
+    "There is a truck; how many cars are there?",
+    "There are two buses; what number of pedestrians are there?",
+    "There is a bicycle, how many cars are there?",
+])
+def test_preamble_is_refused_on_its_own(question):
+    """No status word, no pronoun: only the preamble rule can catch these.
+
+    The rule matched the normalised text, but normalisation strips the
+    semicolon it keys on, so it never fired. The two tests above passed
+    through the pronoun rule instead and hid that. These questions isolate it:
+    the grammar would otherwise count trucks when asked about cars.
+    """
+    res = DEFAULT_PARSER.parse(question)
+    assert res.status is ParseStatus.UNSUPPORTED, res.query and res.query.describe()
+    assert "preamble" in res.reason
+
+
 @pytest.mark.parametrize("question, category", [
     ("How many cars are there?", "car"),
     ("Are there any trailers?", "trailer"),

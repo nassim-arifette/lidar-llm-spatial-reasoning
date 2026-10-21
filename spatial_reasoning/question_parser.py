@@ -226,7 +226,9 @@ class RuleBasedQuestionParser:
         # things are there" became "how many objects are there" (71 against
         # 10). A refusal costs coverage; a silent reinterpretation costs
         # correctness and looks like a reasoning failure.
-        inexpressible = self._why_inexpressible(text)
+        # The raw text is passed too: _normalise strips punctuation, and the
+        # preamble rule needs the clause separator that normalisation removes.
+        inexpressible = self._why_inexpressible(text, question.strip().lower())
         if inexpressible:
             return ParseResult(ParseStatus.UNSUPPORTED, reason=inexpressible)
 
@@ -249,11 +251,17 @@ class RuleBasedQuestionParser:
     # -- internals -------------------------------------------------------- #
 
     @staticmethod
-    def _why_inexpressible(text: str) -> Optional[str]:
+    def _why_inexpressible(text: str, raw: str) -> Optional[str]:
         """Reason this question is outside the grammar, or ``None``.
 
         Everything listed here used to be parsed anyway, with the unsupported
         part dropped, which produced an answer to a question nobody asked.
+
+        ``text`` is normalised (punctuation removed); ``raw`` is the original,
+        lower-cased. The preamble rule must look at ``raw``: normalisation
+        deletes the semicolon it keys on, so matching against ``text`` made the
+        rule unreachable. It looked correct only because the questions in its
+        test also tripped the status and pronoun rules.
         """
         if _STATUS_WORDS_RE.search(text):
             return ("question constrains object status (moving / parked / "
@@ -266,7 +274,7 @@ class RuleBasedQuestionParser:
         # "There is a moving truck; how many pedestrians are to the back of it?"
         # The grammar takes the first category it sees, which is the one
         # introduced by the preamble, not the one being counted.
-        if _PREAMBLE_RE.search(text):
+        if _PREAMBLE_RE.search(raw):
             return ("question introduces a referent in a preamble clause and "
                     "then asks about a different class; the grammar would take "
                     "the preamble's class as the target")

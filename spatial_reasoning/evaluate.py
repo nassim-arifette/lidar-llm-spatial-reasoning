@@ -102,9 +102,11 @@ def count_error_decomposition(
 
     It also provides a consistency check. nuScenes-QA drops questions whose
     count answer exceeds 10, so gold answers lie in [0, 10]. A system that only
-    under-counts therefore cannot exceed an error of 10 on any item: an MAE
-    above 10 is proof that over-counting dominates, whatever the object filter
-    is doing.
+    under-counts cannot exceed an error of 10 on any item, so an MAE above 10
+    proves over-counting is PRESENT. It does not prove over-counting dominates:
+    nine errors of -10 and one of +38 give under=9.0, over=3.8, MAE=12.8, where
+    under-counting contributes more. Only the split below settles which one
+    carries the error, which is why the split exists.
     """
     errors: List[int] = []
     golds: List[int] = []
