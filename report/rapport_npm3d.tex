@@ -35,6 +35,27 @@ learned answers versus explicit geometric operations}}
 \begin{document}
 \maketitle
 
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small\textbf{Status of the numbers in this version.} Section~6 reports the
+\emph{synthetic} campaign, under $45^{\circ}$ octant sectors
+(\code{spatial\_reasoning/results/all\_results.json}). Work since has moved to
+real nuScenes-QA questions under that benchmark's six $60^{\circ}$ sectors, a
+convention since checked against the gold answers rather than assumed. Under
+those conditions the measured figures differ from the ones below --- the
+learned baselines do not reliably beat a scene-blind prior, and swapping
+ground-truth objects for detections barely moves them. The current state is
+tracked in \code{spatial\_reasoning/results/state\_of\_results.md}, and the
+comparison this report argues for --- one language model answering directly
+against the same model writing an executable program --- is running at the
+time of writing and is not yet in these tables. The synthetic results are kept
+here because the argument they illustrate is unchanged; they should not be
+cited as results on nuScenes-QA.
+\end{minipage}}
+\end{center}
+
+\vspace{1em}
+
 \begin{abstract}
 \noindent
 LiDAR-LLM \cite{lidarllm} couples a frozen LiDAR encoder to a large language
