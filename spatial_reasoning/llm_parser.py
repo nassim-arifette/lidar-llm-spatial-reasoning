@@ -312,6 +312,22 @@ def query_from_json(
 # --------------------------------------------------------------------------- #
 
 @dataclass
+class ProgramAttempt:
+    """One question, the model's raw output, and what came of it."""
+
+    question: str
+    raw: str
+    query: Optional[Query] = None
+    status: str = "ok"          # ok | refused | invalid
+    reason: str = ""
+    from_cache: bool = False
+
+    @property
+    def ok(self) -> bool:
+        return self.status == "ok" and self.query is not None
+
+
+@dataclass
 class ParserStats:
     """Where the parses went -- reported next to accuracy."""
 
@@ -321,6 +337,7 @@ class ParserStats:
     invalid: int = 0          # the model produced malformed output
     cache_hits: int = 0
     foreign_used: int = 0     # reused from another configuration
+    truncated: int = 0        # generation stopped on the token budget
     unique_questions: int = 0
     seconds: float = 0.0
 
@@ -333,6 +350,7 @@ class ParserStats:
             "refused": self.refused / t,
             "invalid": self.invalid / t,
             "cache_hit_rate": self.cache_hits / t,
+            "truncated_generations": self.truncated,
             "foreign_cache_used": self.foreign_used / t,
             "seconds": round(self.seconds, 1),
         }
@@ -378,6 +396,7 @@ class QwenQuestionParser:
         self.foreign_entries = 0
         self._tokenizer = None
         self._model = None
+        self._runtime = None
         self._device = device
         self._load_cache()
 
@@ -470,49 +489,38 @@ class QwenQuestionParser:
     # -- model ------------------------------------------------------------ #
 
     def _ensure_model(self) -> None:
-        if self._model is not None:
-            return
-        import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        """Load through the shared runtime, so both modes load identically.
 
-        self._device = self._device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        if self._tokenizer.pad_token is None:
-            self._tokenizer.pad_token = self._tokenizer.eos_token
-        self._tokenizer.padding_side = "left"   # required for batched generation
-        # transformers renamed `torch_dtype` to `dtype` in v5; support both so
-        # the run is not tied to one release.
-        dtype = torch.float16 if self._device == "cuda" else torch.float32
-        try:
-            self._model = AutoModelForCausalLM.from_pretrained(
-                self.model_name, dtype=dtype)
-        except TypeError:
-            self._model = AutoModelForCausalLM.from_pretrained(
-                self.model_name, torch_dtype=dtype)
-        self._model = self._model.to(self._device)
-        self._model.eval()
+        The comparison is between two uses of one model. A second loader here
+        would be a second set of dtype and decoding choices that have to be
+        kept in step by hand -- which is exactly how the status filter was lost
+        between the two executors in this package.
+        """
+        if self._runtime is not None:
+            return
+        from .qwen_runtime import QwenRuntime, RuntimeConfig
+
+        self._runtime = QwenRuntime(RuntimeConfig(
+            model_name=self.model_name,
+            max_new_tokens=self.max_new_tokens,
+            batch_size=self.batch_size,
+            device=self._device))
+        self._runtime.ensure_loaded()
+        self._device = self._runtime.device
 
     def _generate(self, questions: Sequence[str]) -> List[str]:
-        import torch
-
         self._ensure_model()
-        prompts = [
-            self._tokenizer.apply_chat_template(
-                build_messages(q, self.directions), tokenize=False, add_generation_prompt=True
-            )
-            for q in questions
-        ]
-        batch = self._tokenizer(prompts, return_tensors="pt", padding=True,
-                                truncation=True, max_length=4096).to(self._device)
-        with torch.no_grad():
-            out = self._model.generate(
-                **batch,
-                max_new_tokens=self.max_new_tokens,
-                do_sample=False,              # greedy: the run is reproducible
-                pad_token_id=self._tokenizer.pad_token_id,
-            )
-        generated = out[:, batch["input_ids"].shape[1]:]
-        return self._tokenizer.batch_decode(generated, skip_special_tokens=True)
+        assert self._runtime is not None
+        generations = self._runtime.generate(
+            [build_messages(q, self.directions) for q in questions])
+        for generation in generations:
+            if generation.hit_token_budget:
+                # A program cut off by the budget is unparseable for a reason
+                # that has nothing to do with the model's understanding. An
+                # earlier run lost 26% of its programs this way, 97% of them to
+                # truncation, and the number was read as a model failure.
+                self.stats.truncated += 1
+        return [g.text for g in generations]
 
     # -- public ------------------------------------------------------------ #
 
@@ -580,8 +588,19 @@ class QwenQuestionParser:
 
     def parse(self, question: str) -> Optional[Query]:
         """Return a program, or ``None`` when the question is not expressible."""
+        return self.parse_detailed(question).query
+
+    def parse_detailed(self, question: str) -> "ProgramAttempt":
+        """The same parse, keeping the model's text and why it was rejected.
+
+        A per-question comparison has to separate "the model declined" from
+        "the model produced something unreadable": they are different failures
+        with different fixes, and an accuracy column alone hides which one
+        happened. :meth:`parse` delegates here so the two cannot drift.
+        """
         self.stats.total += 1
         raw = self._usable(question)
+        from_cache = raw is not None
         if raw is None:
             raw = self._generate([question])[0]
             self._cache[question] = {"raw": raw, "config": self.config_id()}
@@ -592,11 +611,13 @@ class QwenQuestionParser:
 
         try:
             query = query_from_json(raw, frozenset(self.directions))
-        except InvalidProgram:
+        except InvalidProgram as exc:
             self.stats.invalid += 1
-            return None
+            return ProgramAttempt(question, raw, None, "invalid", str(exc), from_cache)
         if query is None:
             self.stats.refused += 1
-            return None
+            return ProgramAttempt(question, raw, None, "refused",
+                                  "the model declined to express the question",
+                                  from_cache)
         self.stats.parsed += 1
-        return query
+        return ProgramAttempt(question, raw, query, "ok", "", from_cache)
