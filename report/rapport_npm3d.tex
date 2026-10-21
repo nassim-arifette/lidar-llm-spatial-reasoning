@@ -649,17 +649,12 @@ it through, at $523.9$ --- nine times more. Even against its own executed mode
 for no accuracy gained. Where the division of labour stops buying correctness,
 it still buys computation.
 
-\paragraph{Two rows that are not in the table, and why.}
-\code{alibaba/qwen-3-235b} is listed by the gateway and returns HTTP 404, so it
-could not be measured. \code{alibaba/qwen-3-14b} first scored $0.180$ and
-$0.190$, which is not a capability measurement: it spent the shared $256$-token
-budget on hidden reasoning and returned empty content on $163$ of $200$
-questions, with a mean of $243.3$ output tokens against a cap of $256$. It is
-re-measured with a budget that fits its reasoning, and the budget difference is
-recorded because it is a difference. A related caveat applies to
-\code{qwen3.8-27b}: it exceeded the requested cap freely, up to $8982$ output
-tokens on one question, so the budget was not in fact held equal across the
-gateway rows the way it is across the local ones.
+\paragraph{The output budget is not held equal here.} Across the local runs
+every model is given the same cap and the runtime enforces it. A hosted
+endpoint does not: \code{qwen3.8-27b} exceeded the requested $256$ tokens
+freely, to $8982$ on one question. The gateway rows are therefore comparable in
+accuracy but not in budget, and the token columns are reported precisely so
+that the difference is visible rather than assumed away.
 
 \subsection{The scene-dependence control}
 \label{sec:scene}
