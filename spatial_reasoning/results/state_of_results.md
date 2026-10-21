@@ -123,14 +123,36 @@ Sources: `llm_modes/`, `llm_modes_7b/`, `llm_modes_32b/`.
 * Scene-dependence, correct across every scene of a group: direct 1/13, 1/13,
   4/13; executed 13/13, 12/13, 13/13.
 
-**It replicates in another family.** Through the hosted gateway
-(`gw_qwen3_32b/`), `alibaba/qwen-3-32b` gives direct 0.560 and executed 0.840 —
-within 0.005 of the Qwen2.5-32B figures — with 200/200 valid programs, paired
-69 to 13 (p = 2.3e-10), and executed correct on 13/13 scene groups.
+### It replicates in another family — and size is not what matters
+
+Through the hosted gateway, same 200 questions, all three producing 200/200
+valid programs:
+
+| Model | answers | A | B | A out tok | B out tok | A scene | B scene | paired p |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| `qwen-3-32b` | one step | 0.560 | **0.840** | 2.0 | 57.9 | 3/13 | 13/13 | 2.3e-10 |
+| `qwen3-next-80b-a3b-instruct` | one step | 0.610 | **0.845** | 2.0 | 57.6 | 3/13 | 13/13 | 2.3e-08 |
+| `qwen3.8-27b` | reasoning | **0.840** | 0.845 | 523.9 | 156.5 | 13/13 | 13/13 | 1.0 |
+
+`qwen-3-32b` lands within 0.005 of Qwen2.5-32B, so the advantage is not a
+property of one family. `qwen3-next-80b` is 2.5× larger and moves the direct
+mode only to 0.610.
+
+**What closes the gap is reasoning at inference, not parameters.**
+`qwen3.8-27b` is a third the size of the 80B and answers directly at 0.840 —
+equal to its own executed mode — while spending **523.9 output tokens** to emit
+a one-token answer. The extended reasoning is the program, written where no
+executor can run it.
+
+**The cost does not vanish with the gap.** Three ways to reach ~0.84: a
+one-step model writing a program (58 generated tokens), the reasoning model
+writing one (157), or the reasoning model thinking (524) — nine times the
+first.
 
 Caveat on gateway rows: `temperature=0` is *requested*, not the exact greedy
-loop the local runtime performs, and token counts come from the provider's
-tokenizer. Gateway and local numbers should not be compared token for token.
+loop the local runtime performs; token counts are the provider's; and the
+output cap is not enforced — `qwen3.8-27b` exceeded 256 up to 8982 on one
+question. These rows are comparable in accuracy, not in budget.
 
 ---
 

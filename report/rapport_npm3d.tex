@@ -613,41 +613,45 @@ counts are the provider's, not ours.
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{llrrrrrr}
 \toprule
- & \multicolumn{2}{c}{accuracy} & \multicolumn{2}{c}{output tokens / question} & & \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-Model & A & B & A & B & valid & paired $p$ \\
+ & & \multicolumn{2}{c}{accuracy} & \multicolumn{2}{c}{output tokens / question}
+ & \multicolumn{2}{c}{right on every scene} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Model & answers & A & B & A & B & A & B \\
 \midrule
-\code{alibaba/qwen-3-32b}   & 0.560 & \textbf{0.840} & 2.0 & 57.9 & 200/200 & $2.3\times10^{-10}$ \\
-\code{alibaba/qwen3.8-27b}  & \textbf{0.840} & 0.845 & 523.9 & 156.5 & 200/200 & $1.0$ \\
+\code{qwen-3-32b}         & one step  & 0.560 & \textbf{0.840} & 2.0 & 57.9 & 3/13 & 13/13 \\
+\code{qwen3-next-80b}     & one step  & 0.610 & \textbf{0.845} & 2.0 & 57.6 & 3/13 & 13/13 \\
+\code{qwen3.8-27b}        & reasoning & \textbf{0.840} & 0.845 & 523.9 & 156.5 & 13/13 & 13/13 \\
 \bottomrule
 \end{tabular}
-\caption{The same $200$ held-out questions. \code{qwen-3-32b} reproduces the
-open-weights result almost exactly. \code{qwen3.8-27b} does not: its direct
-mode matches its executed mode, and the paired table is $0$ against $1$.}
+\caption{The same $200$ held-out questions, through a hosted gateway. All
+three produce $200/200$ valid programs. Paired $p$: $2.3\times10^{-10}$,
+$2.3\times10^{-8}$ and $1.0$ respectively.}
 \label{tab:gateway}
 \end{table}
 
-\paragraph{The conclusion replicates --- until the model reasons.}
-\code{qwen-3-32b} lands within $0.005$ of Qwen2.5-32B on both modes, with the
-same $200/200$ valid programs and the same $13/13$ on the scene-dependence
-control. So the advantage is not an artefact of one family.
+\paragraph{The conclusion replicates, and it is not about size.}
+\code{qwen-3-32b} lands within $0.005$ of Qwen2.5-32B on both modes, so the
+advantage is not an artefact of one family. \code{qwen3-next-80b}, two and a
+half times larger, moves the direct mode to $0.610$ and no further. Both answer
+in one step, both emit $2.0$ output tokens per question, and both are right
+across a whole scene-dependence group only $3$ times in $13$.
 
-\code{qwen3.8-27b} is the exception, and the exception is informative. It
-answers directly as well as it answers through a program, and it is right
-across all thirteen scene-dependence groups in \emph{both} modes. Its direct
-mode emits $523.9$ output tokens per question to produce a one-token answer.
-It is doing internally, at length, what the executed branch does externally:
-the extended reasoning is the program.
+\code{qwen3.8-27b} is smaller than either and reaches $0.840$ directly ---
+equal to its own executed mode, with the paired table at $0$ against $1$, and
+right on all thirteen scene groups in \emph{both} modes. The difference is not
+parameters. It emits $523.9$ output tokens to produce a one-token answer: it is
+doing internally, at length, what the executed branch does externally. The
+extended reasoning \emph{is} the program, written where no executor can run it.
 
-\paragraph{The cost does not vanish with the accuracy gap.} Two ways to reach
-$0.840$ on these questions: \code{qwen-3-32b} writing a program the executor
-runs, at $57.9$ generated tokens per question, or \code{qwen3.8-27b} thinking
-it through, at $523.9$ --- nine times more. Even against its own executed mode
-($156.5$ tokens) the reasoning model's direct answer costs $3.3$ times as much
-for no accuracy gained. Where the division of labour stops buying correctness,
-it still buys computation.
+\paragraph{The cost does not vanish with the accuracy gap.} Three ways to reach
+roughly $0.84$ on these questions: a one-step model writing a program the
+executor runs, at $58$ generated tokens; the reasoning model writing one, at
+$157$; or the reasoning model thinking its way to the answer, at $524$ --- nine
+times the first. Even against its own executed mode the reasoning model's
+direct answer costs $3.3$ times as much for nothing gained. Where the division
+of labour stops buying correctness, it still buys computation.
 
 \paragraph{The output budget is not held equal here.} Across the local runs
 every model is given the same cap and the runtime enforces it. A hosted
@@ -925,21 +929,24 @@ produces one for a third of the questions (Section~\ref{sec:wide}). The
 failure triage had predicted this: $71\%$ of the flat language's errors happen
 before the executor, where expressiveness cannot reach.
 
-\paragraph{What does close the gap is reasoning at inference time.}
-\code{qwen3.8-27b} answers directly as well as it answers through a program
-($0.840$ against $0.845$, paired $0$ to $1$), and is right across all thirteen
-scene-dependence groups in both modes. It spends $523.9$ output tokens per
-question to emit a one-token answer: the extended reasoning is the program,
-written in the model's own output instead of in a language an executor can run.
+\paragraph{What does close the gap is reasoning at inference time, not size.}
+\code{qwen3-next-80b}, the largest model measured, answers directly at
+$0.610$. \code{qwen3.8-27b}, a third its size, answers directly at $0.840$ ---
+as well as it answers through a program, paired $0$ to $1$, and right across
+all thirteen scene-dependence groups in both modes. What separates them is that
+one answers in a single step and the other spends $523.9$ output tokens per
+question before emitting a one-token answer. The extended reasoning is the
+program, written in the model's own output instead of in a language an executor
+can run.
 
 That bounds this report's claim precisely. The division of labour helps a model
 that answers in one step, which is every model measured here except one. It
 stops helping a model that reasons at length first --- and it still costs nine
-times less to compute: $57.9$ generated tokens for \code{qwen-3-32b} writing a
-program against $523.9$ for \code{qwen3.8-27b} thinking, for the same $0.840$.
-The interesting question is no longer whether to externalise the computation
-but when externalising it is cheaper than generating it, and that is a question
-about inference budget rather than about accuracy.
+times less to compute: $58$ generated tokens to write a program against $524$
+to think, for the same $0.84$. The interesting question is no longer whether to
+externalise the computation but when externalising it is cheaper than
+generating it, and that is a question about inference budget rather than about
+accuracy.
 
 \paragraph{Why the distillation line was dropped.} The previous report proposed
 distilling the fine-tuned LLM into a smaller student. Distillation reduces the
