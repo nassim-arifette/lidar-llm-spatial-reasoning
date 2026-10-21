@@ -257,26 +257,44 @@ def _object_from_nuscenes_box(box: dict, score_key: str, name_key: str) -> Optio
     )
 
 
+class FrameError(ValueError):
+    """Raised rather than guessing which frame a detection file is in."""
+
+
 def load_nuscenes_detections(
     path: str,
     ego_poses: Optional[Dict[str, dict]] = None,
     min_score: float = 0.0,
+    assume_ego_frame: bool = False,
 ) -> Dict[str, Scene]:
     """Load a nuScenes-format detection file (``{"results": {token: [...]}}``).
 
     ``ego_poses`` maps ``sample_token`` to ``{"translation": [...],
-    "rotation": [w, x, y, z]}``. When it is provided, boxes are converted from
-    the global frame to the ego frame. When it is ``None`` the boxes are assumed
-    to already be ego-relative -- that assumption is recorded in
-    ``Scene.source`` so a later analysis cannot silently mistake one for the
-    other.
+    "rotation": [w, x, y, z]}``; boxes are then converted from the global frame
+    to the ego frame.
+
+    **Without poses this raises.** nuScenes submission files are in GLOBAL
+    coordinates, so treating them as ego-relative puts every object a kilometre
+    from the origin at a bearing measured in the map frame: every directional
+    answer is computed in the wrong frame, everything is "far", and comparing
+    against ego-frame ground truth charges the entire discrepancy to
+    perception. Recording the assumption in ``Scene.source`` was not enough --
+    nothing read it. Pass ``assume_ego_frame=True`` only for a file you know is
+    already ego-relative.
     """
+    if ego_poses is None and not assume_ego_frame:
+        raise FrameError(
+            f"{path}: nuScenes detection results are in the global frame. Pass "
+            f"ego_poses to convert them, or assume_ego_frame=True if this file "
+            f"is already ego-relative. Guessing silently produces answers in "
+            f"the wrong frame."
+        )
     with open(path, "r", encoding="utf-8") as fh:
         payload = json.load(fh)
 
     results = payload.get("results", payload)
     scenes: Dict[str, Scene] = {}
-    frame = "detection" if ego_poses else "detection_assumed_ego"
+    frame = "detection_ego_from_poses" if ego_poses else "detection_assumed_ego"
 
     for token, boxes in results.items():
         objs: List[Object3D] = []

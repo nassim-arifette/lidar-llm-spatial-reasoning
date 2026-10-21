@@ -131,9 +131,13 @@ def _sample_bearing(
     """
     for _ in range(64):
         bearing = rng.uniform(-math.pi, math.pi)
-        # Sector centres are every 45 degrees; the edges are 22.5 degrees away.
-        offset = (bearing + math.pi / 8.0) % (math.pi / 4.0)
-        if boundary_margin < offset < (math.pi / 4.0 - boundary_margin):
+        # Distance to the nearest sector edge, read off the ACTIVE layout
+        # rather than assuming 45-degree octants.
+        theta = math.degrees(bearing)
+        margin_deg = math.degrees(boundary_margin)
+        edges = [low for low, _ in config.sectors.values()]
+        if all(min(abs((theta - e + 180.0) % 360.0 - 180.0) for e in edges) > margin_deg
+               for _ in (0,)):
             return float(bearing)
     return float(bearing)
 
@@ -193,13 +197,13 @@ def _question_text(query: Query) -> str:
         other = PLURALS.get(query.second_category, query.second_category)
         word = "fewer" if query.comparison == "fewer" else "more"
         if query.region.kind == "direction":
-            where = DIRECTION_WORDS[query.region.direction]
+            where = query.region.direction.replace("_", " ")
             return (f"Are there {word} {plural} than {other} to the {where} "
                     f"of the ego vehicle?")
         return f"Are there {word} {plural} than {other} in the scene?"
 
     if query.region.kind == "direction":
-        where = DIRECTION_WORDS[query.region.direction]
+        where = query.region.direction.replace("_", " ")
         if query.operation is Operation.COUNT:
             return f"How many {plural} are to the {where} of the ego vehicle?"
         return f"Are there any {plural} to the {where} of the ego vehicle?"
@@ -223,7 +227,7 @@ def _template_name(query: Query) -> str:
     return f"{query.operation.value}::{query.region.kind}"
 
 
-def _sample_query(rng: np.random.Generator) -> Query:
+def _sample_query(rng: np.random.Generator, config: RegionConfig) -> Query:
     # Sample by index: numpy's choice on a list of Enum members would build an
     # object array, which is fragile across numpy versions.
     operations = (Operation.COUNT, Operation.EXISTS, Operation.COMPARE_COUNT)
@@ -235,8 +239,12 @@ def _sample_query(rng: np.random.Generator) -> Query:
     region_kinds = ("any", "direction", "near", "far")
     region_kind = region_kinds[int(rng.choice(len(region_kinds), p=[0.3, 0.5, 0.1, 0.1]))]
     if region_kind == "direction":
+        # Sample from the ACTIVE layout. Drawing from the module-global eight
+        # made it impossible to generate a corpus under the benchmark's own
+        # six-relation convention: 'left' and 'right' do not exist there.
+        names = config.directions()
         region = Region(kind="direction",
-                        direction=DIRECTIONS[int(rng.integers(len(DIRECTIONS)))])
+                        direction=names[int(rng.integers(len(names)))])
     else:
         region = Region(kind=region_kind)
 
@@ -307,7 +315,7 @@ def generate_corpus(
         attempts = 0
         while len(seen) < questions_per_sample and attempts < questions_per_sample * 40:
             attempts += 1
-            query = _sample_query(rng)
+            query = _sample_query(rng, config)
             text = _question_text(query)
             if text in seen:
                 continue

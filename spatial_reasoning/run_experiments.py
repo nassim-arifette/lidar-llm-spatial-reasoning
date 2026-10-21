@@ -100,6 +100,7 @@ def load_from_files(
     qa_path: str,
     oracle_path: Optional[str] = None,
     min_score: float = 0.3,
+    ego_poses: Optional[Dict[str, dict]] = None,
 ) -> Tuple[Dict[str, Scene], Optional[Dict[str, Scene]], List[QAItem], Dict[str, Query]]:
     """Load real data: detections (perception, fixed) plus a QA file."""
     with open(detections_path, "r", encoding="utf-8") as fh:
@@ -108,7 +109,10 @@ def load_from_files(
     # compact format is a bare list. Sniffing the first bytes avoids loading a
     # large file twice.
     if '"results"' in head:
-        detected = load_nuscenes_detections(detections_path, min_score=min_score)
+        # Global-frame submission: needs ego poses, and load_nuscenes_detections
+        # now refuses rather than assuming. Surface that as a usable message.
+        detected = load_nuscenes_detections(
+            detections_path, ego_poses=ego_poses, min_score=min_score)
     else:
         detected = load_simple_scenes(detections_path)
 
@@ -439,6 +443,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = build_arg_parser().parse_args(argv)
+    # Decide the convention BEFORE building anything: the synthetic corpus
+    # generates its own gold answers, so a corpus built under one layout and
+    # evaluated under another is measured against the wrong labels.
+    layout = args.layout or ("nuscenes_qa" if args.source == "nuscenes" else "octant")
+    region_config = RegionConfig(layout=layout)
 
     if args.source == "synthetic":
         corpus = generate_corpus(
@@ -448,6 +457,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             seed=args.seed,
             detector=None if args.perfect_perception else default_detector(args.seed),
             max_trivial_fraction=args.max_trivial_fraction,
+            config=region_config,
         )
         print("synthetic corpus:", json.dumps(corpus.summary(), indent=2))
         detected, oracle = corpus.detected_scenes, corpus.oracle_scenes
@@ -484,7 +494,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             args.detections, args.qa, args.oracle, args.min_score
         )
 
-    layout = args.layout or ("nuscenes_qa" if args.source == "nuscenes" else "octant")
     run(detected, oracle, items, gold,
         output_dir=args.output_dir, seed=args.seed, epochs=args.epochs,
         device=args.device, allow_relative=args.allow_relative, layout=layout)

@@ -262,7 +262,16 @@ class Region:
         config: RegionConfig = DEFAULT_REGION_CONFIG,
         reference: Optional[Object3D] = None,
     ) -> Callable[[Object3D], bool]:
-        """Compile the region into a single-object test."""
+        """Compile the region into a single-object test.
+
+        Validation happens here, when the test is built, not inside the test.
+        A check that only runs per object never fires on an empty candidate
+        list, so an unexecutable program used to return "0" with an OK status.
+        Compiling is the one point every executor passes through, which is why
+        the guard belongs here rather than at each call site -- a new executor
+        cannot forget it.
+        """
+        validate_region(self, config)
         if self.kind == "any":
             return lambda o: True
         if self.kind == "direction":

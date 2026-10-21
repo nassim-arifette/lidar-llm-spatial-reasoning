@@ -16,7 +16,12 @@ from typing import List, Optional, Tuple
 
 from .objects import Object3D, Scene
 from .question_parser import DEFAULT_PARSER, Operation, Query
-from .regions import DEFAULT_REGION_CONFIG, RegionConfig, select
+from .regions import (
+    DEFAULT_REGION_CONFIG,
+    RegionConfig,
+    select,
+    validate_region,
+)
 
 
 class ExecStatus(str, enum.Enum):
@@ -81,6 +86,15 @@ def execute(
     if query.operation is Operation.COMPARE_COUNT:
         return _execute_compare(query, scene, config)
 
+    # Refuse a program the active layout cannot express before looking at the
+    # scene. The rule grammar still produces "left" and "right", which the
+    # six-relation nuScenes-QA layout does not define; without this the query
+    # either crashes the run or, on an empty candidate list, answers "0".
+    try:
+        validate_region(query.region, config)
+    except KeyError as exc:
+        return ExecutionResult(None, ExecStatus.UNSUPPORTED, reason=str(exc).strip('"'))
+
     reference = None
     if query.region.kind == "relative":
         reference, status, reason = _resolve_reference(scene, query.region.reference_category)
@@ -104,6 +118,11 @@ def execute(
 def _execute_compare(
     query: Query, scene: Scene, config: RegionConfig
 ) -> ExecutionResult:
+    try:
+        validate_region(query.region, config)
+    except KeyError as exc:
+        return ExecutionResult(None, ExecStatus.UNSUPPORTED, reason=str(exc).strip('"'))
+
     reference = None
     if query.region.kind == "relative":
         reference, status, reason = _resolve_reference(scene, query.region.reference_category)
