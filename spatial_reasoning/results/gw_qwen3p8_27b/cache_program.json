@@ -1,0 +1,1080 @@
+{
+"current_config": "405e2e1168b5",
+"configs": {
+"405e2e1168b5": {
+"model": "alibaba/qwen3.8-27b",
+"prompt_sha256": "304b86393daa7bb3",
+"directions": [
+"front",
+"front_left",
+"back_left",
+"back",
+"back_right",
+"front_right"
+],
+"max_new_tokens": 256,
+"schema_version": "dsl-1",
+"precision": "fp16",
+"decoding": "greedy"
+}
+},
+"entries": {
+"Are any cars visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 94,
+"seconds": 3.045781299999362
+},
+"Are any construction vehicles visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"construction_vehicle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 164,
+"seconds": 4.215355000000272
+},
+"Are any motorcycles visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 178,
+"seconds": 4.212411200001952
+},
+"Are any moving bicycles visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 81,
+"seconds": 3.154739099998551
+},
+"Are any moving cars visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 181,
+"seconds": 3.745064499998989
+},
+"Are any moving construction vehicles visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"construction_vehicle\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 164,
+"seconds": 3.5223296000003756
+},
+"Are any moving pedestrians visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 148,
+"seconds": 3.755493100001331
+},
+"Are any moving things visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 158,
+"seconds": 4.026351600001362
+},
+"Are any not standing pedestrians visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": true, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 130,
+"seconds": 3.6832995000004303
+},
+"Are any parked cars visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 150,
+"seconds": 3.9515864000022702
+},
+"Are any parked things visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 153,
+"seconds": 4.179601300002105
+},
+"Are any pedestrians visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 76,
+"seconds": 2.801158399997803
+},
+"Are any standing pedestrians visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 153,
+"seconds": 3.928076299998793
+},
+"Are any stopped cars visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 85,
+"seconds": 3.107976900002541
+},
+"Are any stopped trailers visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"trailer\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 136,
+"seconds": 3.80146650000097
+},
+"Are any things visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 146,
+"seconds": 3.6942230999993626
+},
+"Are any traffic cones visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"traffic_cone\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 129,
+"seconds": 3.545820700001059
+},
+"Are any trucks visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"truck\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 80,
+"seconds": 2.9084272000000055
+},
+"Are any with rider bicycles visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 151,
+"seconds": 3.8565291999984765
+},
+"Are any without rider motorcycles visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 119,
+"seconds": 3.537985800001479
+},
+"Are any without rider things visible?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 205,
+"seconds": 4.674964499998168
+},
+"Are there any barriers?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"barrier\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 102,
+"seconds": 3.5578677999983483
+},
+"Are there any bicycles to the back left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": null, \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 204,
+"seconds": 4.497563799999625
+},
+"Are there any bicycles?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 75,
+"seconds": 2.564880699999776
+},
+"Are there any cars to the front left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 152,
+"seconds": 4.149462199999107
+},
+"Are there any cars to the front left of the with rider thing?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 133,
+"seconds": 3.705204000001686
+},
+"Are there any cars?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 82,
+"seconds": 3.104647300002398
+},
+"Are there any motorcycles to the back right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 142,
+"seconds": 4.122347000000445
+},
+"Are there any motorcycles to the front left of the moving bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 181,
+"seconds": 4.731578099999751
+},
+"Are there any motorcycles to the front left of the stopped bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 129,
+"seconds": 3.686235900000611
+},
+"Are there any motorcycles to the front of the moving bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 129,
+"seconds": 3.737729299999046
+},
+"Are there any motorcycles to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 205,
+"seconds": 4.496653700000024
+},
+"Are there any motorcycles?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 106,
+"seconds": 3.3111960999995063
+},
+"Are there any moving cars to the back left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 222,
+"seconds": 4.538890600000741
+},
+"Are there any moving cars to the front left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 196,
+"seconds": 4.2848322999998345
+},
+"Are there any moving pedestrians to the back right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 221,
+"seconds": 4.539171299998998
+},
+"Are there any moving pedestrians to the front left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 188,
+"seconds": 3.9882541999977548
+},
+"Are there any moving things to the back left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 202,
+"seconds": 4.470557600001484
+},
+"Are there any moving things to the back left of the parked car?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 135,
+"seconds": 3.6034758999994665
+},
+"Are there any moving things to the back of the stopped bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 341,
+"seconds": 5.902802099997643
+},
+"Are there any moving things to the back right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 216,
+"seconds": 4.80359529999987
+},
+"Are there any moving things?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 140,
+"seconds": 4.031741599999805
+},
+"Are there any moving trailers?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"trailer\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 144,
+"seconds": 4.21953940000094
+},
+"Are there any not standing pedestrians?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": true, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 129,
+"seconds": 3.242030599998543
+},
+"Are there any parked cars to the back left of the standing pedestrian?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 257,
+"seconds": 5.179162600001291
+},
+"Are there any parked motorcycles?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 98,
+"seconds": 3.449149000000034
+},
+"Are there any parked things to the back left of the parked car?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 498,
+"seconds": 8.877109400000336
+},
+"Are there any parked things to the back of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 211,
+"seconds": 4.70613659999799
+},
+"Are there any parked things to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 213,
+"seconds": 4.388712100000703
+},
+"Are there any pedestrians to the back of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"back\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1219,
+"output_tokens": 180,
+"seconds": 3.7528472999983933
+},
+"Are there any pedestrians to the front of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1219,
+"output_tokens": 205,
+"seconds": 3.8800121000022045
+},
+"Are there any pedestrians to the front of the motorcycle?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 186,
+"seconds": 3.9867979000009655
+},
+"Are there any pedestrians to the front of the stopped bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 146,
+"seconds": 3.6820831000004546
+},
+"Are there any pedestrians?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 108,
+"seconds": 2.975262500000099
+},
+"Are there any standing pedestrians to the back left of the moving bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 142,
+"seconds": 3.5593135000017355
+},
+"Are there any standing pedestrians to the front left of the stopped bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 159,
+"seconds": 3.231389600001421
+},
+"Are there any stopped cars to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 136,
+"seconds": 3.493747500000609
+},
+"Are there any stopped cars to the front right of the stopped bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 137,
+"seconds": 3.6578434000002744
+},
+"Are there any things to the back left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 124,
+"seconds": 3.2632911000000604
+},
+"Are there any things to the back right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 215,
+"seconds": 4.089640599999257
+},
+"Are there any things to the front of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1219,
+"output_tokens": 238,
+"seconds": 4.564150400001381
+},
+"Are there any things to the front of the moving bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 222,
+"seconds": 4.536578700000973
+},
+"Are there any things to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 164,
+"seconds": 3.4751974000027985
+},
+"Are there any things to the front right of the bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 315,
+"seconds": 5.391750200000388
+},
+"Are there any things?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 147,
+"seconds": 3.7753271000001405
+},
+"Are there any trailers?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"trailer\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 82,
+"seconds": 2.6754562000023725
+},
+"Are there any trucks to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"truck\", \"status\": null, \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 132,
+"seconds": 5.946117799998319
+},
+"Are there any trucks?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"truck\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1214,
+"output_tokens": 101,
+"seconds": 2.9242723999996088
+},
+"Are there any with rider motorcycles to the back right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 166,
+"seconds": 3.9295213999976113
+},
+"Are there any with rider motorcycles?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 175,
+"seconds": 3.9639666000002762
+},
+"Are there any with rider things to the front left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 188,
+"seconds": 6.509880300000077
+},
+"Are there any with rider things to the front of the bus?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": \"front\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 142,
+"seconds": 5.92566910000096
+},
+"Are there any with rider things to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 168,
+"seconds": 3.7684864000002563
+},
+"Are there any with rider things?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 181,
+"seconds": 4.053820799999812
+},
+"Are there any without rider bicycles to the back right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 96,
+"seconds": 3.0891016999994463
+},
+"Are there any without rider bicycles to the front left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 182,
+"seconds": 3.902430900001491
+},
+"Are there any without rider motorcycles to the back left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 190,
+"seconds": 3.9940314999985276
+},
+"Are there any without rider motorcycles to the front right of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 189,
+"seconds": 4.132260200000019
+},
+"Are there any without rider things to the back left of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 187,
+"seconds": 3.996885399999883
+},
+"Are there any without rider things to the back of me?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 191,
+"seconds": 3.973680900002364
+},
+"How many buss are to the back right of the standing pedestrian?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 316,
+"seconds": 5.464275599999382
+},
+"How many buss are to the front left of the not standing pedestrian?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": true, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 224,
+"seconds": 4.769892399999662
+},
+"How many cars are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 91,
+"seconds": 2.7778819000013755
+},
+"How many cars are to the back of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"back\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1219,
+"output_tokens": 104,
+"seconds": 2.8690246000005573
+},
+"How many cars are to the front left of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 101,
+"seconds": 2.6824027999973623
+},
+"How many motorcycles are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 89,
+"seconds": 2.884379600000102
+},
+"How many motorcycles are to the back left of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 194,
+"seconds": 4.066934900001797
+},
+"How many moving cars are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 67,
+"seconds": 2.2442052000005788
+},
+"How many moving cars are to the back right of the moving bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 123,
+"seconds": 2.8034322000021348
+},
+"How many moving pedestrians are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 193,
+"seconds": 3.6661988999985624
+},
+"How many moving things are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 158,
+"seconds": 3.8467458999984956
+},
+"How many moving things are to the back of the moving bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 116,
+"seconds": 3.3537165999987337
+},
+"How many moving trucks are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"truck\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 107,
+"seconds": 3.3195429999977932
+},
+"How many parked cars are to the front right of the bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 206,
+"seconds": 4.697055900000123
+},
+"How many pedestrians are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1215,
+"output_tokens": 106,
+"seconds": 3.338015400000586
+},
+"How many standing pedestrians are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 75,
+"seconds": 2.714154299999791
+},
+"How many standing pedestrians are to the back right of the moving bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 108,
+"seconds": 3.1604982999997446
+},
+"How many standing pedestrians are to the front right of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"front_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 185,
+"seconds": 4.1625471000006655
+},
+"How many stopped cars are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 88,
+"seconds": 2.9350448999975924
+},
+"How many stopped cars are to the back of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 158,
+"seconds": 3.0803414000001794
+},
+"How many stopped things are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 138,
+"seconds": 2.888139200000296
+},
+"How many stopped things are to the back right of the stopped bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 128,
+"seconds": 3.4768794999981765
+},
+"How many things are to the front of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1219,
+"output_tokens": 111,
+"seconds": 3.3729970999993384
+},
+"How many with rider things are to the front left of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 188,
+"seconds": 4.234783100000641
+},
+"How many without rider motorcycles are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1217,
+"output_tokens": 62,
+"seconds": 2.303281699998479
+},
+"There is a bus; are there any motorcycles to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1225,
+"output_tokens": 163,
+"seconds": 4.210168099998555
+},
+"There is a bus; how many pedestrians are to the back right of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1225,
+"output_tokens": 235,
+"seconds": 4.354051400001481
+},
+"There is a bus; how many standing pedestrians are to the back of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1225,
+"output_tokens": 134,
+"seconds": 3.699403800001164
+},
+"There is a bus; how many without rider things are to the back left of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 279,
+"seconds": 5.35565889999998
+},
+"There is a bus; what number of motorcycles are to the front of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"front\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1225,
+"output_tokens": 268,
+"seconds": 5.182973300001322
+},
+"There is a bus; what number of moving pedestrians are to the back right of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 336,
+"seconds": 6.127457799997501
+},
+"There is a moving bus; are there any buss to the back right of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1226,
+"output_tokens": 283,
+"seconds": 5.214877400001569
+},
+"There is a moving bus; are there any moving pedestrians to the back left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 308,
+"seconds": 7.535047199999099
+},
+"There is a moving bus; are there any standing pedestrians to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 200,
+"seconds": 4.627171299998736
+},
+"There is a moving bus; are there any things to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1226,
+"output_tokens": 177,
+"seconds": 3.6998418000002857
+},
+"There is a moving bus; are there any trucks to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"truck\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1226,
+"output_tokens": 223,
+"seconds": 6.3100933999994595
+},
+"There is a moving bus; are there any without rider motorcycles to the back right of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1228,
+"output_tokens": 139,
+"seconds": 3.1767205000032845
+},
+"There is a moving bus; are there any without rider things to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"object\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1228,
+"output_tokens": 146,
+"seconds": 3.678913800002192
+},
+"There is a moving bus; how many cars are to the back of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1225,
+"output_tokens": 135,
+"seconds": 3.4664955000007467
+},
+"There is a moving bus; how many parked cars are to the back of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1226,
+"output_tokens": 283,
+"seconds": 5.311913500001538
+},
+"There is a moving bus; how many stopped things are to the back of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1226,
+"output_tokens": 308,
+"seconds": 6.3483090000008815
+},
+"There is a moving bus; what number of pedestrians are to the back left of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 139,
+"seconds": 3.5963166000001365
+},
+"There is a moving bus; what number of things are to the front left of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 258,
+"seconds": 4.785005800000363
+},
+"There is a moving car; how many without rider motorcycles are to the back of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 132,
+"seconds": 3.348094900000433
+},
+"There is a parked thing; what number of things are to the back left of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": null, \"negate_status\": false, \"direction\": \"back_left\", \"anchor\": {\"category\": \"object\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 183,
+"seconds": 4.3434925000001385
+},
+"There is a standing pedestrian; what number of trucks are to the front left of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"truck\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 147,
+"seconds": 5.247909300000174
+},
+"There is a stopped bus; are there any moving buss to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 173,
+"seconds": 5.785537699997803
+},
+"There is a stopped bus; are there any standing pedestrians to the back right of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 149,
+"seconds": 5.331173300000955
+},
+"There is a stopped bus; are there any without rider bicycles to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"bicycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1228,
+"output_tokens": 147,
+"seconds": 3.722839699999895
+},
+"There is a stopped bus; what number of pedestrians are to the back of it?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"bus\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1226,
+"output_tokens": 303,
+"seconds": 5.336303799998859
+},
+"There is a with rider thing; are there any cars to the front left of it?": {
+"raw": "{\"op\": \"exists\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1227,
+"output_tokens": 151,
+"seconds": 3.572313100001338
+},
+"What number of cars are to the back of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"back\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1220,
+"output_tokens": 200,
+"seconds": 3.8117236999969464
+},
+"What number of cars are to the front left of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": null, \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 227,
+"seconds": 4.8758362999979
+},
+"What number of motorcycles are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 104,
+"seconds": 2.8385658000006515
+},
+"What number of motorcycles are to the back of the with rider motorcycle?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": null, \"negate_status\": false, \"direction\": \"back\", \"anchor\": {\"category\": \"motorcycle\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 229,
+"seconds": 4.341176199999609
+},
+"What number of moving cars are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1217,
+"output_tokens": 74,
+"seconds": 2.474448199998733
+},
+"What number of moving cars are to the back right of the bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": {\"category\": \"bus\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1223,
+"output_tokens": 281,
+"seconds": 4.9386001999992
+},
+"What number of moving cars are to the front left of the moving bus?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"bus\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1224,
+"output_tokens": 135,
+"seconds": 2.813018999997439
+},
+"What number of moving pedestrians are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1217,
+"output_tokens": 161,
+"seconds": 3.5447377000018605
+},
+"What number of moving pedestrians are to the front of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"moving\", \"negate_status\": false, \"direction\": \"front\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1221,
+"output_tokens": 183,
+"seconds": 3.838539200001833
+},
+"What number of parked cars are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1217,
+"output_tokens": 121,
+"seconds": 3.073312199998327
+},
+"What number of parked cars are to the back right of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"back_right\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 207,
+"seconds": 4.14905809999982
+},
+"What number of parked things are to the front left of me?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"parked\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1222,
+"output_tokens": 185,
+"seconds": 4.128588299998228
+},
+"What number of pedestrians are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 107,
+"seconds": 3.0338713000019197
+},
+"What number of standing pedestrians are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"pedestrian\", \"status\": \"standing\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1217,
+"output_tokens": 87,
+"seconds": 2.9732363000002806
+},
+"What number of stopped cars are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1217,
+"output_tokens": 121,
+"seconds": 3.2792417999989993
+},
+"What number of stopped cars are to the front left of the with rider thing?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"car\", \"status\": \"stopped\", \"negate_status\": false, \"direction\": \"front_left\", \"anchor\": {\"category\": \"object\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1225,
+"output_tokens": 137,
+"seconds": 2.9305287999995926
+},
+"What number of trucks are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"truck\", \"status\": null, \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1216,
+"output_tokens": 83,
+"seconds": 2.552301499999885
+},
+"What number of with rider motorcycles are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": \"with rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1218,
+"output_tokens": 169,
+"seconds": 3.7360437999996066
+},
+"What number of without rider motorcycles are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"motorcycle\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1218,
+"output_tokens": 195,
+"seconds": 3.8955950999989
+},
+"What number of without rider things are there?": {
+"raw": "{\"op\": \"count\", \"target\": {\"category\": \"object\", \"status\": \"without rider\", \"negate_status\": false, \"direction\": null, \"anchor\": null}, \"second\": null, \"comparison\": null}",
+"config": "405e2e1168b5",
+"input_tokens": 1218,
+"output_tokens": 157,
+"seconds": 3.267063399998733
+}
+}
+}

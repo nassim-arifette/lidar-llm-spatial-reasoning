@@ -600,6 +600,67 @@ reading is not that language models cannot do this. It is that, over the range
 we could afford to test, the capacity gained by scaling went into writing
 better programs and almost none of it into answering from the table directly.
 
+\subsection{Another family, and the condition under which the gap closes}
+\label{sec:gateway}
+
+The curve above is one family of open weights. Repeating the comparison
+through a hosted gateway tests whether the conclusion is a property of Qwen2.5
+or of the task. It also reaches models we cannot host. Two cautions apply to
+every row below: \code{temperature=0} is \emph{requested} of a hosted
+endpoint, not the exact greedy loop the local runtime performs, and the token
+counts are the provider's, not ours.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{2}{c}{accuracy} & \multicolumn{2}{c}{output tokens / question} & & \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Model & A & B & A & B & valid & paired $p$ \\
+\midrule
+\code{alibaba/qwen-3-32b}   & 0.560 & \textbf{0.840} & 2.0 & 57.9 & 200/200 & $2.3\times10^{-10}$ \\
+\code{alibaba/qwen3.8-27b}  & \textbf{0.840} & 0.845 & 523.9 & 156.5 & 200/200 & $1.0$ \\
+\bottomrule
+\end{tabular}
+\caption{The same $200$ held-out questions. \code{qwen-3-32b} reproduces the
+open-weights result almost exactly. \code{qwen3.8-27b} does not: its direct
+mode matches its executed mode, and the paired table is $0$ against $1$.}
+\label{tab:gateway}
+\end{table}
+
+\paragraph{The conclusion replicates --- until the model reasons.}
+\code{qwen-3-32b} lands within $0.005$ of Qwen2.5-32B on both modes, with the
+same $200/200$ valid programs and the same $13/13$ on the scene-dependence
+control. So the advantage is not an artefact of one family.
+
+\code{qwen3.8-27b} is the exception, and the exception is informative. It
+answers directly as well as it answers through a program, and it is right
+across all thirteen scene-dependence groups in \emph{both} modes. Its direct
+mode emits $523.9$ output tokens per question to produce a one-token answer.
+It is doing internally, at length, what the executed branch does externally:
+the extended reasoning is the program.
+
+\paragraph{The cost does not vanish with the accuracy gap.} Two ways to reach
+$0.840$ on these questions: \code{qwen-3-32b} writing a program the executor
+runs, at $57.9$ generated tokens per question, or \code{qwen3.8-27b} thinking
+it through, at $523.9$ --- nine times more. Even against its own executed mode
+($156.5$ tokens) the reasoning model's direct answer costs $3.3$ times as much
+for no accuracy gained. Where the division of labour stops buying correctness,
+it still buys computation.
+
+\paragraph{Two rows that are not in the table, and why.}
+\code{alibaba/qwen-3-235b} is listed by the gateway and returns HTTP 404, so it
+could not be measured. \code{alibaba/qwen-3-14b} first scored $0.180$ and
+$0.190$, which is not a capability measurement: it spent the shared $256$-token
+budget on hidden reasoning and returned empty content on $163$ of $200$
+questions, with a mean of $243.3$ output tokens against a cap of $256$. It is
+re-measured with a budget that fits its reasoning, and the budget difference is
+recorded because it is a difference. A related caveat applies to
+\code{qwen3.8-27b}: it exceeded the requested cap freely, up to $8982$ output
+tokens on one question, so the budget was not in fact held equal across the
+gateway rows the way it is across the local ones.
+
 \subsection{The scene-dependence control}
 \label{sec:scene}
 
@@ -853,23 +914,37 @@ it is known to be poor at, and part of A's disadvantage may be context length
 rather than reasoning. Objects are ground truth, so nothing here speaks to
 perception. And the evaluation rests on three drives.
 
-\paragraph{The one experiment that would settle the open question.} Repeating
-the comparison with a substantially larger checkpoint, changing nothing else,
-separates the two explanations currently confounded: ``the model cannot write
-the program'' and ``the model cannot count from a table''. If the direct mode
-catches up at scale, the result is a fact about model size; if it does not, it
-is a fact about the division of labour. Section~\ref{sec:failures} predicts
-which failures should move --- the $8$ malformed outputs and the $22$ wrong
-return types are exactly the kind a more capable model fixes.
+\paragraph{Where the boundary of the result lies.} Two experiments were run to
+find it, and both came back negative for the obvious extensions.
 
-\paragraph{Why the DSL was frozen.} A composable, CLEVR-style catalogue of
-typed operations \cite{clevr} --- \code{filter}, \code{unique}, \code{relate},
-\code{same\_status}, \code{query}, with explicit input and output types --- is
-implemented in the repository and deliberately \emph{not} wired into any
-experiment. It would widen coverage from four families to the whole benchmark,
-but Table~\ref{tab:triage} says the current failures are overwhelmingly not
-expressiveness. Building a new language and changing model size at once would
-leave neither attributable.
+Scaling the model does not close the gap. Across a twenty-one-fold increase in
+parameters within one family the direct mode gains $0.075$, and nothing at all
+between $1.5$B and $7$B; what scale fixes is program validity, from $8$ invalid
+to $1$ to $0$ (Section~\ref{sec:size}). The result reproduces in a second
+family through a hosted gateway, to within $0.005$ (Section~\ref{sec:gateway}).
+
+Widening the target language does not help either. A CLEVR-style typed
+catalogue \cite{clevr} covers $98.5\%$ of the benchmark instead of $27.5\%$,
+is the most accurate of the three modes when it produces a program, and
+produces one for a third of the questions (Section~\ref{sec:wide}). The
+failure triage had predicted this: $71\%$ of the flat language's errors happen
+before the executor, where expressiveness cannot reach.
+
+\paragraph{What does close the gap is reasoning at inference time.}
+\code{qwen3.8-27b} answers directly as well as it answers through a program
+($0.840$ against $0.845$, paired $0$ to $1$), and is right across all thirteen
+scene-dependence groups in both modes. It spends $523.9$ output tokens per
+question to emit a one-token answer: the extended reasoning is the program,
+written in the model's own output instead of in a language an executor can run.
+
+That bounds this report's claim precisely. The division of labour helps a model
+that answers in one step, which is every model measured here except one. It
+stops helping a model that reasons at length first --- and it still costs nine
+times less to compute: $57.9$ generated tokens for \code{qwen-3-32b} writing a
+program against $523.9$ for \code{qwen3.8-27b} thinking, for the same $0.840$.
+The interesting question is no longer whether to externalise the computation
+but when externalising it is cheaper than generating it, and that is a question
+about inference budget rather than about accuracy.
 
 \paragraph{Why the distillation line was dropped.} The previous report proposed
 distilling the fine-tuned LLM into a smaller student. Distillation reduces the
@@ -882,11 +957,28 @@ competence was established in the teacher.
 
 The original project established that the LiDAR-LLM architecture can be wired
 up on a laptop, and nothing more. This revision asks a narrower question that
-the same hardware answers: given one frozen $1.5$B model and one object list,
-is it better to produce the answer or to produce a program? On held-out
-nuScenes drives, the program. The margin is large, paired, and consistent
-across all three drives, and the scene-dependence control shows the direct mode
-largely reciting template answers while the executed mode tracks the scene.
+the same hardware answers: given one frozen model and one object list, is it
+better to produce the answer or to produce a program? On held-out nuScenes
+drives, the program --- by $0.180$ at $1.5$B, $0.320$ at $7$B and $0.265$ at
+$32$B, paired and significant at every size, with the scene-dependence control
+showing the direct mode largely reciting template answers while the executed
+mode tracks the scene.
+
+Two attempts to extend that result failed, and the failures are the more useful
+half. Scale does not close the gap: twenty-one times the parameters buys the
+direct mode $0.075$, while what it buys the executed mode is valid programs,
+$8$ invalid down to $0$. A wider target language does not help either: CLEVR's
+typed catalogue reaches $98.5\%$ of the benchmark instead of $27.5\%$, is the
+most accurate mode when it produces a program, and produces one a third of the
+time --- defeated, like the flat language, by resolving a definite reference in
+a real scene.
+
+What does close the gap is a model that reasons before answering. One such
+model answers directly exactly as well as it answers through a program, and
+spends $523.9$ output tokens per question to do it, against $57.9$ for a
+one-step model writing a program for the same score. The externalised
+computation stops buying accuracy there and still buys an order of magnitude of
+inference.
 
 The two findings most likely to be useful elsewhere are not about the
 comparison. The six nuScenes-QA relations are uniform $60^{\circ}$ bearing
