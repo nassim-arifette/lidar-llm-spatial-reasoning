@@ -47,6 +47,25 @@ from .datasets import (
 from .objects import Scene
 
 
+#: Surface forms that introduce a counting question. Used to route the
+#: counter's two heads at inference.
+_COUNT_CUES = ("how many", "what number of", "count the", "number of")
+
+
+def asks_for_a_count(question: str) -> bool:
+    """Decide from the *question* whether a numeric answer is expected.
+
+    This used to read ``QAItem.answer_type``, which is derived from the gold
+    answer: the model chose its output head by consulting the label. Every
+    number produced that way is unusable, however small the effect turns out
+    to be, because the system was not answering without access to the answers.
+
+    Routing on the question text is information the system legitimately has.
+    """
+    text = question.strip().lower()
+    return any(cue in text for cue in _COUNT_CUES)
+
+
 def masked_mean(x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     """Mean over the object axis, ignoring padding. ``x`` is ``(B, N, D)``."""
     m = mask.unsqueeze(-1)
@@ -156,7 +175,7 @@ class TrainConfig:
     lr: float = 1e-3
     weight_decay: float = 1e-4
     count_loss_weight: float = 1.0
-    max_objects: int = 64
+    max_objects: Optional[int] = None   # None = no truncation
     seed: int = 0
     device: str = "cpu"
     patience: int = 8          # early stopping on validation accuracy
@@ -309,9 +328,9 @@ class LearnedSystem:
             classes = out["logits"].argmax(dim=-1).cpu().numpy()
 
             for k, item in enumerate(chunk):
-                if "count" in out and item.answer_type == "count":
-                    # For counting questions the explicit counter is the output;
-                    # the classifier head is only used for the other types.
+                if "count" in out and asks_for_a_count(item.question):
+                    # For counting questions the explicit counter is the
+                    # output; the classifier head is used for the rest.
                     value = int(round(float(out["count"][k].item())))
                     predictions.append(str(max(value, 0)))
                 else:

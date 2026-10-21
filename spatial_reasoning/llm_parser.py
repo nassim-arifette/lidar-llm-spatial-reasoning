@@ -20,6 +20,7 @@ reuses a small number of templates across thousands of samples.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -121,15 +122,22 @@ FEW_SHOT = [
 ]
 
 
-def build_system_prompt() -> str:
+def build_system_prompt(directions: Sequence[str] = DIRECTIONS) -> str:
+    """Render the prompt for a given set of legal directions.
+
+    The direction list is part of the prompt, so changing the sector layout
+    changes the prompt and therefore the parser. Two caches built under
+    different layouts are not interchangeable, which is why
+    :class:`QwenQuestionParser` fingerprints the prompt.
+    """
     return (SYSTEM_PROMPT
             .replace("[CATEGORIES]", json.dumps(list(CANONICAL_CATEGORIES)))
             .replace("[STATUSES]", json.dumps(list(STATUSES)))
-            .replace("[DIRECTIONS]", json.dumps(list(DIRECTIONS))))
+            .replace("[DIRECTIONS]", json.dumps(list(directions))))
 
 
-def build_messages(question: str) -> List[dict]:
-    messages = [{"role": "system", "content": build_system_prompt()}]
+def build_messages(question: str, directions: Sequence[str] = DIRECTIONS) -> List[dict]:
+    messages = [{"role": "system", "content": build_system_prompt(directions)}]
     for q, program in FEW_SHOT:
         messages.append({"role": "user", "content": q})
         messages.append({"role": "assistant", "content": json.dumps(program)})
@@ -278,21 +286,73 @@ class QwenQuestionParser:
         device: Optional[str] = None,
         batch_size: int = 16,
         checkpoint_every: int = 5,
+        directions: Optional[Sequence[str]] = None,
+        schema_version: str = "dsl-1",
     ) -> None:
         self.model_name = model_name
         self.cache_path = cache_path
         self.max_new_tokens = max_new_tokens
         self.batch_size = batch_size
         self.checkpoint_every = checkpoint_every   # save every N batches
+        self.directions = tuple(directions) if directions else DIRECTIONS
+        self.schema_version = schema_version
         self.stats = ParserStats()
         self._cache: Dict[str, str] = {}
-        if cache_path and os.path.exists(cache_path):
-            with open(cache_path, "r", encoding="utf-8") as fh:
-                self._cache = json.load(fh)
-
+        self.cache_meta: Dict[str, object] = {}
+        self.foreign_entries = 0
         self._tokenizer = None
         self._model = None
         self._device = device
+        self._load_cache()
+
+    # -- cache identity ---------------------------------------------------- #
+
+    def config_fingerprint(self) -> Dict[str, object]:
+        """What a cached generation depends on.
+
+        Keying the cache on the question text alone silently mixes outputs
+        from different models, prompts and token budgets. Two entries that
+        disagree are then indistinguishable from two entries that agree.
+        """
+        prompt = build_system_prompt(self.directions)
+        return {
+            "model": self.model_name,
+            "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16],
+            "directions": list(self.directions),
+            "max_new_tokens": self.max_new_tokens,
+            "schema_version": self.schema_version,
+            "decoding": "greedy",
+        }
+
+    def _load_cache(self) -> None:
+        if not (self.cache_path and os.path.exists(self.cache_path)):
+            return
+        with open(self.cache_path, "r", encoding="utf-8") as fh:
+            payload = json.load(fh)
+
+        if isinstance(payload, dict) and "entries" in payload:
+            meta = payload.get("meta", {})
+            entries = payload.get("entries", {})
+        else:
+            # Legacy flat cache: provenance unknown. Keep the generations --
+            # they cost GPU hours -- but never claim they came from this
+            # configuration.
+            meta, entries = {}, payload
+
+        mine = self.config_fingerprint()
+        if meta and meta != mine:
+            self.foreign_entries = len(entries)
+            differing = sorted(k for k in mine if meta.get(k) != mine.get(k))
+            print(f"[cache] {len(entries)} entries were generated under a "
+                  f"different configuration (differs on: {', '.join(differing)}); "
+                  f"they are kept but counted separately", flush=True)
+        elif not meta and entries:
+            self.foreign_entries = len(entries)
+            print(f"[cache] {len(entries)} entries carry no configuration "
+                  f"metadata; provenance unknown", flush=True)
+
+        self.cache_meta = meta
+        self._cache = entries
 
     # -- model ------------------------------------------------------------ #
 
@@ -325,7 +385,7 @@ class QwenQuestionParser:
         self._ensure_model()
         prompts = [
             self._tokenizer.apply_chat_template(
-                build_messages(q), tokenize=False, add_generation_prompt=True
+                build_messages(q, self.directions), tokenize=False, add_generation_prompt=True
             )
             for q in questions
         ]
@@ -371,8 +431,9 @@ class QwenQuestionParser:
             return
         os.makedirs(os.path.dirname(os.path.abspath(self.cache_path)) or ".",
                     exist_ok=True)
+        payload = {"meta": self.config_fingerprint(), "entries": self._cache}
         with open(self.cache_path, "w", encoding="utf-8") as fh:
-            json.dump(self._cache, fh, indent=0)
+            json.dump(payload, fh, indent=0)
 
     def parse(self, question: str) -> Optional[Query]:
         """Return a program, or ``None`` when the question is not expressible."""

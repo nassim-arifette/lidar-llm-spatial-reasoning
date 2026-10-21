@@ -132,12 +132,15 @@ def _matches(obj: Object3D, selector: Selector) -> bool:
         if obj.category not in expand_category(selector.category):
             return False
     if selector.status:
-        has = (obj.status == selector.status)
-        if selector.negate_status:
-            if has:
-                return False
-        elif not has:
+        if obj.status is None:
+            # Unknown status is not the same as a different status. A traffic
+            # cone carries no attribute, so it is neither "standing" nor "not
+            # standing"; counting it under the negation would be an assertion
+            # the annotation does not support.
             return False
+        if selector.negate_status:
+            return obj.status != selector.status
+        return obj.status == selector.status
     return True
 
 
@@ -178,7 +181,14 @@ def resolve(
         if reference is not None:
             region = replace(region, kind="relative",
                              reference_category=selector.anchor.category)
-        candidates = select(candidates, region, config, reference)
+        try:
+            candidates = select(candidates, region, config, reference)
+        except KeyError as exc:
+            # The program names a direction the active layout does not define
+            # -- "left" under the six-relation nuScenes-QA layout, for example.
+            # Refuse it. Remapping "left" onto "front_left" would silently
+            # answer a different question and inflate the score.
+            return [], ExecStatus.UNSUPPORTED, str(exc).strip('"')
 
     return candidates, ExecStatus.OK, ""
 

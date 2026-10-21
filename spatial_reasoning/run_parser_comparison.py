@@ -36,6 +36,7 @@ from .datasets import QAItem
 from .dsl import Query, execute, lift
 from .nuscenes_adapter import load_nuscenes_scenes
 from .objects import Scene
+from .regions import DEFAULT_REGION_CONFIG, SECTOR_LAYOUTS, RegionConfig
 from .question_parser import RuleBasedQuestionParser
 
 
@@ -79,6 +80,7 @@ def evaluate_parser(
     parse_fn,
     items: Sequence[QAItem],
     scenes: Dict[str, Scene],
+    config: RegionConfig = DEFAULT_REGION_CONFIG,
     verbose: bool = True,
 ) -> Dict:
     """Run one parser end to end and record where every item ended up."""
@@ -99,7 +101,7 @@ def evaluate_parser(
             outcomes["declined_by_parser"] += 1
             continue
 
-        result = execute(query, scenes[item.sample_token])
+        result = execute(query, scenes[item.sample_token], config)
         if not result.ok:
             outcomes["declined_by_executor"] += 1
             exec_failures[result.status.value] += 1
@@ -171,6 +173,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument("--batch-size", type=int, default=48)
     p.add_argument("--max-new-tokens", type=int, default=96)
     p.add_argument("--skip-llm", action="store_true")
+    p.add_argument("--min-lidar-points", type=int, default=1,
+                   help="drop annotations with fewer LiDAR returns. Whether "
+                        "nuScenes-QA counted invisible annotations is not "
+                        "documented, so sweep this on a development split and "
+                        "report the sensitivity; do not pick the value that "
+                        "maximises the test score.")
+    p.add_argument("--layout", default="nuscenes_qa",
+                   choices=sorted(SECTOR_LAYOUTS),
+                   help="sector convention; nuscenes_qa is the benchmark's own")
     p.add_argument("--drive-dir", default=None,
                    help="mounted Drive folder to mirror the results and the "
                         "parse cache into, e.g. /content/drive/MyDrive/npm3d")
@@ -178,7 +189,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     os.makedirs(args.out, exist_ok=True)
 
-    scenes, conversion = load_nuscenes_scenes(args.metadata_root)
+    region_config = RegionConfig(layout=args.layout)
+    print(f'sector layout: {args.layout} -> {region_config.directions()}')
+    scenes, conversion = load_nuscenes_scenes(args.metadata_root,
+                                              args.min_lidar_points)
     print("nuScenes:", json.dumps(conversion.as_dict()))
     with_status = sum(1 for s in scenes.values() for o in s.objects if o.status)
     total_objects = sum(len(s.objects) for s in scenes.values())
@@ -199,6 +213,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "objects_total": total_objects,
             "templates": dict(Counter(i.template for i in items)),
         },
+        "sector_layout": args.layout,
+        "min_lidar_points": args.min_lidar_points,
         "majority_accuracy": majority_accuracy(items),
         "parsers": [],
     }
@@ -212,7 +228,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return lift(parsed.query) if parsed.ok else None
 
     results["parsers"].append(
-        evaluate_parser("rule_grammar", parse_with_rules, items, scenes))
+        evaluate_parser("rule_grammar", parse_with_rules, items, scenes, region_config))
 
     # -- frozen language model --------------------------------------------- #
     if not args.skip_llm:
@@ -224,7 +240,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(f"\nwarming the parse cache with {args.model} ...")
         llm.warm_cache([it.question for it in items])
 
-        report = evaluate_parser(f"llm::{args.model}", llm.parse, items, scenes)
+        report = evaluate_parser(f"llm::{args.model}", llm.parse, items, scenes, region_config)
         report["parser_stats"] = llm.stats.as_dict()
         results["parsers"].append(report)
         print("parser stats:", json.dumps(report["parser_stats"]))

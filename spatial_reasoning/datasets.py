@@ -220,16 +220,28 @@ def encode_object(obj) -> np.ndarray:
     return feat
 
 
-def encode_scene(scene: Scene, max_objects: int = 64) -> Tuple[np.ndarray, np.ndarray]:
-    """Return ``(features, mask)`` of shapes ``(max_objects, D)`` and ``(max_objects,)``.
+def encode_scene(
+    scene: Scene, max_objects: Optional[int] = None
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Return ``(features, mask)`` for every object in the scene.
 
-    Objects beyond ``max_objects`` are dropped by increasing range, i.e. the
-    farthest are discarded first. The number of truncated scenes is reported by
-    :func:`truncation_rate` so this does not become an invisible bias.
+    ``max_objects`` defaults to ``None``, meaning no cap: the batch is padded
+    to the largest scene it contains and the mask marks the padding.
+
+    There used to be a fixed cap of 64, which silently discarded the farthest
+    objects of the largest scenes. On nuScenes mini that hit 9.7% of samples
+    (mean 35 objects, max 112), so the learned models were reasoning over a
+    truncated list while the symbolic system saw all of it -- which made the
+    claim that every system sees the same objects false. Passing an explicit
+    cap is still allowed, but it is now a deliberate choice rather than a
+    default.
     """
-    objs = sorted(scene.objects, key=lambda o: o.range_xy)[:max_objects]
-    feats = np.zeros((max_objects, OBJECT_FEATURE_DIM), dtype=np.float32)
-    mask = np.zeros(max_objects, dtype=np.float32)
+    objs = sorted(scene.objects, key=lambda o: o.range_xy)
+    if max_objects is not None:
+        objs = objs[:max_objects]
+    width = max(len(objs), 1) if max_objects is None else max_objects
+    feats = np.zeros((width, OBJECT_FEATURE_DIM), dtype=np.float32)
+    mask = np.zeros(width, dtype=np.float32)
     for i, o in enumerate(objs):
         feats[i] = encode_object(o)
         mask[i] = 1.0
@@ -299,15 +311,25 @@ def encode_batch(
     scenes: Dict[str, Scene],
     vocab: AnswerVocabulary,
     question_encoder: HashingQuestionEncoder,
-    max_objects: int = 64,
+    max_objects: Optional[int] = None,
 ) -> EncodedBatch:
+    """Encode a batch, padding to the largest scene it contains.
+
+    With ``max_objects=None`` nothing is discarded, so the learned models and
+    the symbolic executor reason over identical object lists.
+    """
     q = question_encoder.encode_batch([it.question for it in items])
+
+    batch_scenes = [
+        scenes.get(it.sample_token) or Scene(sample_token=it.sample_token, objects=[])
+        for it in items
+    ]
+    width = (max_objects if max_objects is not None
+             else max((len(s.objects) for s in batch_scenes), default=1) or 1)
+
     feats, masks = [], []
-    for it in items:
-        scene = scenes.get(it.sample_token)
-        if scene is None:
-            scene = Scene(sample_token=it.sample_token, objects=[])
-        f, m = encode_scene(scene, max_objects)
+    for scene in batch_scenes:
+        f, m = encode_scene(scene, width)
         feats.append(f)
         masks.append(m)
     targets = np.array([vocab.encode(it.answer) for it in items], dtype=np.int64)
@@ -317,8 +339,8 @@ def encode_batch(
     )
     return EncodedBatch(
         question=q,
-        objects=np.stack(feats) if feats else np.zeros((0, max_objects, OBJECT_FEATURE_DIM), np.float32),
-        mask=np.stack(masks) if masks else np.zeros((0, max_objects), np.float32),
+        objects=np.stack(feats) if feats else np.zeros((0, 1, OBJECT_FEATURE_DIM), np.float32),
+        mask=np.stack(masks) if masks else np.zeros((0, 1), np.float32),
         target=targets,
         target_count=counts,
         items=list(items),

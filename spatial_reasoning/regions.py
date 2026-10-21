@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional, Sequence
+from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
@@ -32,16 +32,53 @@ from .objects import Object3D
 # Tunable, explicit geometry constants
 # --------------------------------------------------------------------------- #
 
+#: Sector layouts. A direction maps to a half-open bearing interval
+#: ``(low, high]`` in degrees, measured from the ego vehicle's forward
+#: direction, counter-clockwise positive (so positive is to the left).
+#:
+#: ``octant`` is the layout this package used first: eight 45-degree sectors
+#: tiling the plane. It is self-consistent and fine for synthetic data.
+#:
+#: ``nuscenes_qa`` is the benchmark's own definition (arXiv:2305.14836, eq. 2):
+#: **six** 60-degree relations, with no standalone "left" or "right". Using the
+#: octant layout to answer nuScenes-QA puts an object at 25 degrees in
+#: "front left" where the benchmark says "front", so a perfectly correct
+#: program still selects the wrong objects. Any run against nuScenes-QA must
+#: use this layout.
+SECTOR_LAYOUTS: Dict[str, Dict[str, Tuple[float, float]]] = {
+    "octant": {
+        "front":       (-22.5, 22.5),
+        "front_left":  (22.5, 67.5),
+        "left":        (67.5, 112.5),
+        "back_left":   (112.5, 157.5),
+        "back":        (157.5, -157.5),   # wraps through 180
+        "back_right":  (-157.5, -112.5),
+        "right":       (-112.5, -67.5),
+        "front_right": (-67.5, -22.5),
+    },
+    "nuscenes_qa": {
+        "front":       (-30.0, 30.0),
+        "front_left":  (30.0, 90.0),
+        "back_left":   (90.0, 150.0),
+        "back":        (150.0, -150.0),   # wraps through 180
+        "back_right":  (-150.0, -90.0),
+        "front_right": (-90.0, -30.0),
+    },
+}
+
+DEFAULT_LAYOUT = "octant"
+
+
 @dataclass(frozen=True)
 class RegionConfig:
     """All geometry thresholds in one place, so they can be reported and swept.
 
     Attributes
     ----------
-    sector_half_width:
-        Half-angle (radians) of the "front" / "back" / "left" / "right"
-        sectors. The default of pi/8 gives 45-degree sectors separated by
-        45-degree diagonal sectors, so the eight directions tile the plane.
+    layout:
+        Which entry of :data:`SECTOR_LAYOUTS` defines the directions. This is
+        the single most consequential setting in the package: it decides which
+        objects a directional query selects.
     near_radius:
         Horizontal distance (m) below which an object counts as "near".
     far_radius:
@@ -52,33 +89,38 @@ class RegionConfig:
         directional queries and reported separately.
     """
 
-    sector_half_width: float = math.pi / 8.0
+    layout: str = DEFAULT_LAYOUT
     near_radius: float = 20.0
     far_radius: float = 35.0
     min_range: float = 1.0
 
+    @property
+    def sectors(self) -> Dict[str, Tuple[float, float]]:
+        try:
+            return SECTOR_LAYOUTS[self.layout]
+        except KeyError as exc:
+            raise KeyError(
+                f"unknown sector layout {self.layout!r}; "
+                f"known: {sorted(SECTOR_LAYOUTS)}"
+            ) from exc
+
+    def directions(self) -> Tuple[str, ...]:
+        return tuple(self.sectors)
+
 
 DEFAULT_REGION_CONFIG = RegionConfig()
+
+#: Config to use for anything evaluated against nuScenes-QA.
+NUSCENES_QA_REGION_CONFIG = RegionConfig(layout="nuscenes_qa")
 
 
 # --------------------------------------------------------------------------- #
 # Bearing sectors
 # --------------------------------------------------------------------------- #
 
-#: Centre bearing of each named direction, in the ego frame.
-#: 0 is straight ahead, positive towards the left.
-_DIRECTION_BEARING: Dict[str, float] = {
-    "front": 0.0,
-    "front_left": math.pi / 4.0,
-    "left": math.pi / 2.0,
-    "back_left": 3.0 * math.pi / 4.0,
-    "back": math.pi,
-    "back_right": -3.0 * math.pi / 4.0,
-    "right": -math.pi / 2.0,
-    "front_right": -math.pi / 4.0,
-}
-
-DIRECTIONS: tuple = tuple(_DIRECTION_BEARING.keys())
+#: Every direction name any layout uses. Individual layouts expose a subset;
+#: ``RegionConfig.directions()`` is what callers should enumerate.
+DIRECTIONS: tuple = tuple(SECTOR_LAYOUTS["octant"].keys())
 
 #: Words a question may use for each direction.
 DIRECTION_ALIASES: Dict[str, str] = {
@@ -93,10 +135,21 @@ DIRECTION_ALIASES: Dict[str, str] = {
 }
 
 
-def _angle_difference(a: float, b: float) -> float:
-    """Smallest absolute difference between two angles, in ``[0, pi]``."""
-    d = (a - b + math.pi) % (2.0 * math.pi) - math.pi
-    return abs(d)
+def _normalise_degrees(angle: float) -> float:
+    """Wrap an angle in degrees into ``(-180, 180]``."""
+    wrapped = (angle + 180.0) % 360.0 - 180.0
+    return 180.0 if wrapped == -180.0 else wrapped
+
+
+def _in_interval(theta: float, low: float, high: float) -> bool:
+    """Is ``theta`` in the half-open interval ``(low, high]``, degrees?
+
+    The interval may wrap through 180 (the "back" sector in every layout), so
+    the two cases are handled separately rather than with a single comparison.
+    """
+    if low < high:
+        return low < theta <= high
+    return theta > low or theta <= high
 
 
 def in_direction(
@@ -106,22 +159,27 @@ def in_direction(
     origin: Optional[Sequence[float]] = None,
     reference_yaw: float = 0.0,
 ) -> bool:
-    """Is ``obj`` inside the named sector?
+    """Is ``obj`` inside the named sector of ``config``'s layout?
 
     ``origin`` and ``reference_yaw`` let the same sectors be used relative to
     another object instead of the ego vehicle (see :func:`relative_direction`).
     """
     name = DIRECTION_ALIASES.get(direction, direction)
-    if name not in _DIRECTION_BEARING:
-        raise KeyError(f"unknown direction {direction!r}; known: {sorted(DIRECTIONS)}")
+    sectors = config.sectors
+    if name not in sectors:
+        raise KeyError(
+            f"direction {direction!r} does not exist in layout "
+            f"{config.layout!r}; available: {sorted(sectors)}"
+        )
 
     dx = obj.center[0] - (origin[0] if origin is not None else 0.0)
     dy = obj.center[1] - (origin[1] if origin is not None else 0.0)
     if math.hypot(dx, dy) < config.min_range:
         return False
 
-    bearing = math.atan2(dy, dx) - reference_yaw
-    return _angle_difference(bearing, _DIRECTION_BEARING[name]) <= config.sector_half_width
+    theta = _normalise_degrees(math.degrees(math.atan2(dy, dx) - reference_yaw))
+    low, high = sectors[name]
+    return _in_interval(theta, low, high)
 
 
 def relative_direction(
@@ -245,18 +303,23 @@ def direction_of(
 ) -> Optional[str]:
     """Name the sector an object falls in, or ``None`` if it is too close.
 
-    Used by the counterfactual generator to check that a moved object really
-    landed where it was meant to.
+    The layouts tile the plane, so at most one name matches; the loop returns
+    the first and never falls back to a "nearest" sector, which would quietly
+    place a boundary object inside a sector it does not belong to.
     """
     if obj.range_xy < config.min_range:
         return None
-    bearing = obj.bearing
-    best, best_delta = None, math.inf
-    for name, centre in _DIRECTION_BEARING.items():
-        delta = _angle_difference(bearing, centre)
-        if delta < best_delta:
-            best, best_delta = name, delta
-    return best if best_delta <= config.sector_half_width else None
+    theta = _normalise_degrees(math.degrees(obj.bearing))
+    for name, (low, high) in config.sectors.items():
+        if _in_interval(theta, low, high):
+            return name
+    return None
+
+
+def sector_span(name: str, config: RegionConfig = DEFAULT_REGION_CONFIG) -> float:
+    """Angular width of a sector, in degrees."""
+    low, high = config.sectors[name]
+    return (high - low) % 360.0 or 360.0
 
 
 def sample_position_in_direction(
@@ -264,19 +327,30 @@ def sample_position_in_direction(
     distance: float,
     config: RegionConfig = DEFAULT_REGION_CONFIG,
     rng: Optional[np.random.Generator] = None,
+    margin_fraction: float = 0.05,
 ) -> np.ndarray:
-    """A point at ``distance`` metres, inside the named sector.
+    """A point at ``distance`` metres, strictly inside the named sector.
 
-    The bearing is drawn strictly inside the sector (90% of its half-width) so
-    that a counterfactual move does not land on the boundary, where the answer
-    would depend on floating-point noise.
+    The bearing is kept away from both edges by ``margin_fraction`` of the
+    sector width, so a counterfactual move never lands on a boundary where the
+    reference answer would depend on floating-point rounding.
+
+    The centre is derived from the interval rather than assumed: under the
+    nuScenes-QA layout ``front_left`` spans (30, 90] and is centred on 60
+    degrees, not on 45. Hard-coding 45 was exactly the bug this fixes.
     """
     rng = rng or np.random.default_rng()
     name = DIRECTION_ALIASES.get(direction, direction)
-    centre = _DIRECTION_BEARING[name]
-    offset = rng.uniform(-0.9, 0.9) * config.sector_half_width
-    bearing = centre + offset
+    if name not in config.sectors:
+        raise KeyError(
+            f"direction {direction!r} does not exist in layout {config.layout!r}; "
+            f"available: {sorted(config.sectors)}"
+        )
+    low, _ = config.sectors[name]
+    span = sector_span(name, config)
+    margin = margin_fraction * span
+    theta = math.radians(low + rng.uniform(margin, span - margin))
     return np.array(
-        [distance * math.cos(bearing), distance * math.sin(bearing), 0.0],
+        [distance * math.cos(theta), distance * math.sin(theta), 0.0],
         dtype=np.float32,
     )
