@@ -1,0 +1,215 @@
+{
+  "data": {
+    "questions": 5916,
+    "samples": 404,
+    "conversion": {
+      "samples": 404,
+      "scenes": 10,
+      "annotations_total": 18538,
+      "annotations_kept": 18389,
+      "dropped_no_lidar_points": 0,
+      "dropped_unknown_category": 149,
+      "samples_without_pose": 0
+    },
+    "objects_with_status": 14688,
+    "objects_total": 18389,
+    "templates": {
+      "object/hop0": 199,
+      "status/hop0": 380,
+      "comparison/hop1": 938,
+      "count/hop1": 545,
+      "status/hop1": 540,
+      "exist/hop0": 784,
+      "exist/hop1": 894,
+      "object/hop1": 1046,
+      "count/hop0": 494,
+      "comparison/hop0": 96
+    }
+  },
+  "sector_layout": "nuscenes_qa",
+  "min_lidar_points": 0,
+  "majority_accuracy": 0.2550709939148073,
+  "parsers": [
+    {
+      "name": "rule_grammar",
+      "n": 5916,
+      "accuracy": 0.0436105476673428,
+      "answered_fraction": 0.05037187288708587,
+      "accuracy_when_answered": 0.8657718120805369,
+      "outcomes": {
+        "declined_by_parser": 5618,
+        "correct": 258,
+        "wrong": 40
+      },
+      "executor_failures": {},
+      "seconds": 0.1,
+      "by_template": {
+        "comparison/hop0": {
+          "n": 96,
+          "answered": 0.0,
+          "accuracy": 0.0
+        },
+        "comparison/hop1": {
+          "n": 938,
+          "answered": 0.0,
+          "accuracy": 0.0
+        },
+        "count/hop0": {
+          "n": 494,
+          "answered": 0.1720647773279352,
+          "accuracy": 0.16396761133603238
+        },
+        "count/hop1": {
+          "n": 545,
+          "answered": 0.09724770642201835,
+          "accuracy": 0.05688073394495413
+        },
+        "exist/hop0": {
+          "n": 784,
+          "answered": 0.11224489795918367,
+          "accuracy": 0.11224489795918367
+        },
+        "exist/hop1": {
+          "n": 894,
+          "answered": 0.08053691275167785,
+          "accuracy": 0.06487695749440715
+        },
+        "object/hop0": {
+          "n": 199,
+          "answered": 0.0,
+          "accuracy": 0.0
+        },
+        "object/hop1": {
+          "n": 1046,
+          "answered": 0.0,
+          "accuracy": 0.0
+        },
+        "status/hop0": {
+          "n": 380,
+          "answered": 0.0,
+          "accuracy": 0.0
+        },
+        "status/hop1": {
+          "n": 540,
+          "answered": 0.0,
+          "accuracy": 0.0
+        }
+      },
+      "wrong_examples": [
+        "What number of traffic cones are to the back right of the bicycle? | program=count [traffic_cone back right of [bicycle]] | got=0 want=4",
+        "What number of cars are to the front left of me? | program=count [car front left of the ego vehicle] | got=1 want=7",
+        "What number of cars are to the front left of me? | program=count [car front left of the ego vehicle] | got=2 want=10",
+        "Are there any things to the back left of me? | program=exists [object back left of the ego vehicle] | got=yes want=no",
+        "Are there any traffic cones to the back right of me? | program=exists [traffic_cone back right of the ego vehicle] | got=no want=yes",
+        "What number of things are to the back of the bus? | program=count [object back of the ego vehicle] | got=6 want=10",
+        "How many things are to the back of the bus? | program=count [object back of the ego vehicle] | got=6 want=10",
+        "Are there any traffic cones to the front left of the truck? | program=exists [traffic_cone front left of [truck]] | got=no want=yes",
+        "What number of things are to the front of the truck? | program=count [object front of [truck]] | got=9 want=10",
+        "Are there any traffic cones to the back right of the bicycle? | program=exists [traffic_cone back right of [bicycle]] | got=no want=yes",
+        "Are there any trucks to the back of the bus? | program=exists [truck back of the ego vehicle] | got=no want=yes",
+        "How many cars are to the front left of me? | program=count [car front left of the ego vehicle] | got=0 want=2",
+        "How many things are to the front left of me? | program=count [object front left of the ego vehicle] | got=0 want=4",
+        "What number of things are to the back right of the motorcycle? | program=count [object back right of [motorcycle]] | got=1 want=2",
+        "How many barriers are to the back right of the bus? | program=count [barrier back right of the ego vehicle] | got=0 want=2"
+      ]
+    },
+    {
+      "name": "llm::Qwen/Qwen2.5-1.5B-Instruct",
+      "n": 5916,
+      "accuracy": 0.427315753887762,
+      "answered_fraction": 0.5630493576741041,
+      "accuracy_when_answered": 0.7589312518763134,
+      "outcomes": {
+        "correct": 2528,
+        "wrong": 803,
+        "declined_by_parser": 961,
+        "declined_by_executor": 1624
+      },
+      "executor_failures": {
+        "missing": 964,
+        "ambiguous": 659,
+        "no_status": 1
+      },
+      "seconds": 1.3,
+      "by_template": {
+        "comparison/hop0": {
+          "n": 96,
+          "answered": 1.0,
+          "accuracy": 1.0
+        },
+        "comparison/hop1": {
+          "n": 938,
+          "answered": 0.18763326226012794,
+          "accuracy": 0.1865671641791045
+        },
+        "count/hop0": {
+          "n": 494,
+          "answered": 0.9919028340080972,
+          "accuracy": 0.5748987854251012
+        },
+        "count/hop1": {
+          "n": 545,
+          "answered": 0.7192660550458716,
+          "accuracy": 0.3339449541284404
+        },
+        "exist/hop0": {
+          "n": 784,
+          "answered": 0.7589285714285714,
+          "accuracy": 0.7142857142857143
+        },
+        "exist/hop1": {
+          "n": 894,
+          "answered": 0.5592841163310962,
+          "accuracy": 0.17337807606263983
+        },
+        "object/hop0": {
+          "n": 199,
+          "answered": 0.7889447236180904,
+          "accuracy": 0.7889447236180904
+        },
+        "object/hop1": {
+          "n": 1046,
+          "answered": 0.27533460803059273,
+          "accuracy": 0.2695984703632887
+        },
+        "status/hop0": {
+          "n": 380,
+          "answered": 1.0,
+          "accuracy": 1.0
+        },
+        "status/hop1": {
+          "n": 540,
+          "answered": 0.4759259259259259,
+          "accuracy": 0.4759259259259259
+        }
+      },
+      "wrong_examples": [
+        "What number of other cars in the same status as the truck to the back right of the stopped construction vehicle? | program=count [moving car back right of [stopped construction_vehicle]] | got=0 want=4",
+        "There is a moving truck; how many pedestrians are to the back right of it? | program=count [moving pedestrian back right of [moving truck]] | got=7 want=10",
+        "There is a moving bus; are there any moving things to the front left of it? | program=count [moving object front left of [moving bus]] | got=0 want=yes",
+        "Are there any pedestrians to the front left of the moving bus? | program=count [moving pedestrian front left of [moving bus]] | got=0 want=yes",
+        "There is a motorcycle; are there any barriers to the front left of it? | program=count [barrier front left of [motorcycle]] | got=0 want=yes",
+        "How many other things are there of the same status as the construction vehicle? | program=count [construction_vehicle] | got=1 want=10",
+        "How many other things are in the same status as the bicycle? | program=count [object] | got=101 want=0",
+        "Is there another traffic cone of the same status as the bus? | program=exists [traffic_cone] | got=yes want=no",
+        "There is a bicycle; how many moving things are to the back right of it? | program=count [moving bicycle back right of the ego vehicle] | got=0 want=6",
+        "There is a motorcycle; are there any moving cars to the back of it? | program=count [moving car back of [motorcycle]] | got=0 want=no",
+        "Are there any with rider things to the back left of the motorcycle? | program=count [with rider object back left of [motorcycle]] | got=0 want=no",
+        "Are there any traffic cones to the front left of the parked thing? | program=count [parked traffic_cone front left of [parked object]] | got=0 want=yes",
+        "There is a moving truck; are there any bicycles to the front right of it? | program=count [moving bicycle front right of [moving truck]] | got=0 want=no",
+        "There is a moving truck; are there any moving things to the front right of it? | program=count [moving object front right of [moving truck]] | got=0 want=no",
+        "What number of other things are in the same status as the bicycle? | program=count [object] | got=117 want=1"
+      ],
+      "parser_stats": {
+        "total": 5916,
+        "unique_questions": 4024,
+        "coverage": 0.8375591615956728,
+        "refused": 0.05240027045300879,
+        "invalid": 0.11004056795131846,
+        "cache_hit_rate": 1.0,
+        "foreign_cache_used": 0.0,
+        "seconds": 2889.1
+      }
+    }
+  ]
+}

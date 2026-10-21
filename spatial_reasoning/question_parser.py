@@ -239,6 +239,12 @@ _COUNT_PATTERNS = (
 _EXISTS_PATTERNS = (
     re.compile(r"\bare there (?:any|some)?\b"),
     re.compile(r"\bis there (?:any|a|an)?\b"),
+    # "Are any trailers visible?" is 52 of the 300 questions in the first
+    # comparison manifest and matched none of the patterns above, so the
+    # parser declined a sixth of the examples for want of a surface form.
+    # This widens the lexicon, not the language: the operation is still EXISTS.
+    re.compile(r"\b(?:are|is) any\b"),
+    re.compile(r"\b(?:are|is)\b[^?]*\bvisible\b"),
     re.compile(r"\bdo(?:es)? (?:the scene|it) (?:contain|have)\b"),
     re.compile(r"\bcan (?:you|we) see\b"),
 )

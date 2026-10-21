@@ -1,0 +1,40 @@
+{
+  "_comment": [
+    "Every development example where a verified reference program disagreed",
+    "with nuScenes-QA, read one by one and placed in a category. Nothing here",
+    "changes a reference answer and nothing is dropped from the manifest: the",
+    "point of the category is to say which of the three possible faults it is",
+    "-- the program, the executor, or a disagreement between the executor's",
+    "conventions and the dataset's -- before any model is blamed for it.",
+    "",
+    "Produced against manifest version 1, records_dev.jsonl of the run with",
+    "min_lidar_points=0 and layout=nuscenes_qa."
+  ],
+
+  "_categories": {
+    "dataset_does_not_presuppose_uniqueness": {
+      "what": "A one-hop question whose definite reference matches many objects. The executor refuses; nuScenes-QA answers anyway.",
+      "whose_fault": "neither: a semantic difference between the executor and the dataset",
+      "evidence": "'the not standing pedestrian' matches 22 pedestrians in that sample, and the gold answer is still 'yes'. The dataset's one-hop templates appear to read the reference existentially -- is there SOME such object with the property -- rather than as a definite description.",
+      "action": "left as a refusal. Reading it existentially would turn a question we cannot resolve into a disjunction over 22 anchors, which is a different question and would score by luck. Recorded as a known cost of the uniqueness requirement; it is charged against the executed system in the comparison, not excused."
+    },
+    "diagonal_sector_boundary": {
+      "what": "A directional count that disagrees, always on a diagonal sector (front_left, front_right, back_left, back_right), never on a plain front or back.",
+      "whose_fault": "the spatial convention, shared by both systems",
+      "evidence": "On the development split the executor agrees with 50/50 non-directional questions, 17/18 axial ones (front, back) and 24/32 diagonal ones; front_left alone is 5/10. The convention itself was checked against the gold answers rather than assumed: over the 68 ego-anchored directional questions of the manifest, uniform 60-degree sectors with no range limit score 76.5% exact, beating a mirrored y axis (72.1%), the six nuScenes camera fields of view (67.6%), 45-degree octants (61.8%) and overlapping quadrants (51.5%), and every maximum-range cut from 25 m to 60 m makes it worse. So the convention is the best-fitting of the five tested, and the residual sits on the diagonal boundaries.",
+      "action": "not fitted away. Boundaries chosen to maximise agreement with the gold answers would be an executor tuned on the test signal, and the executed system -- which computes with those boundaries -- would gain from it far more than the direct system, which only reads them in prose. The uniform 60-degree reading of the published definition is kept, the residual is reported, and both systems are given the same convention so the mismatch cannot favour either."
+    }
+  },
+
+  "categories": {
+    "q_5a741aa58fc8": {"category": "diagonal_sector_boundary", "note": "front_left: 0 against 2; 18 cars, 8 of them in the executor's front sector, none in front_left"},
+    "q_e4629ed00759": {"category": "diagonal_sector_boundary", "note": "back_right: 2 against 9; 44 objects, 15 of them in the executor's back sector"},
+    "q_b48e165a8e02": {"category": "diagonal_sector_boundary", "note": "front_left existence: no against yes; front sector holds 5, front_left none"},
+    "q_301e5285ceda": {"category": "diagonal_sector_boundary", "note": "front_left of a traffic cone: 9 against 10, one object across the boundary"},
+    "q_f4fde7c05825": {"category": "diagonal_sector_boundary", "note": "front_left of a with-rider bicycle: 4 against 6"},
+    "q_5e6d4072fb4f": {"category": "dataset_does_not_presuppose_uniqueness", "note": "'the not standing pedestrian' matches 22 objects; the executor refuses, the dataset answers yes"},
+    "q_5745da37e4f9": {"category": "diagonal_sector_boundary", "note": "front_right of the truck: yes against no -- an over-count, the opposite sign to the others"},
+    "q_b2bcdd27e56b": {"category": "diagonal_sector_boundary", "note": "front_left of a without-rider motorcycle: 0 against 7"},
+    "q_9df9f1bc239d": {"category": "diagonal_sector_boundary", "note": "front_right of the trailer: yes (1 object) against no -- over-count"}
+  }
+}
