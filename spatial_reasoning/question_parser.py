@@ -209,8 +209,17 @@ class RuleBasedQuestionParser:
         so they are off by default and reported as unsupported.
     """
 
-    def __init__(self, allow_relative_regions: bool = False) -> None:
+    def __init__(
+        self,
+        allow_relative_regions: bool = False,
+        strict_refusals: bool = True,
+    ) -> None:
         self.allow_relative_regions = allow_relative_regions
+        # strict_refusals=False restores the pre-1e7c53e behaviour: parse
+        # anyway and drop the part the grammar does not understand. It exists
+        # only so the cost of that behaviour can be measured against this one
+        # on identical questions; it must never be the default.
+        self.strict_refusals = strict_refusals
 
     # -- public ----------------------------------------------------------- #
 
@@ -228,9 +237,10 @@ class RuleBasedQuestionParser:
         # correctness and looks like a reasoning failure.
         # The raw text is passed too: _normalise strips punctuation, and the
         # preamble rule needs the clause separator that normalisation removes.
-        inexpressible = self._why_inexpressible(text, question.strip().lower())
-        if inexpressible:
-            return ParseResult(ParseStatus.UNSUPPORTED, reason=inexpressible)
+        if self.strict_refusals:
+            inexpressible = self._why_inexpressible(text, question.strip().lower())
+            if inexpressible:
+                return ParseResult(ParseStatus.UNSUPPORTED, reason=inexpressible)
 
         compare = _COMPARE_PATTERN.search(text)
         if compare:
