@@ -56,8 +56,34 @@ class ExecutionResult:
             return None
 
 
+def _has_status(obj: Object3D, status: Optional[str], negate: bool) -> bool:
+    """Whether ``obj`` satisfies an attribute constraint.
+
+    An unknown status satisfies neither the positive nor the negated form: a
+    traffic cone carries no attribute, so it is neither "standing" nor "not
+    standing", and counting it under the negation would assert something the
+    annotation does not say. This matches ``dsl._matches`` deliberately -- the
+    two executors answer the same programs and must not disagree.
+    """
+    if status is None:
+        return True
+    if obj.status is None:
+        return False
+    return obj.status != status if negate else obj.status == status
+
+
+def _of_category_and_status(
+    scene: Scene, category: str, status: Optional[str], negate: bool
+) -> List[Object3D]:
+    return [o for o in scene.of_category([category])
+            if _has_status(o, status, negate)]
+
+
 def _resolve_reference(
-    scene: Scene, category: str
+    scene: Scene,
+    category: str,
+    status: Optional[str] = None,
+    negate: bool = False,
 ) -> Tuple[Optional[Object3D], ExecStatus, str]:
     """Resolve a definite reference such as "the truck".
 
@@ -65,13 +91,18 @@ def _resolve_reference(
     contains several, choosing the first one would hide the failure and inflate
     the score, so the query is refused instead. This is the behaviour the
     report argues for: ambiguity is reported, not resolved by accident.
+
+    The attribute narrows the reference rather than the answer: "the back of
+    the parked truck" is unambiguous in a scene with one parked and two moving
+    trucks, and ignoring the word would refuse a question the data answers.
     """
-    matches = scene.of_category([category])
+    matches = _of_category_and_status(scene, category, status, negate)
+    described = f"{status} {category}" if status else category
     if not matches:
-        return None, ExecStatus.MISSING_REFERENCE, f"no {category} in the scene"
+        return None, ExecStatus.MISSING_REFERENCE, f"no {described} in the scene"
     if len(matches) > 1:
         return (None, ExecStatus.AMBIGUOUS_REFERENCE,
-                f"{len(matches)} objects of category {category}; "
+                f"{len(matches)} objects of category {described}; "
                 f"the question does not say which one")
     return matches[0], ExecStatus.OK, ""
 
@@ -97,11 +128,14 @@ def execute(
 
     reference = None
     if query.region.kind == "relative":
-        reference, status, reason = _resolve_reference(scene, query.region.reference_category)
+        reference, status, reason = _resolve_reference(
+            scene, query.region.reference_category,
+            query.anchor_status, query.anchor_negate_status)
         if status is not ExecStatus.OK:
             return ExecutionResult(None, status, reason=reason)
 
-    candidates = scene.of_category([query.category])
+    candidates = _of_category_and_status(
+        scene, query.category, query.status, query.negate_status)
     selected = select(candidates, query.region, config, reference)
 
     if query.operation is Operation.COUNT:
@@ -125,12 +159,20 @@ def _execute_compare(
 
     reference = None
     if query.region.kind == "relative":
-        reference, status, reason = _resolve_reference(scene, query.region.reference_category)
+        reference, status, reason = _resolve_reference(
+            scene, query.region.reference_category,
+            query.anchor_status, query.anchor_negate_status)
         if status is not ExecStatus.OK:
             return ExecutionResult(None, status, reason=reason)
 
-    first = select(scene.of_category([query.category]), query.region, config, reference)
-    second = select(scene.of_category([query.second_category]), query.region, config, reference)
+    first = select(
+        _of_category_and_status(scene, query.category,
+                                query.status, query.negate_status),
+        query.region, config, reference)
+    second = select(
+        _of_category_and_status(scene, query.second_category,
+                                query.second_status, query.second_negate_status),
+        query.region, config, reference)
 
     if query.comparison == "fewer":
         answer = "yes" if len(first) < len(second) else "no"

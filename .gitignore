@@ -64,3 +64,12 @@ dmypy.json
 
 # Revision 2026: experiment outputs
 outputs/spatial_reasoning/
+
+# Secrets. The repository is public: nothing holding a credential may be
+# tracked, and .env is created from .env.example by hand.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json

@@ -32,6 +32,7 @@ from .question_parser import (  # noqa: F401
     Operation,
     ParseStatus,
     Query,
+    Grammar,
     RuleBasedQuestionParser,
     parse_question,
 )
@@ -47,7 +48,8 @@ __all__ = [
     "CANONICAL_CATEGORIES", "Object3D", "Scene",
     "load_nuscenes_detections", "load_simple_scenes", "save_simple_scenes",
     "DEFAULT_REGION_CONFIG", "DIRECTIONS", "Region", "RegionConfig",
-    "Operation", "ParseStatus", "Query", "RuleBasedQuestionParser", "parse_question",
+    "Grammar", "Operation", "ParseStatus", "Query", "RuleBasedQuestionParser",
+    "parse_question",
     "ExecutionResult", "SymbolicSpatialQA", "execute",
     "AnswerVocabulary", "HashingQuestionEncoder", "QAItem", "split_by_scene",
 ]

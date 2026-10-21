@@ -147,15 +147,23 @@ def test_parse_existence_and_comparison():
     assert res.query.comparison == "more"
 
 
-def test_object_anchored_question_is_declined_by_default():
-    res = DEFAULT_PARSER.parse("How many cars are to the left of the truck?")
+def test_object_anchored_question_is_declined_when_disabled():
+    """The flag is now an ablation, not the default.
+
+    One-hop questions are most of nuScenes-QA, and declining them was the bulk
+    of the coverage the parser was losing. They are answered by default because
+    ``dsl.resolve`` requires the anchor to match exactly one object and reports
+    the failure otherwise -- the reference is resolved explicitly or not at
+    all, never by taking the first match.
+    """
+    parser = RuleBasedQuestionParser(allow_relative_regions=False)
+    res = parser.parse("How many cars are to the left of the truck?")
     assert res.status is ParseStatus.UNSUPPORTED
     assert "anchored" in res.reason
 
 
-def test_object_anchored_question_parsed_when_enabled():
-    parser = RuleBasedQuestionParser(allow_relative_regions=True)
-    res = parser.parse("How many cars are to the left of the truck?")
+def test_object_anchored_question_is_parsed_by_default():
+    res = DEFAULT_PARSER.parse("How many cars are to the left of the truck?")
     assert res.ok
     assert res.query.region.kind == "relative"
     assert res.query.region.reference_category == "truck"

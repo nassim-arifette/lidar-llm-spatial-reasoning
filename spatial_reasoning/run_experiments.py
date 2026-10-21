@@ -251,7 +251,7 @@ def run(
     seed: int = 0,
     epochs: int = 40,
     device: str = "cpu",
-    allow_relative: bool = False,
+    allow_relative: bool = True,
     layout: str = "octant",
     verbose: bool = True,
 ) -> Dict:
@@ -458,8 +458,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--layout", default=None, choices=sorted(SECTOR_LAYOUTS),
                    help="sector convention; defaults to nuscenes_qa for "
                         "--source nuscenes and octant otherwise")
-    p.add_argument("--allow-relative", action="store_true",
-                   help="also parse questions anchored on another object")
+    p.add_argument("--no-relative", dest="allow_relative", action="store_false",
+                   help="decline questions anchored on another object instead "
+                        "of resolving them; an ablation, not the default")
     return p
 
 

@@ -7,11 +7,12 @@ the ones already measured. This script touches neither.
 
 It answers two questions, and keeps their effects separable:
 
-**A -- what did adding refusals to the grammar cost and buy?**
+**A -- what does the grammar's expressiveness cost and buy?**
 Identical questions, identical objects, identical geometry. Only the parser
-changes: ``strict_refusals=False`` reproduces the behaviour that parsed
-anyway and dropped the part it did not understand, against the current one
-that refuses.
+changes, across the three behaviours in :class:`Grammar`: ``LEGACY`` parses
+anyway and drops the part it does not understand, ``STRICT`` refuses it, and
+``EXPRESSIVE`` carries it into the query. The first is the original bug, the
+second is correct but near-silent, and the third is the claim under test.
 
 **B -- does the LiDAR-return filter explain the counting error?**
 Identical questions, identical *programs*, identical executor. Only the object
@@ -50,7 +51,7 @@ from .dsl import ExecStatus, Query, execute, lift
 from .evaluate import count_error_decomposition
 from .nuscenes_adapter import load_nuscenes_qa, load_nuscenes_scenes
 from .objects import Scene
-from .question_parser import RuleBasedQuestionParser
+from .question_parser import Grammar, RuleBasedQuestionParser
 from .regions import SECTOR_LAYOUTS, RegionConfig
 
 
@@ -196,7 +197,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--qa", nargs="+", required=True)
     p.add_argument("--layout", default="nuscenes_qa", choices=sorted(SECTOR_LAYOUTS))
     p.add_argument("--out", default="outputs/symbolic_diagnostic")
-    p.add_argument("--allow-relative", action="store_true")
+    p.add_argument("--no-relative", dest="allow_relative", action="store_false",
+                   help="decline one-hop questions instead of resolving them")
     p.add_argument("--limit", type=int, default=0)
     return p
 
@@ -228,17 +230,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"layout: {args.layout} -> {config.directions()}\n")
 
     conditions = []
-    for strict in (True, False):
+    for grammar in (Grammar.EXPRESSIVE, Grammar.STRICT, Grammar.LEGACY):
         for filt in (1, 0):
-            name = f"{'strict' if strict else 'legacy'}_parser__min_lidar_{filt}"
+            name = f"{grammar.value}_parser__min_lidar_{filt}"
             parser = RuleBasedQuestionParser(
-                allow_relative_regions=args.allow_relative, strict_refusals=strict)
+                allow_relative_regions=args.allow_relative, grammar=grammar)
             res = evaluate_condition(
                 name, items, object_lists[filt], parser, config,
                 records_path=os.path.join(args.out, f"records_{name}.jsonl"))
             conditions.append(res)
             ce = res["count_errors"]
-            print(f"{name:<34} acc={res['accuracy']:.3f} "
+            print(f"{name:<36} acc={res['accuracy']:.3f} "
                   f"answered={res['answered_fraction']:.3f} "
                   f"acc|ans={res['accuracy_when_answered']:.3f} "
                   f"U={ce['under']!s:.5} O={ce['over']!s:.5} n_num={ce['n']}")
@@ -250,19 +252,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # parser's answered set would shrink the population for a reason unrelated
     # to the filter -- on the smoke run that left three questions.
     paired: Dict[str, Dict] = {}
-    for strict in ("strict", "legacy"):
-        pair = [by_name[f"{strict}_parser__min_lidar_{f}"] for f in (1, 0)]
-        paired[f"B_filter_at_{strict}_parser"] = restrict_to_common_numeric(pair, items)
+    grammars = [g.value for g in (Grammar.EXPRESSIVE, Grammar.STRICT, Grammar.LEGACY)]
+    for grammar in grammars:
+        pair = [by_name[f"{grammar}_parser__min_lidar_{f}"] for f in (1, 0)]
+        paired[f"B_filter_at_{grammar}_parser"] = restrict_to_common_numeric(pair, items)
     for filt in (1, 0):
-        pair = [by_name[f"{s}_parser__min_lidar_{filt}"] for s in ("strict", "legacy")]
-        paired[f"A_parser_at_min_lidar_{filt}"] = restrict_to_common_numeric(pair, items)
+        pair = [by_name[f"{g}_parser__min_lidar_{filt}"] for g in grammars]
+        paired[f"A_grammar_at_min_lidar_{filt}"] = restrict_to_common_numeric(pair, items)
 
     for ablation, group in paired.items():
         n_paired = next(iter(group.values()))["n_paired"]
         print(f"\n{ablation} (paired n={n_paired}):")
         for name, v in group.items():
             ce = v["count_errors"]
-            print(f"  {name:<34} acc={v['accuracy']:.3f} "
+            print(f"  {name:<36} acc={v['accuracy']:.3f} "
                   f"U={ce['under']!s:.5} O={ce['over']!s:.5} MAE={ce['mae']!s:.5}")
 
     payload = {

@@ -1,0 +1,1028 @@
+{
+  "layout": "nuscenes_qa",
+  "conversions": {
+    "1": {
+      "samples": 404,
+      "scenes": 10,
+      "annotations_total": 18538,
+      "annotations_kept": 14129,
+      "dropped_no_lidar_points": 4278,
+      "dropped_unknown_category": 131,
+      "samples_without_pose": 0
+    },
+    "0": {
+      "samples": 404,
+      "scenes": 10,
+      "annotations_total": 18538,
+      "annotations_kept": 18389,
+      "dropped_no_lidar_points": 0,
+      "dropped_unknown_category": 149,
+      "samples_without_pose": 0
+    }
+  },
+  "n_items": 5916,
+  "conditions": [
+    {
+      "name": "strict_parser__min_lidar_1",
+      "n": 5916,
+      "accuracy": 0.027214334009465855,
+      "answered_fraction": 0.0436105476673428,
+      "accuracy_when_answered": 0.624031007751938,
+      "outcomes": {
+        "declined_by_parser": 5658,
+        "correct": 161,
+        "wrong": 97
+      },
+      "refusal_reasons": {
+        "question constrains object status (moving / parked / stopped / standin": 3767,
+        "question compares attributes between objects": 852,
+        "no supported operation (expected a counting, existence or comparison q": 656,
+        "question introduces a referent in a preamble clause and then asks abou": 322,
+        "no known category mentioned": 21,
+        "question is anchored on another object (trailer); reference resolution": 10,
+        "question is anchored on another object (bicycle); reference resolution": 7,
+        "question is anchored on another object (construction_vehicle); referen": 7
+      },
+      "executor_failures": {},
+      "count_errors": {
+        "n": 125,
+        "under": 1.672,
+        "over": 0.088,
+        "mae": 1.76,
+        "over_share": 0.049999999999999996,
+        "gold_max": 10,
+        "n_overcounted": 2,
+        "n_undercounted": 81,
+        "worst": [
+          {
+            "question": "What number of cars are to the front left of me?",
+            "predicted": 2,
+            "gold": 10,
+            "error": -8
+          },
+          {
+            "question": "What number of barriers are to the front left of the bus?",
+            "predicted": 0,
+            "gold": 8,
+            "error": -8
+          },
+          {
+            "question": "How many things are to the back of the bus?",
+            "predicted": 9,
+            "gold": 1,
+            "error": 8
+          },
+          {
+            "question": "What number of things are to the back right of me?",
+            "predicted": 2,
+            "gold": 9,
+            "error": -7
+          },
+          {
+            "question": "What number of cars are to the front left of me?",
+            "predicted": 1,
+            "gold": 7,
+            "error": -6
+          },
+          {
+            "question": "How many cars are to the front left of me?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "What number of cars are to the front left of me?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "What number of traffic cones are there?",
+            "predicted": 1,
+            "gold": 6,
+            "error": -5
+          },
+          {
+            "question": "What number of cars are to the back of me?",
+            "predicted": 3,
+            "gold": 8,
+            "error": -5
+          },
+          {
+            "question": "How many traffic cones are to the back of me?",
+            "predicted": 1,
+            "gold": 5,
+            "error": -4
+          }
+        ]
+      },
+      "seconds": 0.2
+    },
+    {
+      "name": "strict_parser__min_lidar_0",
+      "n": 5916,
+      "accuracy": 0.03786342123056119,
+      "answered_fraction": 0.0436105476673428,
+      "accuracy_when_answered": 0.8682170542635659,
+      "outcomes": {
+        "declined_by_parser": 5658,
+        "correct": 224,
+        "wrong": 34
+      },
+      "refusal_reasons": {
+        "question constrains object status (moving / parked / stopped / standin": 3767,
+        "question compares attributes between objects": 852,
+        "no supported operation (expected a counting, existence or comparison q": 656,
+        "question introduces a referent in a preamble clause and then asks abou": 322,
+        "no known category mentioned": 21,
+        "question is anchored on another object (trailer); reference resolution": 10,
+        "question is anchored on another object (bicycle); reference resolution": 7,
+        "question is anchored on another object (construction_vehicle); referen": 7
+      },
+      "executor_failures": {},
+      "count_errors": {
+        "n": 125,
+        "under": 0.568,
+        "over": 0.12,
+        "mae": 0.688,
+        "over_share": 0.1744186046511628,
+        "gold_max": 10,
+        "n_overcounted": 2,
+        "n_undercounted": 20,
+        "worst": [
+          {
+            "question": "How many things are to the back of the bus?",
+            "predicted": 12,
+            "gold": 1,
+            "error": 11
+          },
+          {
+            "question": "What number of cars are to the front left of me?",
+            "predicted": 2,
+            "gold": 10,
+            "error": -8
+          },
+          {
+            "question": "What number of barriers are to the front left of the bus?",
+            "predicted": 0,
+            "gold": 8,
+            "error": -8
+          },
+          {
+            "question": "What number of things are to the back right of me?",
+            "predicted": 2,
+            "gold": 9,
+            "error": -7
+          },
+          {
+            "question": "What number of cars are to the front left of me?",
+            "predicted": 1,
+            "gold": 7,
+            "error": -6
+          },
+          {
+            "question": "How many cars are to the front left of me?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "What number of cars are to the front left of me?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "What number of things are to the back of the bus?",
+            "predicted": 6,
+            "gold": 10,
+            "error": -4
+          },
+          {
+            "question": "How many things are to the back of the bus?",
+            "predicted": 6,
+            "gold": 10,
+            "error": -4
+          },
+          {
+            "question": "How many things are to the front left of me?",
+            "predicted": 0,
+            "gold": 4,
+            "error": -4
+          }
+        ]
+      },
+      "seconds": 0.2
+    },
+    {
+      "name": "legacy_parser__min_lidar_1",
+      "n": 5916,
+      "accuracy": 0.14249492900608518,
+      "answered_fraction": 0.3133874239350913,
+      "accuracy_when_answered": 0.4546925566343042,
+      "outcomes": {
+        "declined_by_parser": 4062,
+        "wrong": 1011,
+        "correct": 843
+      },
+      "refusal_reasons": {
+        "no supported operation (expected a counting, existence or comparison q": 3300,
+        "question is anchored on another object (object); reference resolution ": 131,
+        "question is anchored on another object (truck); reference resolution i": 126,
+        "question is anchored on another object (car); reference resolution is ": 108,
+        "question is anchored on another object (pedestrian); reference resolut": 80,
+        "question is anchored on another object (bicycle); reference resolution": 71,
+        "question is anchored on another object (motorcycle); reference resolut": 69,
+        "no known category mentioned": 64
+      },
+      "executor_failures": {},
+      "count_errors": {
+        "n": 782,
+        "under": 1.3491048593350383,
+        "over": 9.80306905370844,
+        "mae": 11.152173913043477,
+        "over_share": 0.8790276344455912,
+        "gold_max": 10,
+        "n_overcounted": 356,
+        "n_undercounted": 292,
+        "worst": [
+          {
+            "question": "How many other things are there of the same status as the bicycle?",
+            "predicted": 108,
+            "gold": 1,
+            "error": 107
+          },
+          {
+            "question": "How many other things are in the same status as the bicycle?",
+            "predicted": 107,
+            "gold": 1,
+            "error": 106
+          },
+          {
+            "question": "How many other things are in the same status as the bicycle?",
+            "predicted": 94,
+            "gold": 1,
+            "error": 93
+          },
+          {
+            "question": "What number of other things are in the same status as the bicycle?",
+            "predicted": 85,
+            "gold": 1,
+            "error": 84
+          },
+          {
+            "question": "What number of other things are there of the same status as the bicycle?",
+            "predicted": 84,
+            "gold": 1,
+            "error": 83
+          },
+          {
+            "question": "How many other things are in the same status as the bicycle?",
+            "predicted": 73,
+            "gold": 0,
+            "error": 73
+          },
+          {
+            "question": "How many other things are there of the same status as the motorcycle?",
+            "predicted": 75,
+            "gold": 2,
+            "error": 73
+          },
+          {
+            "question": "How many other things are in the same status as the bus?",
+            "predicted": 81,
+            "gold": 10,
+            "error": 71
+          },
+          {
+            "question": "What number of other things are there of the same status as the motorcycle?",
+            "predicted": 72,
+            "gold": 2,
+            "error": 70
+          },
+          {
+            "question": "What number of other things are there of the same status as the construction vehicle?",
+            "predicted": 76,
+            "gold": 6,
+            "error": 70
+          }
+        ]
+      },
+      "seconds": 0.4
+    },
+    {
+      "name": "legacy_parser__min_lidar_0",
+      "n": 5916,
+      "accuracy": 0.15162271805273833,
+      "answered_fraction": 0.3133874239350913,
+      "accuracy_when_answered": 0.48381877022653724,
+      "outcomes": {
+        "declined_by_parser": 4062,
+        "wrong": 957,
+        "correct": 897
+      },
+      "refusal_reasons": {
+        "no supported operation (expected a counting, existence or comparison q": 3300,
+        "question is anchored on another object (object); reference resolution ": 131,
+        "question is anchored on another object (truck); reference resolution i": 126,
+        "question is anchored on another object (car); reference resolution is ": 108,
+        "question is anchored on another object (pedestrian); reference resolut": 80,
+        "question is anchored on another object (bicycle); reference resolution": 71,
+        "question is anchored on another object (motorcycle); reference resolut": 69,
+        "no known category mentioned": 64
+      },
+      "executor_failures": {},
+      "count_errors": {
+        "n": 782,
+        "under": 1.040920716112532,
+        "over": 13.364450127877237,
+        "mae": 14.40537084398977,
+        "over_share": 0.9277407900577008,
+        "gold_max": 10,
+        "n_overcounted": 397,
+        "n_undercounted": 191,
+        "worst": [
+          {
+            "question": "How many other things are in the same status as the bicycle?",
+            "predicted": 151,
+            "gold": 1,
+            "error": 150
+          },
+          {
+            "question": "How many other things are there of the same status as the bicycle?",
+            "predicted": 136,
+            "gold": 1,
+            "error": 135
+          },
+          {
+            "question": "How many other things are in the same status as the bicycle?",
+            "predicted": 126,
+            "gold": 1,
+            "error": 125
+          },
+          {
+            "question": "What number of other things are there of the same status as the bicycle?",
+            "predicted": 119,
+            "gold": 1,
+            "error": 118
+          },
+          {
+            "question": "What number of other things are in the same status as the bicycle?",
+            "predicted": 117,
+            "gold": 1,
+            "error": 116
+          },
+          {
+            "question": "How many other things are in the same status as the bus?",
+            "predicted": 118,
+            "gold": 10,
+            "error": 108
+          },
+          {
+            "question": "What number of other things are there of the same status as the motorcycle?",
+            "predicted": 106,
+            "gold": 2,
+            "error": 104
+          },
+          {
+            "question": "How many other things are in the same status as the bicycle?",
+            "predicted": 102,
+            "gold": 0,
+            "error": 102
+          },
+          {
+            "question": "What number of other things are there of the same status as the motorcycle?",
+            "predicted": 100,
+            "gold": 2,
+            "error": 98
+          },
+          {
+            "question": "What number of other things are there of the same status as the construction vehicle?",
+            "predicted": 100,
+            "gold": 7,
+            "error": 93
+          }
+        ]
+      },
+      "seconds": 0.5
+    }
+  ],
+  "paired_numeric": {
+    "B_filter_at_strict_parser": {
+      "strict_parser__min_lidar_1": {
+        "n_paired": 125,
+        "accuracy": 0.336,
+        "count_errors": {
+          "n": 125,
+          "under": 1.672,
+          "over": 0.088,
+          "mae": 1.76,
+          "over_share": 0.049999999999999996,
+          "gold_max": 10,
+          "n_overcounted": 2,
+          "n_undercounted": 81,
+          "worst": [
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 8,
+              "error": -8
+            },
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 9,
+              "gold": 1,
+              "error": 8
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 2,
+              "gold": 9,
+              "error": -7
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 1,
+              "gold": 7,
+              "error": -6
+            },
+            {
+              "question": "How many cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of traffic cones are there?",
+              "predicted": 1,
+              "gold": 6,
+              "error": -5
+            },
+            {
+              "question": "What number of cars are to the back of me?",
+              "predicted": 3,
+              "gold": 8,
+              "error": -5
+            },
+            {
+              "question": "How many traffic cones are to the back of me?",
+              "predicted": 1,
+              "gold": 5,
+              "error": -4
+            }
+          ]
+        }
+      },
+      "strict_parser__min_lidar_0": {
+        "n_paired": 125,
+        "accuracy": 0.824,
+        "count_errors": {
+          "n": 125,
+          "under": 0.568,
+          "over": 0.12,
+          "mae": 0.688,
+          "over_share": 0.1744186046511628,
+          "gold_max": 10,
+          "n_overcounted": 2,
+          "n_undercounted": 20,
+          "worst": [
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 12,
+              "gold": 1,
+              "error": 11
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 8,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 2,
+              "gold": 9,
+              "error": -7
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 1,
+              "gold": 7,
+              "error": -6
+            },
+            {
+              "question": "How many cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are to the back of the bus?",
+              "predicted": 6,
+              "gold": 10,
+              "error": -4
+            },
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 6,
+              "gold": 10,
+              "error": -4
+            },
+            {
+              "question": "How many things are to the front left of me?",
+              "predicted": 0,
+              "gold": 4,
+              "error": -4
+            }
+          ]
+        }
+      }
+    },
+    "B_filter_at_legacy_parser": {
+      "legacy_parser__min_lidar_1": {
+        "n_paired": 782,
+        "accuracy": 0.17135549872122763,
+        "count_errors": {
+          "n": 782,
+          "under": 1.3491048593350383,
+          "over": 9.80306905370844,
+          "mae": 11.152173913043477,
+          "over_share": 0.8790276344455912,
+          "gold_max": 10,
+          "n_overcounted": 356,
+          "n_undercounted": 292,
+          "worst": [
+            {
+              "question": "How many other things are there of the same status as the bicycle?",
+              "predicted": 108,
+              "gold": 1,
+              "error": 107
+            },
+            {
+              "question": "How many other things are in the same status as the bicycle?",
+              "predicted": 107,
+              "gold": 1,
+              "error": 106
+            },
+            {
+              "question": "How many other things are in the same status as the bicycle?",
+              "predicted": 94,
+              "gold": 1,
+              "error": 93
+            },
+            {
+              "question": "What number of other things are in the same status as the bicycle?",
+              "predicted": 85,
+              "gold": 1,
+              "error": 84
+            },
+            {
+              "question": "What number of other things are there of the same status as the bicycle?",
+              "predicted": 84,
+              "gold": 1,
+              "error": 83
+            },
+            {
+              "question": "How many other things are in the same status as the bicycle?",
+              "predicted": 73,
+              "gold": 0,
+              "error": 73
+            },
+            {
+              "question": "How many other things are there of the same status as the motorcycle?",
+              "predicted": 75,
+              "gold": 2,
+              "error": 73
+            },
+            {
+              "question": "How many other things are in the same status as the bus?",
+              "predicted": 81,
+              "gold": 10,
+              "error": 71
+            },
+            {
+              "question": "What number of other things are there of the same status as the motorcycle?",
+              "predicted": 72,
+              "gold": 2,
+              "error": 70
+            },
+            {
+              "question": "What number of other things are there of the same status as the construction vehicle?",
+              "predicted": 76,
+              "gold": 6,
+              "error": 70
+            }
+          ]
+        }
+      },
+      "legacy_parser__min_lidar_0": {
+        "n_paired": 782,
+        "accuracy": 0.24808184143222506,
+        "count_errors": {
+          "n": 782,
+          "under": 1.040920716112532,
+          "over": 13.364450127877237,
+          "mae": 14.40537084398977,
+          "over_share": 0.9277407900577008,
+          "gold_max": 10,
+          "n_overcounted": 397,
+          "n_undercounted": 191,
+          "worst": [
+            {
+              "question": "How many other things are in the same status as the bicycle?",
+              "predicted": 151,
+              "gold": 1,
+              "error": 150
+            },
+            {
+              "question": "How many other things are there of the same status as the bicycle?",
+              "predicted": 136,
+              "gold": 1,
+              "error": 135
+            },
+            {
+              "question": "How many other things are in the same status as the bicycle?",
+              "predicted": 126,
+              "gold": 1,
+              "error": 125
+            },
+            {
+              "question": "What number of other things are there of the same status as the bicycle?",
+              "predicted": 119,
+              "gold": 1,
+              "error": 118
+            },
+            {
+              "question": "What number of other things are in the same status as the bicycle?",
+              "predicted": 117,
+              "gold": 1,
+              "error": 116
+            },
+            {
+              "question": "How many other things are in the same status as the bus?",
+              "predicted": 118,
+              "gold": 10,
+              "error": 108
+            },
+            {
+              "question": "What number of other things are there of the same status as the motorcycle?",
+              "predicted": 106,
+              "gold": 2,
+              "error": 104
+            },
+            {
+              "question": "How many other things are in the same status as the bicycle?",
+              "predicted": 102,
+              "gold": 0,
+              "error": 102
+            },
+            {
+              "question": "What number of other things are there of the same status as the motorcycle?",
+              "predicted": 100,
+              "gold": 2,
+              "error": 98
+            },
+            {
+              "question": "What number of other things are there of the same status as the construction vehicle?",
+              "predicted": 100,
+              "gold": 7,
+              "error": 93
+            }
+          ]
+        }
+      }
+    },
+    "A_parser_at_min_lidar_1": {
+      "strict_parser__min_lidar_1": {
+        "n_paired": 125,
+        "accuracy": 0.336,
+        "count_errors": {
+          "n": 125,
+          "under": 1.672,
+          "over": 0.088,
+          "mae": 1.76,
+          "over_share": 0.049999999999999996,
+          "gold_max": 10,
+          "n_overcounted": 2,
+          "n_undercounted": 81,
+          "worst": [
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 8,
+              "error": -8
+            },
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 9,
+              "gold": 1,
+              "error": 8
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 2,
+              "gold": 9,
+              "error": -7
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 1,
+              "gold": 7,
+              "error": -6
+            },
+            {
+              "question": "How many cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of traffic cones are there?",
+              "predicted": 1,
+              "gold": 6,
+              "error": -5
+            },
+            {
+              "question": "What number of cars are to the back of me?",
+              "predicted": 3,
+              "gold": 8,
+              "error": -5
+            },
+            {
+              "question": "How many traffic cones are to the back of me?",
+              "predicted": 1,
+              "gold": 5,
+              "error": -4
+            }
+          ]
+        }
+      },
+      "legacy_parser__min_lidar_1": {
+        "n_paired": 125,
+        "accuracy": 0.336,
+        "count_errors": {
+          "n": 125,
+          "under": 1.672,
+          "over": 0.088,
+          "mae": 1.76,
+          "over_share": 0.049999999999999996,
+          "gold_max": 10,
+          "n_overcounted": 2,
+          "n_undercounted": 81,
+          "worst": [
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 8,
+              "error": -8
+            },
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 9,
+              "gold": 1,
+              "error": 8
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 2,
+              "gold": 9,
+              "error": -7
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 1,
+              "gold": 7,
+              "error": -6
+            },
+            {
+              "question": "How many cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of traffic cones are there?",
+              "predicted": 1,
+              "gold": 6,
+              "error": -5
+            },
+            {
+              "question": "What number of cars are to the back of me?",
+              "predicted": 3,
+              "gold": 8,
+              "error": -5
+            },
+            {
+              "question": "How many traffic cones are to the back of me?",
+              "predicted": 1,
+              "gold": 5,
+              "error": -4
+            }
+          ]
+        }
+      }
+    },
+    "A_parser_at_min_lidar_0": {
+      "strict_parser__min_lidar_0": {
+        "n_paired": 125,
+        "accuracy": 0.824,
+        "count_errors": {
+          "n": 125,
+          "under": 0.568,
+          "over": 0.12,
+          "mae": 0.688,
+          "over_share": 0.1744186046511628,
+          "gold_max": 10,
+          "n_overcounted": 2,
+          "n_undercounted": 20,
+          "worst": [
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 12,
+              "gold": 1,
+              "error": 11
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 8,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 2,
+              "gold": 9,
+              "error": -7
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 1,
+              "gold": 7,
+              "error": -6
+            },
+            {
+              "question": "How many cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are to the back of the bus?",
+              "predicted": 6,
+              "gold": 10,
+              "error": -4
+            },
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 6,
+              "gold": 10,
+              "error": -4
+            },
+            {
+              "question": "How many things are to the front left of me?",
+              "predicted": 0,
+              "gold": 4,
+              "error": -4
+            }
+          ]
+        }
+      },
+      "legacy_parser__min_lidar_0": {
+        "n_paired": 125,
+        "accuracy": 0.824,
+        "count_errors": {
+          "n": 125,
+          "under": 0.568,
+          "over": 0.12,
+          "mae": 0.688,
+          "over_share": 0.1744186046511628,
+          "gold_max": 10,
+          "n_overcounted": 2,
+          "n_undercounted": 20,
+          "worst": [
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 12,
+              "gold": 1,
+              "error": 11
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 8,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 2,
+              "gold": 9,
+              "error": -7
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 1,
+              "gold": 7,
+              "error": -6
+            },
+            {
+              "question": "How many cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of cars are to the front left of me?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are to the back of the bus?",
+              "predicted": 6,
+              "gold": 10,
+              "error": -4
+            },
+            {
+              "question": "How many things are to the back of the bus?",
+              "predicted": 6,
+              "gold": 10,
+              "error": -4
+            },
+            {
+              "question": "How many things are to the front left of me?",
+              "predicted": 0,
+              "gold": 4,
+              "error": -4
+            }
+          ]
+        }
+      }
+    }
+  }
+}

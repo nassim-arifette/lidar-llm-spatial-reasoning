@@ -287,9 +287,18 @@ def lift(old_query) -> Query:
     region = old_query.region
     anchor = None
     if region.kind == "relative":
-        anchor = Selector(category=region.reference_category)
+        # The anchor's own attribute lives on the query, not on the region:
+        # "to the back of the parked truck" constrains the truck, not the
+        # thing being counted. Dropping it here would resolve the anchor over
+        # every truck and report AMBIGUOUS where the question was precise.
+        anchor = Selector(category=region.reference_category,
+                          status=old_query.anchor_status,
+                          negate_status=old_query.anchor_negate_status)
 
-    target = Selector(category=old_query.category, region=region, anchor=anchor)
+    target = Selector(category=old_query.category,
+                      status=old_query.status,
+                      negate_status=old_query.negate_status,
+                      region=region, anchor=anchor)
 
     if old_query.operation is OldOp.COUNT:
         return Query(Op.COUNT, target)
@@ -298,6 +307,9 @@ def lift(old_query) -> Query:
     return Query(
         Op.COMPARE_COUNT,
         target,
-        Selector(category=old_query.second_category, region=region, anchor=anchor),
+        Selector(category=old_query.second_category,
+                 status=old_query.second_status,
+                 negate_status=old_query.second_negate_status,
+                 region=region, anchor=anchor),
         comparison=old_query.comparison,
     )
