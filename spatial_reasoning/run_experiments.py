@@ -361,19 +361,22 @@ def render_markdown(results: Dict) -> str:
         "## Main comparison",
         "",
         "| system | accuracy | answered | acc. when answered | "
-        "count MAE (numeric answers) | numeric share | params | ms/item |",
-        "|---|---|---|---|---|---|---|---|",
+        "count MAE (numeric answers) | under/over | numeric share | params | ms/item |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for s in results["systems"]:
         mae = "-" if s["count_mae"] is None else f"{s['count_mae']:.3f}"
         # The MAE is computed only over counting questions answered with a
         # number. Without the share, a system that says "yes" to half of them
         # posts a fine MAE on the rest and reads as competent.
+        errs = s.get("count_errors", {}) or {}
+        under, over = errs.get("under"), errs.get("over")
+        split = "-" if under is None else f"{under:.2f}/{over:.2f}"
         share = s.get("count_coverage", {}).get("numeric_fraction")
         share_text = "-" if share is None else f"{share:.2f}"
         lines.append(
             f"| {s['name']} | {s['accuracy']:.3f} | {s['answered_fraction']:.3f} | "
-            f"{s['accuracy_when_answered']:.3f} | {mae} | {share_text} | "
+            f"{s['accuracy_when_answered']:.3f} | {mae} | {split} | {share_text} | "
             f"{s['extra'].get('num_parameters', 0)} | {s['cost']['ms_per_item']:.2f} |"
         )
 

@@ -88,6 +88,63 @@ def count_mae(
     return float(np.mean(errors)) if errors else None
 
 
+def count_error_decomposition(
+    predictions: Sequence[Optional[str]], items: Sequence[QAItem]
+) -> Dict[str, object]:
+    """Split the counting error into under- and over-counting.
+
+    With ``e = predicted - gold``::
+
+        under = mean(max(-e, 0))      over = mean(max(e, 0))      MAE = under + over
+
+    This is the measurement that distinguishes "we are missing objects" from
+    "we are counting objects the question excludes", which an MAE cannot.
+
+    It also provides a consistency check. nuScenes-QA drops questions whose
+    count answer exceeds 10, so gold answers lie in [0, 10]. A system that only
+    under-counts therefore cannot exceed an error of 10 on any item: an MAE
+    above 10 is proof that over-counting dominates, whatever the object filter
+    is doing.
+    """
+    errors: List[int] = []
+    golds: List[int] = []
+    worst: List[Dict[str, object]] = []
+
+    for p, it in zip(predictions, items):
+        if it.answer_type != "count" or p is None:
+            continue
+        try:
+            gold = int(it.answer)
+            pred = int(str(p).strip())
+        except ValueError:
+            continue
+        errors.append(pred - gold)
+        golds.append(gold)
+        worst.append({"question": it.question, "predicted": pred, "gold": gold,
+                      "error": pred - gold})
+
+    if not errors:
+        return {"n": 0, "under": None, "over": None, "mae": None,
+                "gold_max": None, "worst": []}
+
+    n = len(errors)
+    under = sum(max(-e, 0) for e in errors) / n
+    over = sum(max(e, 0) for e in errors) / n
+    worst.sort(key=lambda w: -abs(w["error"]))
+    return {
+        "n": n,
+        # Full precision: rounding belongs to the renderer, not the metric.
+        "under": under,
+        "over": over,
+        "mae": under + over,
+        "over_share": (over / (under + over)) if (under + over) else None,
+        "gold_max": max(golds),
+        "n_overcounted": sum(1 for e in errors if e > 0),
+        "n_undercounted": sum(1 for e in errors if e < 0),
+        "worst": worst[:10],
+    }
+
+
 def count_answer_coverage(
     predictions: Sequence[Optional[str]], items: Sequence[QAItem]
 ) -> Dict[str, float]:
@@ -316,6 +373,7 @@ class SystemReport:
     accuracy_when_answered: float
     count_mae: Optional[float]
     count_coverage: Dict[str, float]
+    count_errors: Dict[str, object]
     cost: Dict[str, float]
     by_answer_type: Dict[str, Dict[str, float]] = field(default_factory=dict)
     by_template: Dict[str, Dict[str, float]] = field(default_factory=dict)
@@ -329,6 +387,7 @@ class SystemReport:
             "accuracy_when_answered": round(self.accuracy_when_answered, 4),
             "count_mae": None if self.count_mae is None else round(self.count_mae, 4),
             "count_coverage": self.count_coverage,
+            "count_errors": self.count_errors,
             "cost": self.cost,
             "by_answer_type": self.by_answer_type,
             "by_template": self.by_template,
@@ -351,6 +410,7 @@ def evaluate_predictions(
         accuracy_when_answered=acc_answered,
         count_mae=count_mae(predictions, items),
         count_coverage=count_answer_coverage(predictions, items),
+        count_errors=count_error_decomposition(predictions, items),
         cost=cost.as_dict(),
         by_answer_type=breakdown(predictions, items, lambda it: it.answer_type),
         by_template=breakdown(predictions, items, lambda it: it.template),

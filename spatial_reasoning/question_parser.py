@@ -134,6 +134,17 @@ _EXISTS_PATTERNS = (
 
 _COMPARE_PATTERN = re.compile(r"\bare there (more|fewer|less)\b.*\bthan\b")
 
+#: Attribute words the grammar cannot express. Their presence means the
+#: question asks for a subset the executor would not filter, so answering
+#: would over-count the whole class.
+_STATUS_WORDS_RE = re.compile(
+    r"\b(moving|parked|stopped|standing|sitting|lying|"
+    r"with rider|without rider|not standing|not moving|"
+    r"not parked|not stopped)\b")
+
+#: "There is a <something>; <question about something else>"
+_PREAMBLE_RE = re.compile(r"^(there is|there are)\b.*?[;,]")
+
 _NEAR_PATTERN = re.compile(r"\b(nearby|near(?:est)?|close to|closest)\b")
 _FAR_PATTERN = re.compile(r"\b(far(?:thest)?|distant|far from|far away)\b")
 _RADIUS_PATTERN = re.compile(r"\bwithin\s+(\d+(?:\.\d+)?)\s*(?:m|meters?|metres?)\b")
@@ -208,6 +219,17 @@ class RuleBasedQuestionParser:
         if not text:
             return ParseResult(ParseStatus.UNSUPPORTED, reason="empty question")
 
+        # Refuse what the grammar cannot express, BEFORE extracting anything.
+        # Without this the parser answered a different question: "how many
+        # standing pedestrians are there" became "how many pedestrians are
+        # there" (30 against a gold answer of 8), and "what number of stopped
+        # things are there" became "how many objects are there" (71 against
+        # 10). A refusal costs coverage; a silent reinterpretation costs
+        # correctness and looks like a reasoning failure.
+        inexpressible = self._why_inexpressible(text)
+        if inexpressible:
+            return ParseResult(ParseStatus.UNSUPPORTED, reason=inexpressible)
+
         compare = _COMPARE_PATTERN.search(text)
         if compare:
             return self._parse_compare(text, compare.group(1))
@@ -225,6 +247,34 @@ class RuleBasedQuestionParser:
         )
 
     # -- internals -------------------------------------------------------- #
+
+    @staticmethod
+    def _why_inexpressible(text: str) -> Optional[str]:
+        """Reason this question is outside the grammar, or ``None``.
+
+        Everything listed here used to be parsed anyway, with the unsupported
+        part dropped, which produced an answer to a question nobody asked.
+        """
+        if _STATUS_WORDS_RE.search(text):
+            return ("question constrains object status (moving / parked / "
+                    "stopped / standing / rider); the grammar has no status "
+                    "filter and would silently count every object of the class")
+
+        if "same status" in text or "same colour" in text or "same color" in text:
+            return "question compares attributes between objects"
+
+        # "There is a moving truck; how many pedestrians are to the back of it?"
+        # The grammar takes the first category it sees, which is the one
+        # introduced by the preamble, not the one being counted.
+        if _PREAMBLE_RE.search(text):
+            return ("question introduces a referent in a preamble clause and "
+                    "then asks about a different class; the grammar would take "
+                    "the preamble's class as the target")
+
+        if " it?" in text or text.endswith(" it") or " of it" in text:
+            return "question refers back to an object with a pronoun"
+
+        return None
 
     def _parse_simple(self, text: str, op: Operation, rules: List[str]) -> ParseResult:
         cats = _find_categories(text)
