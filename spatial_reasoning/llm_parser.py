@@ -411,7 +411,6 @@ class QwenQuestionParser:
         self._cache: Dict[str, Dict[str, str]] = {}
         self.cache_meta: Dict[str, object] = {}
         self.foreign_entries = 0
-        self._runtime = None
         self._device = device
         self._load_cache()
 
