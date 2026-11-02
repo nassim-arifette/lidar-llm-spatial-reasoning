@@ -14,7 +14,7 @@
   <header class="hero" id="top">
     <div class="hero-copy">
       <h1>Answer it, or compute it?</h1>
-      <p class="hero-sub">The same small language model reads a driving scene as a list of objects. Asked to reply directly, it guesses. Asked to write a program instead, it lets an executor do the counting.</p>
+      <p class="hero-sub">A small language model reads a driving scene as a list of objects. Ask it to reply directly and it guesses. Ask it for a program and an executor does the counting.</p>
       <div class="hero-q" aria-live="polite">
         <p class="hero-question" data-role="question">&nbsp;</p>
         <div class="hero-lanes">
@@ -33,7 +33,7 @@
     </div>
     <div class="hero-scene">
       <svg class="bev" id="hero-bev" role="img" aria-label="Bird's-eye view of a nuScenes scene around the ego vehicle, with the objects the program selects highlighted."></svg>
-      <p class="hero-scene-note">Bird’s-eye view, 10 m rings. The real LiDAR sweep, nuScenes annotations and archived Qwen2.5-1.5B outputs from the held-out set, including one it gets wrong.</p>
+      <p class="hero-scene-note">Bird’s-eye view with 10 m rings, drawn over the real LiDAR sweep and the nuScenes annotations. The outputs are archived Qwen2.5-1.5B answers from the held-out set, and one of them is wrong.</p>
     </div>
   </header>
 
@@ -50,15 +50,15 @@
   <main class="article">
     <section class="tldr" aria-labelledby="tldr-h">
       <h2 id="tldr-h">In short</h2>
-      <p>LiDAR-LLM turns 3D scene understanding into text generation. This study holds perception fixed, using the ground-truth nuScenes objects, and asks a narrower question: given the objects, should a frozen language model <em>produce</em> the answer, or write a program that <em>computes</em> it?</p>
-      <p>On 200 held-out questions from three drives never seen during development, Qwen2.5-1.5B is right <strong data-stat="direct-acc">50.5 %</strong> of the time when it answers directly and <strong data-stat="exec-acc">68.5 %</strong> when its program is executed. Its counting error falls from <strong>2.16</strong> to <strong>0.68</strong>.</p>
-      <p>The advantage holds up to 32B parameters, then one hosted model reaches parity. This is a controlled diagnostic with oracle perception, not a new detector or a benchmark record.</p>
+      <p>LiDAR-LLM turns 3D scene understanding into text generation. This study holds perception fixed by using the ground-truth nuScenes objects, and asks something narrower. Once the objects are known, should a frozen language model <em>produce</em> the answer, or write a program that <em>computes</em> it?</p>
+      <p>On 200 held-out questions from three drives never seen during development, Qwen2.5-1.5B is right <strong data-stat="direct-acc">50.5 %</strong> of the time when it answers directly and <strong data-stat="exec-acc">68.5 %</strong> when its program is executed. Its counting error falls from 2.16 to 0.68.</p>
+      <p>The advantage holds up to 32B parameters. Past that, one hosted model reaches parity. Keep in mind that this is a controlled diagnostic with oracle perception. There is no new detector here and no benchmark record.</p>
     </section>
 
     <section aria-labelledby="s1">
       <h2 id="s1">What the model is given</h2>
-      <p>Each question in NuScenes-QA <a class="cite" href="#ref-nsqa">[2]</a> is attached to one keyframe of a drive. Instead of raw points, both methods here receive the same object list: one row per annotated object with its category, its position in metres in the ego vehicle’s frame, and its status. Positions are rounded to 0.1 m for both.</p>
-      <p>That list is the entire scene as far as the model is concerned. Hover a row or a box to link them.</p>
+      <p>Each question in NuScenes-QA <a class="cite" href="#ref-nsqa">[2]</a> is attached to one keyframe of a drive. Neither method sees raw points. Both get the same object list, with one row per annotated object giving its category, its position in metres in the ego vehicle’s frame, and its status. Positions are rounded to 0.1 m in both cases.</p>
+      <p>As far as the model is concerned, that list is the whole scene. Hover a row or a box to see which goes with which.</p>
     </section>
 
     <figure class="fig wide" id="fig-explorer">
@@ -90,9 +90,9 @@
 
     <section aria-labelledby="s2">
       <h2 id="s2">Directions are a convention</h2>
-      <p>“To the front left of the bus” sounds obvious until you have to compute it. NuScenes-QA defines it in its Equation 2: six relations, each a 60° sector of bearing, measured from the reference object while keeping the ego vehicle’s heading. There is no standalone “left” or “right”.</p>
-      <p>An earlier version of this project used eight 45° sectors and quietly selected the wrong objects. The executor now has the convention written down in exactly one place, and the direct model is given the same definition in its prompt. Click an object to measure directions from it.</p>
-      <aside class="note">The sectors are half-open intervals (low, high], so an object exactly on a boundary belongs to one sector only. Objects closer than 1 m to the reference get no direction at all, because their bearing is unstable.</aside>
+      <p>“To the front left of the bus” sounds obvious until you have to compute it. NuScenes-QA pins it down in its Equation 2. There are six relations, each a 60° sector of bearing, measured from the reference object but using the ego vehicle’s heading. A plain “left” or “right” does not exist.</p>
+      <p>My earlier version of this project used eight 45° sectors and quietly selected the wrong objects. Now the convention lives in exactly one place in the executor, and the direct model gets the same definition in its prompt. Click an object to measure directions from it.</p>
+      <aside class="note">The sectors are half-open intervals (low, high], so an object exactly on a boundary belongs to one sector only. Objects closer than 1 m to the reference get no direction, since their bearing is unstable.</aside>
     </section>
 
     <figure class="fig wide" id="fig-sectors">
@@ -106,8 +106,8 @@
 
     <section aria-labelledby="s3">
       <h2 id="s3">Writing a program instead</h2>
-      <p>In the program mode the model never sees the scene. It reads only the question and writes one JSON object: an operation over a <em>selector</em>, a category with an optional status, direction and anchor. A deterministic executor then runs it on the object list.</p>
-      <p>The executor refuses rather than guesses. “The bus” presupposes exactly one bus; if there are three, the answer is <em>ambiguous</em> and counts as wrong. Build a program and run it on any keyframe. This is the same executor, ported to TypeScript and checked against every archived run.</p>
+      <p>In program mode the model never sees the scene. It reads the question and writes one JSON object: an operation over a <em>selector</em>, which is a category with an optional status, direction and anchor. A deterministic executor then runs that on the object list.</p>
+      <p>When in doubt, the executor refuses. “The bus” presupposes exactly one bus, so if there are three the answer is <em>ambiguous</em>, which counts as wrong. You can build a program below and run it on any keyframe. It is the same executor, ported to TypeScript and checked against every archived run.</p>
     </section>
 
     <figure class="fig wide" id="fig-playground">
@@ -128,8 +128,8 @@
 
     <section aria-labelledby="s4">
       <h2 id="s4">Two hundred questions, two answers each</h2>
-      <p>The evaluation set has 200 questions from three drives that were held out from all prompt development. Invalid programs and refusals count as wrong, so the program mode answers fewer questions (<span data-stat="answered">91 %</span>) and still wins. Paired question by question, only the executed answer is right on <strong data-stat="exec-only">67</strong> questions and only the direct one on <strong data-stat="direct-only">31</strong>.</p>
-      <p>The table holds every archived answer. Pick a model, click a cell of the grid to filter, click a question to see its scene.</p>
+      <p>The evaluation set has 200 questions from three drives that were kept out of all prompt development. Invalid programs and refusals count as wrong. The program mode answers fewer questions (<span data-stat="answered">91 %</span>) and wins anyway. Paired question by question, only the executed answer is right on <strong data-stat="exec-only">67</strong> questions and only the direct one on <strong data-stat="direct-only">31</strong>.</p>
+      <p>Every archived answer is in the table below. Pick a model and click a cell of the grid to filter; clicking a question shows its scene.</p>
     </section>
 
     <figure class="fig full" id="fig-browser">
@@ -148,17 +148,17 @@
 
     <section aria-labelledby="s5">
       <h2 id="s5">Where the gain comes from</h2>
-      <p>Counting is the clearest case. Asked how many objects match, the direct model is off by <span data-stat="mae-d">2.16</span> objects on average, and <span data-stat="under">1.84</span> of that comes from undercounting. It tends to say “1”. The executor counts, and is off by <span data-stat="mae-e">0.68</span>.</p>
+      <p>Counting shows it most clearly. Asked how many objects match, the direct model is off by <span data-stat="mae-d">2.16</span> objects on average, and <span data-stat="under">1.84</span> of that is undercounting. It likes to say “1”. The executor actually counts, and is off by <span data-stat="mae-e">0.68</span>.</p>
     </section>
 
     <figure class="fig wide" id="fig-counts">
       <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Predicted against reference counts for both methods."></svg></div>
       <div class="fig-controls"><label class="ctl">Model <select data-ctl="run"></select></label><div class="legend" data-role="legend"></div></div>
-      <figcaption><span class="fig-n">Figure 5.</span> Each counting question, reference on the horizontal axis and answer on the vertical. Points on the diagonal are exact. Answers that are not a number are not drawn.</figcaption>
+      <figcaption><span class="fig-n">Figure 5.</span> Each counting question, reference on the horizontal axis and answer on the vertical. Points on the diagonal are exact. Non-numeric answers are left out.</figcaption>
     </figure>
 
     <section aria-labelledby="s6">
-      <p>The other gain is subtler. NuScenes-QA repeats some questions word for word across keyframes, with different correct answers. A system that ignores the scene can’t follow. In the 13 such groups, the executed answer is right in every scene of all 13; the direct answer manages that in 1, and gives the same answer to every scene in 4.</p>
+      <p>The second gain is less obvious. NuScenes-QA repeats some questions word for word across keyframes, with different correct answers, and a system that ignores the scene can’t keep up. There are 13 such groups. The executed answer is right in every scene for all 13. The direct answer manages that for 1, and in 4 it gives the same answer to every scene.</p>
     </section>
 
     <figure class="fig wide" id="fig-dependence">
@@ -168,7 +168,7 @@
 
     <section aria-labelledby="s7">
       <h2 id="s7">Does scale close the gap?</h2>
-      <p>Partly. The same comparison was archived for five more models. Larger Qwen2.5 checkpoints write valid programs more often, and the executed mode keeps its lead up to 32B. One hosted endpoint, <code>qwen3.8-27b</code>, answers directly almost as well as its programs do.</p>
+      <p>Partly. I archived the same comparison for five more models. Larger Qwen2.5 checkpoints write valid programs more often, and the executed mode stays ahead up to 32B. One hosted endpoint, <code>qwen3.8-27b</code>, answers directly almost as well as its programs do.</p>
     </section>
 
     <figure class="fig wide" id="fig-scale">
@@ -177,38 +177,38 @@
     </figure>
 
     <section aria-labelledby="s8">
-      <p>That last row is a counterexample to any claim of a universal execution advantage. It is not evidence that “reasoning” rather than size explains the change: too many factors moved at once.</p>
-      <p>A wider test goes the other way. On 280 broader questions, a typed CLEVR-style language raises what the program can express from 27.5 % to 98.5 % of the benchmark, yet at 1.5B its accuracy drops to 29.6 %, below the direct answer at 52.1 %. Its programs are right 85.6 % of the time when they run, but they run on only 34.6 % of questions.</p>
+      <p>That last row is a counterexample to any claim of a universal execution advantage. But it doesn’t show that “reasoning” rather than size explains the change. Too many factors moved at once.</p>
+      <p>A wider test points the other way. On 280 broader questions, a typed CLEVR-style language lets programs express 98.5 % of the benchmark instead of 27.5 %. At 1.5B, though, accuracy drops to 29.6 %, below the direct answer at 52.1 %. When its programs run they are right 85.6 % of the time, but they run on only 34.6 % of questions.</p>
     </section>
 
     <section aria-labelledby="s9">
-      <h2 id="s9">A data check worth knowing</h2>
-      <p>In the processed mini annotations, 4,278 of 18,538 objects have <strong>zero LiDAR returns</strong>: the annotator placed a box, but the sensor saw nothing there. NuScenes-QA still counts them. Keeping only objects that LiDAR actually hit drops the executor’s exact accuracy from 0.824 to 0.336 on 125 paired counting questions.</p>
-      <p>So a perfect detector working from the point cloud would be scored as wrong on many of these questions. This is a mismatch between labels and input on that subset, not a global detector score. Switch Figure 1 to <em>LiDAR returns</em> to see hollow boxes the sensor missed.</p>
+      <h2 id="s9">A problem in the labels</h2>
+      <p>In the processed mini annotations, 4,278 of 18,538 objects have zero LiDAR returns. Someone drew a box, but the sensor saw nothing there. NuScenes-QA still counts them. If I keep only the objects LiDAR actually hit, the executor’s exact accuracy on 125 paired counting questions drops from 0.824 to 0.336.</p>
+      <p>A perfect detector working from the point cloud would therefore be marked wrong on many of these questions. What this measures is a mismatch between labels and input on that subset. It is not a global detector score. Switch Figure 1 to <em>LiDAR returns</em> to see hollow boxes the sensor missed.</p>
     </section>
 
     <section aria-labelledby="s10">
       <h2 id="s10">What this does not show</h2>
       <ul class="limits">
-        <li><strong>Perception is an oracle.</strong> Object lists and statuses are ground-truth annotations. No detector was run, so nothing here measures LiDAR perception.</li>
-        <li><strong>Three drives are not a population.</strong> The gain is positive on each evaluation drive (<span data-stat="drives">+21.2, +18.8 and +13.8 points</span>), but questions within a drive are correlated. The sign test is descriptive.</li>
-        <li><strong>The narrow comparison covers selected question families.</strong> The full benchmark subset has 5,916 questions; the frozen manifest keeps 100 development and 200 evaluation questions.</li>
-        <li><strong>Program execution is not new.</strong> CLEVR and Neural-Symbolic VQA did it years ago. The contribution is an auditable, same-checkpoint comparison on driving questions, with scene-disjoint splits and failure traces.</li>
-        <li><strong>The larger runs used different hardware.</strong> The core 1.5B comparison ran on a T4; the hosted rows record provider aliases, not immutable checkpoints.</li>
+        <li>Perception is an oracle. Object lists and statuses are ground-truth annotations, and since no detector was run, nothing here measures LiDAR perception.</li>
+        <li>Three drives are not a population. The gain is positive on each evaluation drive (<span data-stat="drives">+21.2, +18.8 and +13.8 points</span>), but questions within a drive are correlated, so the sign test is only descriptive.</li>
+        <li>The narrow comparison covers selected question families only. Of the 5,916 questions in the full benchmark subset, the frozen manifest keeps 100 for development and 200 for evaluation.</li>
+        <li>Program execution is not new; CLEVR and Neural-Symbolic VQA did it years ago. What this study adds is an auditable, same-checkpoint comparison on driving questions, with scene-disjoint splits and failure traces.</li>
+        <li>The larger runs used different hardware. The core 1.5B comparison ran on a T4, and the hosted rows record provider aliases rather than immutable checkpoints.</li>
       </ul>
     </section>
 
     <section aria-labelledby="reproduce" class="reproduce">
       <h2 id="reproduce">Check it yourself</h2>
-      <p>Every saved number can be recomputed without a GPU. The audit re-derives correctness and every summary field from the 1,580 per-question records of eight comparisons, checks manifest membership and scene separation, and fails on any disagreement.</p>
+      <p>You can recompute every saved number without a GPU. The audit re-derives correctness and every summary field from the 1,580 per-question records of eight comparisons. It also checks manifest membership and scene separation, and fails on any disagreement.</p>
 <pre><code>python -m pip install -r requirements-audit.txt
 python -m spatial_reasoning.audit_results</code></pre>
       <ul class="files">
-        <li><a href="files/report.pdf">report.pdf</a><span>The revised 14-page report: protocol, results, failure analysis.</span></li>
-        <li><a href="data/study.json">study.json</a><span>Everything on this page: six runs, 1,200 answers and programs, 102 keyframes of annotation geometry.</span></li>
-        <li><a href="files/results.md">results.md</a><span>Full state of results, including the unfinished extensions.</span></li>
-        <li><a href="files/reproduction.md">reproduction.md</a><span>GPU rerun, metadata download, exact commands and caches.</span></li>
-        <li><a href="files/literature.md">literature.md</a><span>Primary sources and what they let the study claim.</span></li>
+        <li><a href="files/report.pdf">report.pdf</a><span>The revised 14-page report, with the protocol, results and failure analysis.</span></li>
+        <li><a href="data/study.json">study.json</a><span>All the data behind this page: six runs, 1,200 answers and programs, and annotation geometry for 102 keyframes.</span></li>
+        <li><a href="files/results.md">results.md</a><span>Where every result stands, unfinished extensions included.</span></li>
+        <li><a href="files/reproduction.md">reproduction.md</a><span>How to rerun on a GPU and fetch the metadata, with exact commands and cache notes.</span></li>
+        <li><a href="files/literature.md">literature.md</a><span>Primary sources, and what they allow the study to claim.</span></li>
       </ul>
       <p class="small">The original course project (2025) was a two-person reimplementation of a reduced PointNet/GPT-2 pipeline, forked from <a href="https://github.com/oomcth/npm-3D">oomcth/npm-3D</a>; it never completed a real training run. This study replaces it. Scenes use the <a href="https://www.nuscenes.org/">nuScenes</a> v1.0-mini annotations (CC BY-NC-SA 4.0) and NuScenes-QA questions.</p>
     </section>
@@ -226,7 +226,7 @@ python -m spatial_reasoning.audit_results</code></pre>
   </main>
 
   <footer class="foot">
-    <p>Figures re-run the archived programs with a TypeScript port of the study’s executor, tested to reproduce every saved answer and selection.</p>
+    <p>The figures re-run the archived programs with a TypeScript port of the study’s executor. A test checks that it reproduces every saved answer and selection.</p>
   </footer>
 
   <script type="module" src="/src/main.ts"></script>
