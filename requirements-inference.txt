@@ -1,0 +1,4 @@
+﻿-r requirements-test.txt
+transformers>=4.51,<6
+accelerate>=1,<2
+bitsandbytes>=0.45,<1

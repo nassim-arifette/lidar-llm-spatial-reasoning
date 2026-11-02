@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "status": "verified",
+  "checks": [
+    "complete manifest membership",
+    "no duplicate question IDs",
+    "no scene overlap across splits",
+    "question/reference provenance",
+    "correctness recomputed from saved answers",
+    "all saved summary fields",
+    "SHA-256 of rows, summary and manifest"
+  ],
+  "limits": [
+    "No model inference is rerun.",
+    "Hashes attest these files, not historical execution or provider identity.",
+    "Question-level p-values assume independence; only three evaluation scenes exist."
+  ],
+  "experiments": [
+    {
+      "summary": "spatial_reasoning/results/llm_modes/summary_dev.json",
+      "sha256": {
+        "summary": "010eea0616ff2e3320a164d8ea09ad15b514fc9f27b8e97608883d66e7dadac7",
+        "rows": "54e42420ae361a88c8da40fcc8321dbf545275ab9bb38c15a110c620b33010df",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 100,
+      "n_scenes": 7,
+      "runtime": {
+        "model": "Qwen/Qwen2.5-1.5B-Instruct",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "decoding": "greedy"
+      },
+      "accuracy": {
+        "direct": 0.51,
+        "executed": 0.74
+      },
+      "by_scene": {
+        "2fc3753772e241f2ab2cd16a784cc680": {
+          "n": 15,
+          "direct": 0.6,
+          "executed": 0.9333333333333333,
+          "paired": {
+            "both": 9,
+            "direct_only": 0,
+            "executed_only": 5,
+            "neither": 1
+          }
+        },
+        "6f83169d067343658251f72e1dd17dbc": {
+          "n": 13,
+          "direct": 0.38461538461538464,
+          "executed": 0.7692307692307693,
+          "paired": {
+            "both": 5,
+            "direct_only": 0,
+            "executed_only": 5,
+            "neither": 3
+          }
+        },
+        "bebf5f5b2a674631ab5c88fd1aa9e87a": {
+          "n": 13,
+          "direct": 0.6153846153846154,
+          "executed": 0.8461538461538461,
+          "paired": {
+            "both": 6,
+            "direct_only": 2,
+            "executed_only": 5,
+            "neither": 0
+          }
+        },
+        "c5224b9b454b4ded9b5d2d2634bbda8a": {
+          "n": 15,
+          "direct": 0.4,
+          "executed": 0.8,
+          "paired": {
+            "both": 4,
+            "direct_only": 2,
+            "executed_only": 8,
+            "neither": 1
+          }
+        },
+        "cc8c0bf57f984915a77078b10eb33198": {
+          "n": 18,
+          "direct": 0.5555555555555556,
+          "executed": 0.6666666666666666,
+          "paired": {
+            "both": 6,
+            "direct_only": 4,
+            "executed_only": 6,
+            "neither": 2
+          }
+        },
+        "d25718445d89453381c659b9c8734939": {
+          "n": 16,
+          "direct": 0.5,
+          "executed": 0.6875,
+          "paired": {
+            "both": 4,
+            "direct_only": 4,
+            "executed_only": 7,
+            "neither": 1
+          }
+        },
+        "fcbccedd61424f1b85dcbf8f897f9754": {
+          "n": 10,
+          "direct": 0.5,
+          "executed": 0.4,
+          "paired": {
+            "both": 2,
+            "direct_only": 3,
+            "executed_only": 2,
+            "neither": 3
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/llm_modes/summary_eval.json",
+      "sha256": {
+        "summary": "99e7558f5bfaaf2b1c7d76ef00a6bb2743a0f93d5bd514cef2bf7678d644e619",
+        "rows": "0a5829cd8548335f588ce74b1c1c07b8c5ffeb5e69ee64f68bd1b6edec505c1f",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 200,
+      "n_scenes": 3,
+      "runtime": {
+        "model": "Qwen/Qwen2.5-1.5B-Instruct",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "decoding": "greedy"
+      },
+      "accuracy": {
+        "direct": 0.505,
+        "executed": 0.685
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 66,
+          "direct": 0.5454545454545454,
+          "executed": 0.7575757575757576,
+          "paired": {
+            "both": 28,
+            "direct_only": 8,
+            "executed_only": 22,
+            "neither": 8
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 69,
+          "direct": 0.5362318840579711,
+          "executed": 0.7246376811594203,
+          "paired": {
+            "both": 25,
+            "direct_only": 12,
+            "executed_only": 25,
+            "neither": 7
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 65,
+          "direct": 0.4307692307692308,
+          "executed": 0.5692307692307692,
+          "paired": {
+            "both": 17,
+            "direct_only": 11,
+            "executed_only": 20,
+            "neither": 17
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/llm_modes_7b/summary_eval.json",
+      "sha256": {
+        "summary": "309d5b2004edf6d3d7a3202e15223f61358aa7f9f711afda1e76a231930713b3",
+        "rows": "09c0593280357ed0f2de3959785094174e2e1400c7d5a53edb069dc7bd2b50d1",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 200,
+      "n_scenes": 3,
+      "runtime": {
+        "model": "Qwen/Qwen2.5-7B-Instruct",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "precision": "fp16",
+        "decoding": "greedy"
+      },
+      "accuracy": {
+        "direct": 0.505,
+        "executed": 0.825
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 66,
+          "direct": 0.5151515151515151,
+          "executed": 0.8333333333333334,
+          "paired": {
+            "both": 30,
+            "direct_only": 4,
+            "executed_only": 25,
+            "neither": 7
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 69,
+          "direct": 0.4927536231884058,
+          "executed": 0.8405797101449275,
+          "paired": {
+            "both": 28,
+            "direct_only": 6,
+            "executed_only": 30,
+            "neither": 5
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 65,
+          "direct": 0.5076923076923077,
+          "executed": 0.8,
+          "paired": {
+            "both": 28,
+            "direct_only": 5,
+            "executed_only": 24,
+            "neither": 8
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/llm_modes_32b/summary_eval.json",
+      "sha256": {
+        "summary": "0f9f4a83de3a1772f447b19f0940a6bff4546dc552beff6c41d486d9a8d4c990",
+        "rows": "d6a71bf24fb544f4d6363038410c77c0f27f7c97b29f60a862e08a489cbc6a21",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 200,
+      "n_scenes": 3,
+      "runtime": {
+        "model": "Qwen/Qwen2.5-32B-Instruct",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "precision": "int4",
+        "decoding": "greedy"
+      },
+      "accuracy": {
+        "direct": 0.58,
+        "executed": 0.845
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 66,
+          "direct": 0.5606060606060606,
+          "executed": 0.8484848484848485,
+          "paired": {
+            "both": 33,
+            "direct_only": 4,
+            "executed_only": 23,
+            "neither": 6
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 69,
+          "direct": 0.6666666666666666,
+          "executed": 0.8695652173913043,
+          "paired": {
+            "both": 43,
+            "direct_only": 3,
+            "executed_only": 17,
+            "neither": 6
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 65,
+          "direct": 0.5076923076923077,
+          "executed": 0.8153846153846154,
+          "paired": {
+            "both": 27,
+            "direct_only": 6,
+            "executed_only": 26,
+            "neither": 6
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/wide_1p5b/summary_eval.json",
+      "sha256": {
+        "summary": "aa843d8faadf90bce5fdef70a95f56f7284b31a70bdae654881c3f40f67abcc9",
+        "rows": "3d874a16dfe9c721a0d3d3a61c0ec4f836c1ed208b98f0ba686ccd21d17008ae",
+        "manifest": "601bc46187de5f861337471630750c1b84804de86d8ff495da3cf7b93ab708e9"
+      },
+      "n": 280,
+      "n_scenes": 3,
+      "runtime": {
+        "model": "Qwen/Qwen2.5-1.5B-Instruct",
+        "max_new_tokens": 384,
+        "max_input_tokens": 8192,
+        "precision": "fp16",
+        "decoding": "greedy"
+      },
+      "accuracy": {
+        "direct": 0.5214285714285715,
+        "executed": 0.45714285714285713,
+        "functional": 0.29642857142857143
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 119,
+          "direct": 0.5042016806722689,
+          "executed": 0.4369747899159664,
+          "paired": {
+            "both": 31,
+            "direct_only": 29,
+            "executed_only": 21,
+            "neither": 38
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 94,
+          "direct": 0.5212765957446809,
+          "executed": 0.4574468085106383,
+          "paired": {
+            "both": 24,
+            "direct_only": 25,
+            "executed_only": 19,
+            "neither": 26
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 67,
+          "direct": 0.5522388059701493,
+          "executed": 0.4925373134328358,
+          "paired": {
+            "both": 19,
+            "direct_only": 18,
+            "executed_only": 14,
+            "neither": 16
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/gw_qwen3_32b/summary_eval.json",
+      "sha256": {
+        "summary": "cbde3102d3ce0d1db552d26dd84ca2fcc727044fc1e2a667f64a5b94e997dcdc",
+        "rows": "d5279746338cdb3f137fd6d56aabb88a46244e832eb6a323d6e982ea70b94d2d",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 200,
+      "n_scenes": 3,
+      "runtime": {
+        "backend": "gateway",
+        "model": "alibaba/qwen-3-32b",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "base_url": "https://ai-gateway.vercel.sh/v1",
+        "decoding": "temperature=0"
+      },
+      "accuracy": {
+        "direct": 0.56,
+        "executed": 0.84
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 66,
+          "direct": 0.6212121212121212,
+          "executed": 0.8484848484848485,
+          "paired": {
+            "both": 37,
+            "direct_only": 4,
+            "executed_only": 19,
+            "neither": 6
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 69,
+          "direct": 0.5362318840579711,
+          "executed": 0.855072463768116,
+          "paired": {
+            "both": 35,
+            "direct_only": 2,
+            "executed_only": 24,
+            "neither": 8
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 65,
+          "direct": 0.5230769230769231,
+          "executed": 0.8153846153846154,
+          "paired": {
+            "both": 27,
+            "direct_only": 7,
+            "executed_only": 26,
+            "neither": 5
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/gw_qwen3_next_80b/summary_eval.json",
+      "sha256": {
+        "summary": "ef6cce53d2baa43c1c54f147f39932a7b9d04a9f499f35a5048c46732c80601c",
+        "rows": "a54b15d978c06f248cb5c312083954592d6cc8dd1d10acafe6e4833074edba12",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 200,
+      "n_scenes": 3,
+      "runtime": {
+        "backend": "gateway",
+        "model": "alibaba/qwen3-next-80b-a3b-instruct",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "base_url": "https://ai-gateway.vercel.sh/v1",
+        "decoding": "temperature=0"
+      },
+      "accuracy": {
+        "direct": 0.61,
+        "executed": 0.845
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 66,
+          "direct": 0.5757575757575758,
+          "executed": 0.8484848484848485,
+          "paired": {
+            "both": 33,
+            "direct_only": 5,
+            "executed_only": 23,
+            "neither": 5
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 69,
+          "direct": 0.7101449275362319,
+          "executed": 0.8695652173913043,
+          "paired": {
+            "both": 46,
+            "direct_only": 3,
+            "executed_only": 14,
+            "neither": 6
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 65,
+          "direct": 0.5384615384615384,
+          "executed": 0.8153846153846154,
+          "paired": {
+            "both": 30,
+            "direct_only": 5,
+            "executed_only": 23,
+            "neither": 7
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    },
+    {
+      "summary": "spatial_reasoning/results/gw_qwen3p8_27b/summary_eval.json",
+      "sha256": {
+        "summary": "0e13b83599c0b6bd000b3be1f866da694d8162e2fed9a7c904e777e092e1a7c7",
+        "rows": "4afa799e1f0d9c17ab67460092d890752413b0169d838f12f1c1ecd184174510",
+        "manifest": "3b762d0f6606f4b1b2fc3b2ca2e28cc0aa0b9f235d8e93c74b9f44890e8a718d"
+      },
+      "n": 200,
+      "n_scenes": 3,
+      "runtime": {
+        "backend": "gateway",
+        "model": "alibaba/qwen3.8-27b",
+        "max_new_tokens": 256,
+        "max_input_tokens": 8192,
+        "base_url": "https://ai-gateway.vercel.sh/v1",
+        "decoding": "temperature=0"
+      },
+      "accuracy": {
+        "direct": 0.84,
+        "executed": 0.845
+      },
+      "by_scene": {
+        "325cef682f064c55a255f2625c533b75": {
+          "n": 66,
+          "direct": 0.8333333333333334,
+          "executed": 0.8484848484848485,
+          "paired": {
+            "both": 55,
+            "direct_only": 0,
+            "executed_only": 1,
+            "neither": 10
+          }
+        },
+        "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+          "n": 69,
+          "direct": 0.8695652173913043,
+          "executed": 0.8695652173913043,
+          "paired": {
+            "both": 60,
+            "direct_only": 0,
+            "executed_only": 0,
+            "neither": 9
+          }
+        },
+        "e233467e827140efa4b42d2b4c435855": {
+          "n": 65,
+          "direct": 0.8153846153846154,
+          "executed": 0.8153846153846154,
+          "paired": {
+            "both": 53,
+            "direct_only": 0,
+            "executed_only": 0,
+            "neither": 12
+          }
+        }
+      },
+      "all_rows_have_model_revision": false
+    }
+  ]
+}

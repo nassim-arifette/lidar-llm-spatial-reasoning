@@ -49,7 +49,10 @@ a confound.
 | dev | 15 | **38** | 36 | 11 | p = 0.0022 |
 | eval | 31 | **67** | 70 | 32 | **p = 0.00035** |
 
-Not sampling noise, and it survives the move to unseen scenes. The counting
+The gain is positive on each of the three evaluation drives (+0.212, +0.188,
++0.138). The question-level sign test assumes independence that repeated
+questions within drives do not satisfy; it is descriptive evidence, not a
+population-level significance claim. The counting
 gain is not abstention either — both modes produce an integer on practically
 the same questions (1.000 against 0.988 on eval).
 
@@ -82,10 +85,10 @@ thirteen. No aggregate accuracy reveals that.
 
 What each side's failures look like:
 
-* **A does not scan the list.** Where the answer is 7, 9 or 10 it answers 1, 3
+* **A systematically under-counts.** Where the answer is 7, 9 or 10 it answers 1, 3
   and 2; on preamble questions it answers 1 almost regardless of the scene.
   Its under-counting (1.84–2.08) dwarfs its over-counting (0.31–0.35) — the
-  signature of not looking rather than of looking badly. Its answer format was
+  measurable error pattern, not a measurement of internal attention. Its answer format was
   never the problem: all 300 direct outputs were readable.
 * **B failed on 14 % of dev and 9 % of eval**, all counted as wrong above:
   invalid programs (12 and 8) plus refusals for an ambiguous or missing
@@ -118,12 +121,12 @@ Sources: `llm_modes/`, `llm_modes_7b/`, `llm_modes_32b/`.
   on 89 of 200 and flips correctness on 52, 26 in each direction.
 * What scale fixes is **program validity**: 8 → 1 → 0 invalid programs,
   answered fraction 0.910 → 0.995.
-* The 32B row is 4-bit (65 GB does not fit on a 40 GB card), so it understates
-  the large model. That makes the flat *direct* curve the safer half.
+* The 32B row is 4-bit (65 GB does not fit on a 40 GB card), so size and precision change together. Without a matched full-precision
+  run, the direction and magnitude of the quantization effect are unknown.
 * Scene-dependence, correct across every scene of a group: direct 1/13, 1/13,
   4/13; executed 13/13, 12/13, 13/13.
 
-### It replicates in another family — and size is not what matters
+### Hosted checkpoints: a boundary to the observed advantage
 
 Through the hosted gateway, same 200 questions, all three producing 200/200
 valid programs:
@@ -134,20 +137,16 @@ valid programs:
 | `qwen3-next-80b-a3b-instruct` | one step | 0.610 | **0.845** | 2.0 | 57.6 | 3/13 | 13/13 | 2.3e-08 |
 | `qwen3.8-27b` | reasoning | **0.840** | 0.845 | 523.9 | 156.5 | 13/13 | 13/13 | 1.0 |
 
-`qwen-3-32b` lands within 0.005 of Qwen2.5-32B, so the advantage is not a
-property of one family. `qwen3-next-80b` is 2.5× larger and moves the direct
-mode only to 0.610.
+`qwen-3-32b` lands within 0.005 of Qwen2.5-32B. The near parity for
+`qwen3.8-27b` shows that the executed advantage is not universal across the
+saved endpoints. It does **not** isolate reasoning as its cause: model family,
+training, architecture and effective output budget all change. Qwen3-Next-80B
+is a mixture of experts with 80B total but 3B active parameters, so nominal
+size is not a compute control.
 
-**What closes the gap is reasoning at inference, not parameters.**
-`qwen3.8-27b` is a third the size of the 80B and answers directly at 0.840 —
-equal to its own executed mode — while spending **523.9 output tokens** to emit
-a one-token answer. The extended reasoning is the program, written where no
-executor can run it.
-
-**The cost does not vanish with the gap.** Three ways to reach ~0.84: a
-one-step model writing a program (58 generated tokens), the reasoning model
-writing one (157), or the reasoning model thinking (524) — nine times the
-first.
+The reported output-token counts (about 58, 157 or 524 at accuracy around
+0.84) are descriptive provider usage, not measured FLOPs, latency or price.
+The older claim of a nine-fold inference-cost saving is withdrawn.
 
 Caveat on gateway rows: `temperature=0` is *requested*, not the exact greedy
 loop the local runtime performs; token counts are the provider's; and the
@@ -225,8 +224,8 @@ Reading it:
   blind prior of 0.255. Its 0.427 overall is held down by abstention, not by
   wrong answers: 5.2 % refusals and 11.0 % unparseable output.
 * **The empty cell is the experiment.** Nothing above shows that writing a
-  program beats answering directly, because the direct condition has not been
-  run.
+  program beats answering directly, because no direct condition was run on all 5,916 questions. The
+  completed paired comparison on frozen IDs is in section 0.
 
 ## 2. Trained baselines — a different protocol, kept as reference
 
@@ -268,24 +267,34 @@ Source: `executor_verification/summary_dev.json`, 100 development examples of
 | `category_anchor_relation` | 19/25 |
 | **Total** | **91/100** |
 
-This is the ceiling of the executed branch on the four in-scope families: what
-it would score if the model always wrote the right program. All nine
+This is a development-set reference-program diagnostic, not a formal ceiling
+on evaluation accuracy. Different programs can agree with an answer for
+different reasons. All nine
 disagreements are read and categorised in `manifests/disagreement_categories.json`
 — eight are boundary disagreements on the diagonal sectors, one is a question
 whose definite reference matches 22 objects.
 
-The sector convention was checked against the gold answers rather than assumed:
-over the 68 ego-anchored directional questions of the manifest, uniform 60°
-sectors with no range limit score 76.5 % exact, against 72.1 % for a mirrored
-*y* axis, 67.6 % for the six nuScenes camera fields of view, 61.8 % for 45°
-octants and 51.5 % for overlapping quadrants; every maximum-range cut from
-25 m to 60 m makes it worse.
+The six 60-degree sectors are specified by NuScenes-QA Equation 2
+(https://arxiv.org/html/2305.14836v2). An archived diagnostic over 68
+ego-anchored directional questions gave 76.5% exact agreement for this layout,
+72.1% for a mirrored y axis, 67.6% for camera frusta, 61.8% for octants and
+51.5% for quadrants. That diagnostic includes evaluation examples and is not
+an independent held-out confirmation or a discovery of the published rule.
 
-## 4. What has to happen next
+## 4. Completion and reproduction status
 
-1. `direct_qa.py` — the same Qwen2.5-1.5B-Instruct, same checkpoint and
-   decoding, answering from the question and the full object list.
-2. `compare_llm_modes.py` — both modes on the same question ids, one row per
-   question, separate caches, no silent truncation.
-3. Read the result before widening anything: a bigger model and a composable
-   DSL fix different failures, and running both at once says which did neither.
+The direct-answer and paired-comparison implementations, local size curve,
+hosted rows above and 1.5B typed-language experiment are complete and archived.
+`python -m spatial_reasoning.audit_results` verifies all eight comparisons
+(1,580 rows) against their frozen manifests and saved summaries without a GPU.
+See `artifact_audit.json` for input hashes and the scope of that verification.
+
+Two optional jobs mentioned at the interruption have no complete local
+row/summary archive: hosted Qwen3-14B at 4,096 tokens, and the wide-scope
+Qwen2.5-32B run. Neither is a result in this document. Their exact restart
+commands and interpretation limits are in `../../../docs/REPRODUCIBILITY.md`
+(from the repository root: `docs/REPRODUCIBILITY.md`).
+
+The current study uses ground-truth boxes and statuses, a selected subset of
+question families, and only three evaluation drives. It evaluates reasoning
+at fixed perception; it does not measure end-to-end LiDAR performance.

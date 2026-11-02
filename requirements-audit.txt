@@ -1,0 +1,2 @@
+﻿# Offline result audit and deterministic geometry/parser utilities.
+numpy>=1.24,<3

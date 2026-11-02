@@ -1,269 +1,91 @@
-# LiDAR spatial reasoning: answering a question versus computing its answer
+﻿# Answer it, or compute it?
 
-Course project for **NPM3D** (Nuages de Points et Modélisation 3D), Master MVA,
-built around *LiDAR-LLM: Exploring the Potential of Large Language Models for
-3D LiDAR Understanding*.
+**Spatial questions about LiDAR driving scenes: should a language model answer directly, or write a program that an executor runs?**
 
-📄 **[Read the report (PDF)](https://github.com/nassim-arifette/lidar-llm-spatial-reasoning/blob/main/report/rapport_npm3d.pdf)** · [LaTeX source](report/rapport_npm3d.tex)
+[**Open the interactive article →**](https://nassim-arifette.github.io/lidar-llm-spatial-reasoning/)
 
-The question the repository now tests, in one sentence:
+[![The website's hero: a question about a nuScenes scene, the direct answer (wrong) and the executed program (right), over the real LiDAR sweep](docs/assets/site-hero.png)](https://nassim-arifette.github.io/lidar-llm-spatial-reasoning/)
 
-> Given **one** frozen language model and **one** object list, is it more
-> reliable to produce the answer to a spatial question, or to produce a small
-> program and let a deterministic executor compute the answer?
+[LiDAR-LLM](https://arxiv.org/abs/2312.14074) turns 3D scene understanding into text generation. This project holds perception fixed and asks a narrower question. Given the list of objects in a nuScenes scene, is the same frozen model more reliable when it **produces** the answer, or when it writes a small program that **computes** it?
 
-Posed between two *uses of the same model*, it is answerable without
-confounds. A learned answer head and a program-writing model differ in
-architecture, training and inputs; the same checkpoint, the same greedy
-decoding and the same objects differ in exactly one respect.
+## Main result
 
-## The result
+Same Qwen2.5-1.5B-Instruct checkpoint, greedy decoding, 200 evaluation questions from three drives never seen during development:
 
-Qwen2.5-1.5B-Instruct on both sides, 200 held-out questions from three
-nuScenes drives that never appear in development:
-
-| | A — direct | B — program + executor |
+| | Direct answer | Program + executor |
 |---|---:|---:|
-| Accuracy | 0.505 | **0.685** |
-| Answers | 100 % | 91 % |
-| Counting MAE | 2.16 | **0.68** |
-| Numeric coverage | 1.000 | 0.988 |
+| Accuracy | 50.5 % | **68.5 %** |
+| Questions answered | 100 % | 91 % |
+| Counting error (MAE) | 2.16 | **0.68** |
 
-Paired question by question: **B alone right on 67, A alone on 31**, both on
-70, neither on 32 — sign test *p* = 3.5 × 10⁻⁴. Refusals and invalid programs
-count as wrong answers throughout.
+Refusals and invalid programs count as wrong. The gain is positive on each evaluation drive (+21.2, +18.8 and +13.8 points). On 13 questions repeated verbatim across scenes with different answers, the executed mode is right everywhere in 13 of 13; the direct mode in 1.
 
-The sharper instrument is a **scene-dependence control**. Thirteen evaluation
-questions appear verbatim on two scenes with different reference answers. The
-executed system never gives one answer to a whole group and is right on all
-thirteen; the direct model gives one answer to both in four groups and is right
-across a group once.
+| Model | Direct | Executed |
+|---|---:|---:|
+| Qwen2.5 1.5B (local, fp16) | 50.5 % | 68.5 % |
+| Qwen2.5 7B (local, fp16) | 50.5 % | 82.5 % |
+| Qwen2.5 32B (local, int4) | 58.0 % | 84.5 % |
+| Qwen3 32B (hosted) | 56.0 % | 84.0 % |
+| Qwen3-Next 80B, 3B active (hosted) | 61.0 % | 84.5 % |
+| Qwen3.8 27B (hosted) | 84.0 % | 84.5 % |
 
-**What this does not show.** B brings hand-written code that implements the
-benchmark's geometry, verified separately at 91/100. Its ceiling is high by
-construction, so the real question is whether the *model* can write the program
-— it does validly 92–96 % of the time. This is not evidence that language
-models cannot reason about space, and the evaluation rests on three drives.
+The last row is a counterexample to a universal execution advantage. It is not proof that "reasoning" rather than scale explains the change: the endpoints differ in architecture, training and output budget.
 
-## Two findings about the data
+## What you can do on the site
 
-Both are independent of the comparison and likely more reusable than it.
+| Figure | Try this |
+| --- | --- |
+| What the model is given | Browse the 102 evaluation keyframes in bird's-eye view or 3D, over the real LiDAR sweep, next to the exact prompt rows. Switch to "LiDAR returns" to see annotated objects the sensor never hit. |
+| Directions are a convention | Click any object to measure the six 60° NuScenes-QA sectors from it. |
+| Writing a program | Build a program in the study's JSON schema and run it live on any scene, refusals included. |
+| 200 questions, two answers | Every archived answer of all six models, filtered by which method was right, with the scene of each question. |
+| Counting, scene dependence, scale | Where the gain comes from, and where it disappears. |
 
-**The six nuScenes-QA relations are uniform 60° bearing sectors**, recovered by
-fitting the reference answers rather than assumed. Over 68 ego-anchored
-directional questions: 76.5 % exact, against 72.1 % for a mirrored *y* axis,
-67.6 % for the six nuScenes camera frusta (computed from the real calibration
-and intrinsics), 61.8 % for 45° octants and 51.5 % for overlapping quadrants.
-Every maximum-range cut from 25 m to 60 m makes the fit worse. The appealing
-six-relations-six-cameras reading is wrong.
+The site re-runs the archived programs with a TypeScript port of the executor. A test checks that it reproduces every saved answer and every selected object for the six models.
 
-**23 % of nuScenes annotations carry zero LiDAR returns**, and nuScenes-QA
-counts them anyway. Keeping only annotations the sensor hit — the obvious move
-when building a scene from a point cloud — drops 4 278 of 18 538 objects and
-costs **49 accuracy points** on otherwise correct programs (0.824 → 0.336,
-paired over 125 counting questions).
-
-## Where the executed system fails
-
-Triaged over its 63 evaluation failures (`spatial_reasoning/analyse_failures.py`):
-
-| Failure | n | share | what it asks for |
-|---|---:|---:|---|
-| Program says something else | 27 | 43 % | prompt, examples, bigger model |
-| Program right, answer wrong | 18 | 29 % | the executor and the data |
-| Refused at execution | 10 | 16 % | ambiguous or missing reference |
-| Malformed output | 8 | 13 % | a budget, or constrained decoding |
-
-71 % of failures happen *before* the executor. Widening the target language —
-the obvious next move, and one deliberately not made — would address almost
-none of them. The single largest failure is a return-type mistake: in 22 cases
-the model writes `count` for a question asking `exists`, so the answer is an
-integer that can never match a yes/no reference.
-
-## How the comparison is kept honest
-
-- **The example set is frozen before either side runs**
-  (`spatial_reasoning/manifests/first_comparison.json`): 100 development and
-  200 evaluation questions, **split by scene** so no drive appears on both
-  sides. Consecutive samples of one drive show the same vehicles.
-- **Families are assigned from the question's surface structure**, never by
-  checking which questions a parser copes with — that would select the
-  examples favouring the executed branch. Of 5 916 questions, 1 626 are in
-  scope; the 4 290 excluded are recorded with their reason.
-- **The reference answer is not reachable by either inference function**
-  (`ManifestItem.payload()`).
-- **The executor was verified before any model ran**: 91/100 on development
-  with reference programs and no model involved, every disagreement read and
-  categorised in `manifests/disagreement_categories.json`.
-- **Sector boundaries were deliberately not fitted** to close the residual. An
-  executor tuned on the reference answers would help the branch that computes
-  with those boundaries far more than the branch that only reads them in prose.
-- **Caches are separate and keyed differently.** A program depends on the
-  question; a direct answer depends on the question *and* the scene. Sharing a
-  key would destroy the scene-dependence control.
-- **No silent truncation.** An over-long prompt is refused, not trimmed, and
-  every generation records whether it stopped on its own. An earlier run lost
-  26 % of its programs to a 96-token budget, 97 % of them to truncation — a
-  configuration choice that had been read as a model failure.
-
-Nothing is trained. The whole comparison is about three minutes on one free T4.
-
-## Quick start
+## Verify the results without a GPU
 
 ```bash
-pip install numpy torch transformers pytest
+python -m pip install -r requirements-audit.txt
+python -m spatial_reasoning.audit_results
 ```
 
-Metadata only, no login, about a minute:
+The audit recomputes correctness and every summary field from **1,580 per-question records in eight comparisons**, checks manifest membership and scene separation, and fails on any disagreement. The [audit receipt](spatial_reasoning/results/artifact_audit.json) records file hashes. The CPU test suite runs with the command below; the last local run passed 203 tests with three optional skips, and the modules that need PyTorch were not run.
 
 ```bash
-mkdir -p data/data/nuscenes && curl -sL https://www.nuscenes.org/data/v1.0-mini.tgz | tar -xz -C data/data/nuscenes v1.0-mini/
-```
-
-Check the executor with reference programs — no GPU, no model:
-
-```bash
-python -m spatial_reasoning.verify_executor --manifest spatial_reasoning/manifests/first_comparison.json --metadata-root data/data/nuscenes/v1.0-mini --split dev
-```
-
-Run both modes on the same questions (needs a GPU for the model):
-
-```bash
-python -m spatial_reasoning.compare_llm_modes --manifest spatial_reasoning/manifests/first_comparison.json --metadata-root data/data/nuscenes/v1.0-mini --split eval
-```
-
-Triage the failures:
-
-```bash
-python -m spatial_reasoning.analyse_failures --rows spatial_reasoning/results/llm_modes/rows_eval.jsonl
-```
-
-Tests:
-
-```bash
+python -m pip install -r requirements-test.txt
 python -m pytest tests/ -q
 ```
 
-## Results and report
+GPU reruns, the metadata download, cache handling and the two unfinished extensions are described in [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md).
 
-Every figure is traceable to a file:
+## Scope and limits
 
-- [`spatial_reasoning/results/state_of_results.md`](spatial_reasoning/results/state_of_results.md)
-  — all numbers with their sources, including the ones that withdraw an
-  earlier claim.
-- `spatial_reasoning/results/llm_modes/` — per-question rows, summaries and
-  the failure triage.
-- `spatial_reasoning/results/symbolic_diagnostic.json` — the LiDAR-return
-  finding, produced by `python -m spatial_reasoning.run_symbolic_diagnostic`.
-- [**`report/rapport_npm3d.pdf`**](https://github.com/nassim-arifette/lidar-llm-spatial-reasoning/blob/main/report/rapport_npm3d.pdf)
-  — the written report, built from
-  [`rapport_npm3d.tex`](report/rapport_npm3d.tex).
+- **Perception is an oracle.** Object lists and statuses are nuScenes ground-truth annotations. No detector was run.
+- **Three drives are not a population.** Questions within a drive are correlated; the sign test is descriptive.
+- **Program execution is not new.** CLEVR and Neural-Symbolic VQA did it first. The contribution is an auditable, same-checkpoint comparison on driving questions, with scene-disjoint splits and failure traces.
+- **A wider language can lose.** On 280 broader questions, a typed CLEVR-style language covers 98.5 % of the benchmark, but at 1.5B it answers only 34.6 % of questions and reaches 29.6 % accuracy, against 52.1 % for the direct answer.
+- **Labels and input can disagree.** 4,278 of 18,538 annotated objects in the processed mini split have zero LiDAR returns; NuScenes-QA still counts them.
 
-**Earlier results are kept and labelled, not deleted.** The synthetic campaign
-in `results/all_results.json` used 45° octants and is a preliminary study, not
-a result on nuScenes-QA. Its "detector" condition **simulates** detector
-failures on ground-truth boxes; no 3D detector was run anywhere in this
-project, and no claim about detection quality follows from it. On real
-nuScenes-QA the learned baselines do **not** reliably beat a scene-blind prior
-(paired per seed: −0.021, +0.032, +0.025) and are barely affected by replacing
-ground-truth objects with simulated detections (+0.019, −0.030, +0.010).
+More in [`docs/LITERATURE.md`](docs/LITERATURE.md) and the [report](report/rapport_npm3d.pdf).
 
-## Does scale close the gap? No.
+## Repository layout
 
-Same 200 held-out questions, same prompts, same decoding, three sizes of one
-open-weights family:
+| Path | Role |
+| --- | --- |
+| `spatial_reasoning/` | Frozen-model comparison, parsing, geometry and program execution |
+| `spatial_reasoning/manifests/` | Frozen question sets and exclusions |
+| `spatial_reasoning/results/` | Saved answers, programs, summaries and diagnostics |
+| `tests/` | Protocol, parser, executor and runtime checks |
+| `report/` | LaTeX report and compiled PDF |
+| `web/` | Source of the website (Vite + TypeScript, D3, Three.js). See [`docs/SITE.md`](docs/SITE.md) |
+| `tools/` | Data and LiDAR export for the site, link checks |
+| `models/`, `training/`, `distillation/`, `data/`, `evaluation/`, `inference/` | Original 2025 course prototype |
 
-| Model | precision | A direct | B executed | B answers | invalid programs |
-|---|---|---:|---:|---:|---:|
-| Qwen2.5-1.5B | fp16 | 0.505 | 0.685 | 91.0 % | 8 |
-| Qwen2.5-7B | fp16 | **0.505** | 0.825 | 98.5 % | 1 |
-| Qwen2.5-32B | int4 | **0.580** | 0.845 | 99.5 % | **0** |
+To work on the site: `cd web && npm ci && npm run dev`. GitHub Actions tests, builds and publishes it on every push to `main`.
 
-The direct mode gains 0.075 across a 21× increase in parameters, and **nothing
-at all** between 1.5B and 7B. That is not a cached result: the 7B changes its
-answer on 89 of 200 questions and flips correctness on 52 of them, 26 in each
-direction. It answers differently and is wrong just as often.
+## History and credits
 
-What scale fixes is **program validity**: 8 → 1 → 0. The executed mode gains
-0.160 from 1.5B to 7B and then only 0.020 more. The 32B row is 4-bit because
-65 GB does not fit on a 40 GB card, so it *understates* the large model.
+The original two-person NPM3D course project was forked from [`oomcth/npm-3D`](https://github.com/oomcth/npm-3D). It connected a reduced PointNet/VAT/GPT-2 pipeline but never completed a real training run; that code is kept and clearly separated from the revised study. Scenes come from [nuScenes](https://www.nuscenes.org/) v1.0-mini (CC BY-NC-SA 4.0) and questions from [NuScenes-QA](https://arxiv.org/abs/2305.14836).
 
-**It replicates in another family.** Through a hosted gateway,
-`alibaba/qwen-3-32b` gives direct 0.560 and executed 0.840 — within 0.005 of
-the Qwen2.5-32B figures, with 200/200 valid programs and the executed mode
-correct on 13/13 scene-dependence groups.
-
-## Does a wider language help? Also no.
-
-`spatial_reasoning/functional.py` is CLEVR's representation adapted to
-nuScenes — typed nodes, 19 functions, indices into earlier nodes, type-checked
-before execution. A second manifest built by the same rules covers **98.5 %**
-of the benchmark instead of 27.5 %.
-
-| Qwen2.5-1.5B, wide scope (n=280) | A direct | B flat | C typed |
-|---|---:|---:|---:|
-| Accuracy | **0.521** | 0.457 | 0.296 |
-| Answers | 100 % | 57.1 % | 34.6 % |
-| Accuracy when answering | 0.521 | 0.800 | **0.856** |
-
-The typed language is the most accurate of the three *when it produces a
-program*, and it produces one for barely a third of the questions.
-
-Of 280 typed programs, 165 do not type-check — and **51 of the 85 input-type
-errors are a missing `unique`**, the model passing a set where a function needs
-one object. On the same questions the flat language produces 240 valid programs
-and then loses 80 at execution: 42 ambiguous references, 38 missing. Both
-languages are defeated by the same thing — resolving a definite reference in a
-real scene — and differ only in where it surfaces.
-
-Checked before claiming it: the flat language rejects `"trailers"` exactly as
-the typed one does, so this is not an artefact of normalisation.
-
-The typed catalogue ships in the repository and is **not** wired into the
-headline comparison. That is the result, not an omission.
-
-## The two layers of this repository
-
-### 1. The original re-implementation (2025)
-
-A reduced LiDAR-LLM pipeline: mini-PointNet encoder → view-aware transformer
-with six view-position embeddings → MLP adapter → GPT-2 fine-tuned with LoRA,
-on nuScenes-mini.
-
-It was developed on laptops with ~6 GB of RAM and no GPU, and never completed
-a real training run. What it demonstrated is that the architecture can be wired
-up and that gradients flow — not that the model understands a scene. That
-limitation is stated plainly rather than worked around.
-
-> **Origin.** The 2025 version was a two-person course project, forked from
-> [`oomcth/npm-3D`](https://github.com/oomcth/npm-3D), which is the upstream of
-> this repository and carries its commit history. My own share of that first
-> version was the evaluation metrics, the data collection and formatting, and
-> parts of the datasets, models and inference scripts.
-
-### 2. The revision: `spatial_reasoning/`
-
-Self-contained, documented in
-[`spatial_reasoning/README.md`](spatial_reasoning/README.md). This revision is
-my own work.
-
-```
-spatial_reasoning/
-  manifest.py            the frozen example set, split by scene
-  objects.py             object lists in the ego frame
-  regions.py             bearing sectors and the layouts
-  question_parser.py     the deterministic rule grammar
-  llm_parser.py          question -> program, with a frozen Qwen
-  direct_qa.py           question + objects -> answer, same Qwen
-  qwen_runtime.py        one loader and decoder, shared by both modes
-  dsl.py, programs.py    the executors
-  functional.py          the CLEVR-style catalogue (not wired in)
-  compare_llm_modes.py   the paired comparison
-  verify_executor.py     the executor check, no model involved
-  analyse_failures.py    the failure triage
-  run_symbolic_diagnostic.py  the LiDAR-return and grammar ablations
-report/                  the report, .tex and .pdf
-tests/                   the test suite for the above
-models/ training/ distillation/ data/ evaluation/ inference/ utils/
-                         the original 2025 pipeline
-```
+Nassim Arifette, PhD student at École polytechnique. Master MVA, ENS Paris-Saclay.

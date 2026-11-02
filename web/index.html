@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Answer or Compute</title>
+  <meta name="description" content="A frozen language model answers spatial questions about nuScenes driving scenes either directly or by writing a small program that an executor runs. Interactive figures on the archived answers." />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <script>
+    try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="hero-copy">
+      <h1>Answer it, or compute it?</h1>
+      <p class="hero-sub">The same small language model reads a driving scene as a list of objects. Asked to reply directly, it guesses. Asked to write a program instead, it lets an executor do the counting.</p>
+      <div class="hero-q" aria-live="polite">
+        <p class="hero-question" data-role="question">&nbsp;</p>
+        <div class="hero-lanes">
+          <div class="lane direct">
+            <span class="lane-k">Direct answer</span>
+            <span class="lane-v" data-role="direct">&nbsp;</span>
+          </div>
+          <div class="lane program">
+            <span class="lane-k">Program, then executor</span>
+            <code class="lane-code" data-role="program">&nbsp;</code>
+            <span class="lane-v" data-role="executed">&nbsp;</span>
+          </div>
+        </div>
+        <p class="hero-foot"><span data-role="reference"></span> <button type="button" class="link-btn" data-role="next">Next question</button></p>
+      </div>
+    </div>
+    <div class="hero-scene">
+      <svg class="bev" id="hero-bev" role="img" aria-label="Bird's-eye view of a nuScenes scene around the ego vehicle, with the objects the program selects highlighted."></svg>
+      <p class="hero-scene-note">Bird’s-eye view, 10 m rings. The real LiDAR sweep, nuScenes annotations and archived Qwen2.5-1.5B outputs from the held-out set, including one it gets wrong.</p>
+    </div>
+  </header>
+
+  <div class="byline">
+    <div><span class="byline-k">Author</span><span>Nassim Arifette, PhD student at École polytechnique</span></div>
+    <div><span class="byline-k">Project</span><span>Master MVA, NPM3D course, ENS Paris-Saclay</span></div>
+    <div><span class="byline-k">Builds on</span><span><a href="https://arxiv.org/abs/2312.14074">LiDAR-LLM</a>, <a href="https://arxiv.org/abs/2305.14836">NuScenes-QA</a></span></div>
+    <div><span class="byline-k">Material</span><span class="byline-links"><a href="files/report.pdf">Report (PDF)</a><a href="#reproduce">Code &amp; data</a></span></div>
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch colour theme">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z" fill="currentColor"/></svg>
+    </button>
+  </div>
+
+  <main class="article">
+    <section class="tldr" aria-labelledby="tldr-h">
+      <h2 id="tldr-h">In short</h2>
+      <p>LiDAR-LLM turns 3D scene understanding into text generation. This study holds perception fixed, using the ground-truth nuScenes objects, and asks a narrower question: given the objects, should a frozen language model <em>produce</em> the answer, or write a program that <em>computes</em> it?</p>
+      <p>On 200 held-out questions from three drives never seen during development, Qwen2.5-1.5B is right <strong data-stat="direct-acc">50.5 %</strong> of the time when it answers directly and <strong data-stat="exec-acc">68.5 %</strong> when its program is executed. Its counting error falls from <strong>2.16</strong> to <strong>0.68</strong>.</p>
+      <p>The advantage holds up to 32B parameters, then one hosted model reaches parity. This is a controlled diagnostic with oracle perception, not a new detector or a benchmark record.</p>
+    </section>
+
+    <section aria-labelledby="s1">
+      <h2 id="s1">What the model is given</h2>
+      <p>Each question in NuScenes-QA <a class="cite" href="#ref-nsqa">[2]</a> is attached to one keyframe of a drive. Instead of raw points, both methods here receive the same object list: one row per annotated object with its category, its position in metres in the ego vehicle’s frame, and its status. Positions are rounded to 0.1 m for both.</p>
+      <p>That list is the entire scene as far as the model is concerned. Hover a row or a box to link them.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-explorer">
+      <div class="explorer">
+        <div class="fig-stage">
+          <svg class="bev" data-role="bev" role="img" aria-label="Bird's-eye view of the selected keyframe."></svg>
+          <canvas class="three" data-role="three" hidden aria-label="3D view of the annotated boxes. Drag to orbit."></canvas>
+          <div class="stage-tools">
+            <div class="seg" data-ctl="view">
+              <button type="button" data-value="bev" aria-pressed="true">Top view</button>
+              <button type="button" data-value="3d" aria-pressed="false">3D</button>
+            </div>
+          </div>
+        </div>
+        <div class="prompt" data-role="prompt" tabindex="0" aria-label="The object list exactly as it appears in the prompt"></div>
+      </div>
+      <div class="fig-controls">
+        <label class="ctl">Keyframe <select data-ctl="sample"></select></label>
+        <div class="ctl">Colour
+          <div class="seg" data-ctl="colour">
+            <button type="button" data-value="category" aria-pressed="true">category</button>
+            <button type="button" data-value="lidar" aria-pressed="false">LiDAR returns</button>
+          </div>
+        </div>
+        <div class="legend" data-role="legend"></div>
+      </div>
+      <figcaption><span class="fig-n">Figure 1.</span> One evaluation keyframe and the object list sent to the model, verbatim: <code>id, category, x, y, status</code>. x points forward, y to the left. <span data-role="caption"></span></figcaption>
+    </figure>
+
+    <section aria-labelledby="s2">
+      <h2 id="s2">Directions are a convention</h2>
+      <p>“To the front left of the bus” sounds obvious until you have to compute it. NuScenes-QA defines it in its Equation 2: six relations, each a 60° sector of bearing, measured from the reference object while keeping the ego vehicle’s heading. There is no standalone “left” or “right”.</p>
+      <p>An earlier version of this project used eight 45° sectors and quietly selected the wrong objects. The executor now has the convention written down in exactly one place, and the direct model is given the same definition in its prompt. Click an object to measure directions from it.</p>
+      <aside class="note">The sectors are half-open intervals (low, high], so an object exactly on a boundary belongs to one sector only. Objects closer than 1 m to the reference get no direction at all, because their bearing is unstable.</aside>
+    </section>
+
+    <figure class="fig wide" id="fig-sectors">
+      <div class="fig-stage"><svg class="bev" data-role="bev" role="img" aria-label="The six direction sectors drawn around the chosen reference."></svg></div>
+      <div class="fig-controls">
+        <p class="ctl-text" data-role="status">Reference: the ego vehicle.</p>
+        <button type="button" class="btn ghost" data-ctl="reset">Back to the ego vehicle</button>
+      </div>
+      <figcaption><span class="fig-n">Figure 2.</span> The six NuScenes-QA relations. Every object is coloured by the sector it falls in, seen from the reference. Click any object to make it the reference.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s3">
+      <h2 id="s3">Writing a program instead</h2>
+      <p>In the program mode the model never sees the scene. It reads only the question and writes one JSON object: an operation over a <em>selector</em>, a category with an optional status, direction and anchor. A deterministic executor then runs it on the object list.</p>
+      <p>The executor refuses rather than guesses. “The bus” presupposes exactly one bus; if there are three, the answer is <em>ambiguous</em> and counts as wrong. Build a program and run it on any keyframe. This is the same executor, ported to TypeScript and checked against every archived run.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-playground">
+      <div class="playground">
+        <div class="pg-form" data-role="form"></div>
+        <div class="fig-stage"><svg class="bev" data-role="bev" role="img" aria-label="The keyframe with the objects selected by the program highlighted."></svg></div>
+      </div>
+      <div class="pg-out">
+        <pre class="json" data-role="json"></pre>
+        <div class="pg-result" data-role="result" aria-live="polite"></div>
+      </div>
+      <div class="fig-controls">
+        <label class="ctl">Keyframe <select data-ctl="sample"></select></label>
+        <label class="ctl">Load a real question <select data-ctl="preset"></select></label>
+      </div>
+      <figcaption><span class="fig-n">Figure 3.</span> The program schema the model writes, executed live. Selected objects are filled; the anchor is ringed and the active sector is shaded.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s4">
+      <h2 id="s4">Two hundred questions, two answers each</h2>
+      <p>The evaluation set has 200 questions from three drives that were held out from all prompt development. Invalid programs and refusals count as wrong, so the program mode answers fewer questions (<span data-stat="answered">91 %</span>) and still wins. Paired question by question, only the executed answer is right on <strong data-stat="exec-only">67</strong> questions and only the direct one on <strong data-stat="direct-only">31</strong>.</p>
+      <p>The table holds every archived answer. Pick a model, click a cell of the grid to filter, click a question to see its scene.</p>
+    </section>
+
+    <figure class="fig full" id="fig-browser">
+      <div class="browser">
+        <div class="browser-side">
+          <label class="ctl">Model <select data-ctl="run"></select></label>
+          <div class="quad" data-role="quad" role="group" aria-label="Filter by which method was right"></div>
+          <label class="ctl">Question family <select data-ctl="family"></select></label>
+          <div class="fig-stage small"><svg class="bev" data-role="bev" role="img" aria-label="Scene of the selected question."></svg></div>
+          <div class="detail" data-role="detail"></div>
+        </div>
+        <div class="browser-list" data-role="list" role="list"></div>
+      </div>
+      <figcaption><span class="fig-n">Figure 4.</span> Every archived evaluation answer. <span class="ok-mark">✓</span> right, <span class="bad-mark">✗</span> wrong; a refusal or invalid program is wrong. The reference is the NuScenes-QA label, which is occasionally disputable: open the scene and judge.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s5">
+      <h2 id="s5">Where the gain comes from</h2>
+      <p>Counting is the clearest case. Asked how many objects match, the direct model is off by <span data-stat="mae-d">2.16</span> objects on average, and <span data-stat="under">1.84</span> of that comes from undercounting. It tends to say “1”. The executor counts, and is off by <span data-stat="mae-e">0.68</span>.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-counts">
+      <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Predicted against reference counts for both methods."></svg></div>
+      <div class="fig-controls"><label class="ctl">Model <select data-ctl="run"></select></label><div class="legend" data-role="legend"></div></div>
+      <figcaption><span class="fig-n">Figure 5.</span> Each counting question, reference on the horizontal axis and answer on the vertical. Points on the diagonal are exact. Answers that are not a number are not drawn.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s6">
+      <p>The other gain is subtler. NuScenes-QA repeats some questions word for word across keyframes, with different correct answers. A system that ignores the scene can’t follow. In the 13 such groups, the executed answer is right in every scene of all 13; the direct answer manages that in 1, and gives the same answer to every scene in 4.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-dependence">
+      <div class="dep" data-role="groups"></div>
+      <figcaption><span class="fig-n">Figure 6.</span> Questions asked verbatim of several keyframes whose reference answers differ. Qwen2.5-1.5B, evaluation set.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s7">
+      <h2 id="s7">Does scale close the gap?</h2>
+      <p>Partly. The same comparison was archived for five more models. Larger Qwen2.5 checkpoints write valid programs more often, and the executed mode keeps its lead up to 32B. One hosted endpoint, <code>qwen3.8-27b</code>, answers directly almost as well as its programs do.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-scale">
+      <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Accuracy of both methods for six models."></svg></div>
+      <figcaption><span class="fig-n">Figure 7.</span> Accuracy on the same 200 questions. The three hosted endpoints differ in architecture, training and output budget, so this is not a scaling law. The last one ignored the 256-token cap and used 523.9 tokens per direct answer on average, against 156.5 per program.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s8">
+      <p>That last row is a counterexample to any claim of a universal execution advantage. It is not evidence that “reasoning” rather than size explains the change: too many factors moved at once.</p>
+      <p>A wider test goes the other way. On 280 broader questions, a typed CLEVR-style language raises what the program can express from 27.5 % to 98.5 % of the benchmark, yet at 1.5B its accuracy drops to 29.6 %, below the direct answer at 52.1 %. Its programs are right 85.6 % of the time when they run, but they run on only 34.6 % of questions.</p>
+    </section>
+
+    <section aria-labelledby="s9">
+      <h2 id="s9">A data check worth knowing</h2>
+      <p>In the processed mini annotations, 4,278 of 18,538 objects have <strong>zero LiDAR returns</strong>: the annotator placed a box, but the sensor saw nothing there. NuScenes-QA still counts them. Keeping only objects that LiDAR actually hit drops the executor’s exact accuracy from 0.824 to 0.336 on 125 paired counting questions.</p>
+      <p>So a perfect detector working from the point cloud would be scored as wrong on many of these questions. This is a mismatch between labels and input on that subset, not a global detector score. Switch Figure 1 to <em>LiDAR returns</em> to see hollow boxes the sensor missed.</p>
+    </section>
+
+    <section aria-labelledby="s10">
+      <h2 id="s10">What this does not show</h2>
+      <ul class="limits">
+        <li><strong>Perception is an oracle.</strong> Object lists and statuses are ground-truth annotations. No detector was run, so nothing here measures LiDAR perception.</li>
+        <li><strong>Three drives are not a population.</strong> The gain is positive on each evaluation drive (<span data-stat="drives">+21.2, +18.8 and +13.8 points</span>), but questions within a drive are correlated. The sign test is descriptive.</li>
+        <li><strong>The narrow comparison covers selected question families.</strong> The full benchmark subset has 5,916 questions; the frozen manifest keeps 100 development and 200 evaluation questions.</li>
+        <li><strong>Program execution is not new.</strong> CLEVR and Neural-Symbolic VQA did it years ago. The contribution is an auditable, same-checkpoint comparison on driving questions, with scene-disjoint splits and failure traces.</li>
+        <li><strong>The larger runs used different hardware.</strong> The core 1.5B comparison ran on a T4; the hosted rows record provider aliases, not immutable checkpoints.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="reproduce" class="reproduce">
+      <h2 id="reproduce">Check it yourself</h2>
+      <p>Every saved number can be recomputed without a GPU. The audit re-derives correctness and every summary field from the 1,580 per-question records of eight comparisons, checks manifest membership and scene separation, and fails on any disagreement.</p>
+<pre><code>python -m pip install -r requirements-audit.txt
+python -m spatial_reasoning.audit_results</code></pre>
+      <ul class="files">
+        <li><a href="files/report.pdf">report.pdf</a><span>The revised 14-page report: protocol, results, failure analysis.</span></li>
+        <li><a href="data/study.json">study.json</a><span>Everything on this page: six runs, 1,200 answers and programs, 102 keyframes of annotation geometry.</span></li>
+        <li><a href="files/results.md">results.md</a><span>Full state of results, including the unfinished extensions.</span></li>
+        <li><a href="files/reproduction.md">reproduction.md</a><span>GPU rerun, metadata download, exact commands and caches.</span></li>
+        <li><a href="files/literature.md">literature.md</a><span>Primary sources and what they let the study claim.</span></li>
+      </ul>
+      <p class="small">The original course project (2025) was a two-person reimplementation of a reduced PointNet/GPT-2 pipeline, forked from <a href="https://github.com/oomcth/npm-3D">oomcth/npm-3D</a>; it never completed a real training run. This study replaces it. Scenes use the <a href="https://www.nuscenes.org/">nuScenes</a> v1.0-mini annotations (CC BY-NC-SA 4.0) and NuScenes-QA questions.</p>
+    </section>
+
+    <section class="refs" aria-labelledby="refs-h">
+      <h2 id="refs-h">References</h2>
+      <ol>
+        <li id="ref-lidarllm">Senqiao Yang, Jiaming Liu, Ray Zhang et al. <a href="https://arxiv.org/abs/2312.14074">LiDAR-LLM: Exploring the Potential of Large Language Models for 3D LiDAR Understanding</a>. arXiv:2312.14074, 2023.</li>
+        <li id="ref-nsqa">Tianwen Qian, Jingjing Chen, Linhai Zhuo, Yang Jiao, Yu-Gang Jiang. <a href="https://arxiv.org/abs/2305.14836">NuScenes-QA: A Multi-modal Visual Question Answering Benchmark for Autonomous Driving Scenario</a>. AAAI 2024.</li>
+        <li>Justin Johnson et al. <a href="https://arxiv.org/abs/1612.06890">CLEVR: A Diagnostic Dataset for Compositional Language and Elementary Visual Reasoning</a>. CVPR 2017.</li>
+        <li>Kexin Yi et al. <a href="https://arxiv.org/abs/1810.02338">Neural-Symbolic VQA: Disentangling Reasoning from Vision and Language Understanding</a>. NeurIPS 2018.</li>
+        <li>Holger Caesar et al. <a href="https://arxiv.org/abs/1903.11027">nuScenes: A multimodal dataset for autonomous driving</a>. CVPR 2020.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Figures re-run the archived programs with a TypeScript port of the study’s executor, tested to reproduce every saved answer and selection.</p>
+  </footer>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
