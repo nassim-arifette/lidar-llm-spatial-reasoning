@@ -1,5 +1,5 @@
 /**
- * TypeScript port of spatial_reasoning/dsl.py, regions.py (nuScenes-QA layout) and the
+ * TypeScript port of spatial_reasoning/dsl.py, regions.py (both nuScenes-QA layouts) and the
  * program validation of llm_parser.query_from_json. Parity with the archived Python
  * execution is tested in test/executor.test.ts on every saved program.
  *
@@ -33,6 +33,30 @@ export const SECTORS: Record<string, [number, number]> = {
   front_right: [-90, -30],
 };
 export const DIRECTIONS = Object.keys(SECTORS);
+
+/**
+ * 'nuscenes_qa' is the definition as published (signed sectors). The released answers follow
+ * 'nuscenes_qa_as_labelled' instead: the test is on the unsigned angle a = |bearing|, so both
+ * front diagonals are "front left", both rear diagonals are "back right", and "front right" and
+ * "back left" hold nothing. Port of regions.sector_contains.
+ */
+export type Layout = 'nuscenes_qa' | 'nuscenes_qa_as_labelled';
+export const UNSIGNED_INTERVALS: Record<string, [number, number] | null> = {
+  front: [-1, 30],
+  front_left: [30, 90],
+  front_right: null,
+  back_right: [90, 150],
+  back_left: null,
+  back: [150, 180],
+};
+export function sectorContains(name: string, t: number, layout: Layout = 'nuscenes_qa'): boolean {
+  if (layout === 'nuscenes_qa_as_labelled') {
+    const u = UNSIGNED_INTERVALS[name];
+    return u !== null && u[0] < Math.abs(t) && Math.abs(t) <= u[1];
+  }
+  const s = SECTORS[name];
+  return inInterval(t, s[0], s[1]);
+}
 const MIN_RANGE = 1.0;
 const ALIASES: Record<string, string> = {
   ahead: 'front', forward: 'front', in_front: 'front', behind: 'back', rear: 'back',
@@ -71,18 +95,17 @@ export function bearingFrom(obj: SceneObject, origin?: SceneObject | null): numb
   return normaliseDegrees(Math.atan2(dy, dx) * DEG);
 }
 
-export function inDirection(obj: SceneObject, direction: string, origin?: SceneObject | null): boolean {
+export function inDirection(obj: SceneObject, direction: string, origin?: SceneObject | null, layout: Layout = 'nuscenes_qa'): boolean {
   const name = ALIASES[direction] ?? direction;
-  const s = SECTORS[name];
-  if (!s) throw new Error(`direction '${direction}' does not exist in layout 'nuscenes_qa'`);
+  if (!SECTORS[name]) throw new Error(`direction '${direction}' does not exist in layout '${layout}'`);
   const t = bearingFrom(obj, origin);
-  return t !== null && inInterval(t, s[0], s[1]);
+  return t !== null && sectorContains(name, t, layout);
 }
 
-export function sectorOf(obj: SceneObject, origin?: SceneObject | null): string | null {
+export function sectorOf(obj: SceneObject, origin?: SceneObject | null, layout: Layout = 'nuscenes_qa'): string | null {
   const t = bearingFrom(obj, origin);
   if (t === null) return null;
-  for (const [name, [lo, hi]] of Object.entries(SECTORS)) if (inInterval(t, lo, hi)) return name;
+  for (const name of Object.keys(SECTORS)) if (sectorContains(name, t, layout)) return name;
   return null;
 }
 
@@ -116,15 +139,15 @@ export function describe(s: Selector): string {
 
 interface Resolved { objs: SceneObject[]; status: ExecStatus; reason: string; anchor: SceneObject | null }
 
-export function resolve(s: Selector, objects: SceneObject[], depth = 0): Resolved {
+export function resolve(s: Selector, objects: SceneObject[], depth = 0, layout: Layout = 'nuscenes_qa'): Resolved {
   if (depth > 3) return { objs: [], status: 'unsupported', reason: 'anchor chain too deep', anchor: null };
   if (s.direction && !SECTORS[ALIASES[s.direction] ?? s.direction]) {
-    return { objs: [], status: 'unsupported', reason: `direction '${s.direction}' does not exist in layout 'nuscenes_qa'`, anchor: null };
+    return { objs: [], status: 'unsupported', reason: `direction '${s.direction}' does not exist in layout '${layout}'`, anchor: null };
   }
   let candidates = objects.filter((o) => matches(o, s));
   let reference: SceneObject | null = null;
   if (s.anchor) {
-    const a = resolve(s.anchor, objects, depth + 1);
+    const a = resolve(s.anchor, objects, depth + 1, layout);
     if (a.status !== 'ok') return { ...a, objs: [] };
     if (!a.objs.length) return { objs: [], status: 'missing', reason: `no ${describe(s.anchor)}`, anchor: null };
     if (a.objs.length > 1) return { objs: [], status: 'ambiguous', reason: `${a.objs.length} objects match [${describe(s.anchor)}]`, anchor: null };
@@ -134,14 +157,14 @@ export function resolve(s: Selector, objects: SceneObject[], depth = 0): Resolve
   if (s.direction) {
     const dir = s.direction;
     candidates = reference
-      ? candidates.filter((o) => o !== reference && inDirection(o, dir, reference))
-      : candidates.filter((o) => inDirection(o, dir));
+      ? candidates.filter((o) => o !== reference && inDirection(o, dir, reference, layout))
+      : candidates.filter((o) => inDirection(o, dir, null, layout));
   }
   return { objs: candidates, status: 'ok', reason: '', anchor: reference };
 }
 
-export function execute(p: Program, objects: SceneObject[]): Result {
-  const t = resolve(p.target, objects);
+export function execute(p: Program, objects: SceneObject[], layout: Layout = 'nuscenes_qa'): Result {
+  const t = resolve(p.target, objects, 0, layout);
   if (t.status !== 'ok') return { answer: null, status: t.status, selected: [], reason: t.reason };
   const objs = t.objs;
   const done = (answer: string | null, status: ExecStatus, selected: SceneObject[], reason = ''): Result =>
@@ -157,7 +180,7 @@ export function execute(p: Program, objects: SceneObject[]): Result {
     return done(o.status, 'ok', objs);
   }
   if (!p.second) return done(null, 'unsupported', [], 'binary operation without a second selector');
-  const u = resolve(p.second, objects);
+  const u = resolve(p.second, objects, 0, layout);
   if (u.status !== 'ok') return { answer: null, status: u.status, selected: [], reason: u.reason };
   if (p.op === 'compare_count') {
     const yes = p.comparison === 'fewer' ? objs.length < u.objs.length : objs.length > u.objs.length;
