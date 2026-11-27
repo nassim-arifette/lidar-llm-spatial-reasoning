@@ -183,7 +183,7 @@ def test_reasoned_prompt_allows_working_and_differs_only_in_the_format():
     assert "Do not show your working" not in reasoned[-1]
     assert "Answer: <answer>" in reasoned[-1]
     user = build_messages("q?", [], LAB, "reasoned")[1]["content"]
-    assert not user.endswith("Answer:")
+    assert user.endswith("\n\nWorking:")
 
 
 def test_only_the_last_answer_line_is_read():

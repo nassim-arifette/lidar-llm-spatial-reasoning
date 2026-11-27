@@ -101,7 +101,8 @@ Do not explain. Do not restate the question. Do not show your working."""
 
 # "You may work step by step" was tried first on the development split: the
 # 1.5B model then never did, and emitted the bare answer in four tokens. The
-# working is therefore asked for, not merely permitted.
+# working is therefore asked for, not merely permitted, and the user turn
+# ends on "Working:" (see build_user_prompt).
 _REASONED_FORMAT = """Work through the question step by step before you answer. First go through the
 object list and write down the id of every object the question is about,
 checking each condition it states: the category, the status, and, where a
@@ -150,10 +151,12 @@ def build_user_prompt(question: str, objects: Sequence[Dict[str, object]],
         f"{o['id']}, {o['category']}, {o['x']}, {o['y']}, {o['status']}"
         for o in objects)
     # The bare prompt ends on "Answer:" so the next token is the answer. The
-    # reasoned one must not: it would invite the answer before the working.
-    tail = "" if style == "reasoned" else "\n\nAnswer:"
+    # reasoned one ends on "Working:" for the same reason in the other
+    # direction: asked in the system prompt alone, the 1.5B model still
+    # replied "Answer: 4" in four tokens on the development split.
+    tail = "Working:" if style == "reasoned" else "Answer:"
     return (f"Objects ({len(objects)}):\n{header}\n{rows}\n\n"
-            f"Question:\n{question}{tail}")
+            f"Question:\n{question}\n\n{tail}")
 
 
 def build_messages(
