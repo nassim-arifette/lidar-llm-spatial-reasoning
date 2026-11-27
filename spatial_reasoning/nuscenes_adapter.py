@@ -97,16 +97,37 @@ class ConversionReport:
         }
 
 
+#: What counts as an object.
+#:
+#: ``named`` -- annotations of the ten named classes. The archived runs.
+#: ``all``   -- what nuScenes-QA counts as "things": every annotation, the
+#:              classes it never names included (kept as ``other``), plus the
+#:              ego vehicle itself (``ego``, at the origin). On the official
+#:              validation questions, "How many things are there?" equals the
+#:              number of annotations plus one in 648 cases out of 648.
+#:              ``other`` and ``ego`` match only "thing"/"object", never a
+#:              named class; the ego is closer than ``min_range`` to itself,
+#:              so it is never to the front or back *of me*, but it can be to
+#:              the front of a bus.
+THINGS = ("named", "all")
+OTHER_CATEGORY = "other"
+EGO_CATEGORY = "ego"
+EGO_TOKEN = "ego"
+
+
 def load_nuscenes_scenes(
     metadata_root: str,
     min_lidar_points: int = 1,
     lidar_channel: str = "LIDAR_TOP",
+    things: str = "named",
 ) -> Tuple[Dict[str, Scene], ConversionReport]:
     """Read the metadata and return ``{sample_token: Scene}`` in the ego frame.
 
     ``metadata_root`` is the directory holding ``sample.json`` and friends
-    (``.../v1.0-mini``).
+    (``.../v1.0-mini``). ``things`` is one of :data:`THINGS`.
     """
+    if things not in THINGS:
+        raise ValueError(f"things must be one of {THINGS}, got {things!r}")
     tables = {name: _load_table(metadata_root, name) for name in REQUIRED_TABLES}
 
     category_name = {c["token"]: c["name"] for c in tables["category"]}
@@ -159,8 +180,10 @@ def load_nuscenes_scenes(
             raw = instance_category.get(ann["instance_token"])
             name = canonical_category(raw)
             if name is None:
-                report.dropped_unknown_category += 1
-                continue
+                if things != "all" or raw is None:
+                    report.dropped_unknown_category += 1
+                    continue
+                name = OTHER_CATEGORY
 
             # An annotation carries at most one attribute in nuScenes; objects
             # with none (a traffic cone, a barrier) keep status None and are
@@ -183,6 +206,11 @@ def load_nuscenes_scenes(
 
         objects = global_to_ego(global_objects, pose["translation"], pose["rotation"])
         report.annotations_kept += len(objects)
+        if things == "all":
+            # Last, so the ids of every annotated object are the same under
+            # both settings. Nominal car dimensions; nothing reads them.
+            objects.append(Object3D(category=EGO_CATEGORY, center=[0.0, 0.0, 0.0],
+                                    size=[1.7, 4.1, 1.6], token=EGO_TOKEN))
         scenes[token] = Scene(
             sample_token=token,
             objects=objects,

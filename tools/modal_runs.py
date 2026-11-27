@@ -28,7 +28,8 @@ import modal
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 METADATA = {
     "v1.0-mini": "data/data/nuscenes/v1.0-mini",
-    "v1.0-trainval": "data/data/nuscenes/v1.0-trainval",
+    # The slice build_val_manifest writes: only what val_drives.json needs.
+    "val-drives": "data/data/nuscenes/v1.0-trainval-val-drives",
 }
 
 

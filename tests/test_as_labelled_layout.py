@@ -314,3 +314,53 @@ def test_constrained_decoding_has_its_own_cache_identity():
     assert free.config_fingerprint()["decoding"] == "greedy"
     assert constrained.config_fingerprint()["decoding"] == "greedy+json_schema"
     assert free.config_id() != constrained.config_id()
+
+
+# -- what counts as a thing ---------------------------------------------------- #
+
+def _write_tables(root, annotations):
+    tables = {
+        "sample": [{"token": "s", "scene_token": "sc"}],
+        "sample_data": [{"sample_token": "s", "is_key_frame": True,
+                         "calibrated_sensor_token": "cs", "ego_pose_token": "p"}],
+        "ego_pose": [{"token": "p", "translation": [0, 0, 0], "rotation": [1, 0, 0, 0]}],
+        "calibrated_sensor": [{"token": "cs", "sensor_token": "se"}],
+        "sensor": [{"token": "se", "channel": "LIDAR_TOP"}],
+        "attribute": [],
+        "category": [{"token": "c1", "name": "vehicle.car"},
+                     {"token": "c2", "name": "movable_object.pushable_pullable"}],
+        "instance": [{"token": "i1", "category_token": "c1"},
+                     {"token": "i2", "category_token": "c2"}],
+        "sample_annotation": annotations,
+    }
+    for name, rows in tables.items():
+        (root / f"{name}.json").write_text(json.dumps(rows), encoding="utf-8")
+
+
+def test_things_all_keeps_unnamed_classes_and_adds_the_ego(tmp_path):
+    from spatial_reasoning.nuscenes_adapter import load_nuscenes_scenes
+
+    def ann(token, instance, x, y):
+        return {"token": token, "sample_token": "s", "instance_token": instance,
+                "translation": [x, y, 0], "size": [2, 4, 1.5], "rotation": [1, 0, 0, 0],
+                "num_lidar_pts": 0, "attribute_tokens": []}
+
+    _write_tables(tmp_path, [ann("a", "i1", 10, 0), ann("b", "i2", -10, 0)])
+    named, _ = load_nuscenes_scenes(str(tmp_path), min_lidar_points=0)
+    everything, _ = load_nuscenes_scenes(str(tmp_path), min_lidar_points=0, things="all")
+    assert [o.category for o in named["s"].objects] == ["car"]
+    assert [o.category for o in everything["s"].objects] == ["car", "other", "ego"]
+
+    def count(scene, category, region=ANY):
+        query = Query(Op.COUNT, Selector(category=category, region=region))
+        return execute(query, scene, LAB).answer
+
+    # "How many things are there?" = annotations + 1; a named class is unchanged.
+    assert count(named["s"], "object") == "1"
+    assert count(everything["s"], "object") == "3"
+    assert count(everything["s"], "car") == count(named["s"], "car") == "1"
+    # The ego is never to the front or back of itself.
+    assert count(everything["s"], "object", Region("direction", "front")) == "1"
+    assert count(everything["s"], "object", Region("direction", "back")) == "1"
+    with pytest.raises(ValueError):
+        load_nuscenes_scenes(str(tmp_path), things="everything")

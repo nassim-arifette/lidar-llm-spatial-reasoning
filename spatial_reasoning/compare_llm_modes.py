@@ -574,6 +574,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--thinking", default="default", choices=("default", "on", "off"),
                    help="chat-template thinking switch (Qwen3); 'default' "
                         "leaves the template alone")
+    p.add_argument("--things", default=None, choices=("named", "all"),
+                   help="what the object list holds: the ten named classes "
+                        "(archived runs), or everything nuScenes-QA counts as a "
+                        "thing, unnamed classes and the ego vehicle included. "
+                        "Defaults to the manifest's setting, else 'named'")
     p.add_argument("--constrained", action="store_true",
                    help="decode programs under a JSON Schema with the closed "
                         "vocabulary (needs lm-format-enforcer). A separate "
@@ -592,7 +597,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     min_lidar = args.min_lidar_points
     if min_lidar is None:
         min_lidar = int(manifest.config.get("min_lidar_points", 0))
-    scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar)
+    things = args.things or str(manifest.config.get("things", "named"))
+    scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar,
+                                          things=things)
     config = RegionConfig(layout=args.layout)
 
     # One budget for every mode, because one runtime now serves all of them.
@@ -659,8 +666,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
           f"{len({i.scene_token for i in items})} scenes")
     print(f"model: {runtime_config.model_name}  backend={args.backend}  "
           f"({runtime_config.identity()})")
-    print(f"objects: min_lidar_points={min_lidar} -> {report.annotations_kept} "
-          f"annotations")
+    print(f"objects: min_lidar_points={min_lidar}, things={things} -> "
+          f"{report.annotations_kept} annotations")
     print(f"layout: {args.layout} -> {config.directions()}")
     print(f"direct prompt: {direct.prompt_version} "
           f"(budget {args.direct_max_new_tokens or budget})\n")
@@ -691,6 +698,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "program_decoding": "json_schema" if args.constrained else "free",
             "layout": args.layout,
             "min_lidar_points": min_lidar,
+            "things": things,
             "scope": manifest.config.get("scope", "narrow"),
             "parser_stats": parser.stats.as_dict(),
             "functional_schema": SCHEMA_VERSION if functional else None,
