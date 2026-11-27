@@ -249,3 +249,68 @@ def test_released_answers_never_affirm_front_right_or_back_left():
         assert seen[relation]["empty"] == seen[relation]["n"], relation
     for relation in ("front left", "back right", "front", "back"):
         assert seen[relation]["empty"] < 0.5 * seen[relation]["n"], relation
+
+
+# -- the schema a constrained decoder is given ---------------------------------- #
+
+def test_flat_schema_accepts_what_the_validator_accepts_on_every_archived_program():
+    """No archived program the validator took is outside the schema.
+
+    The converse does not hold and must not: cross-field rules (a second
+    selector for a binary operation) are the validator's, not the schema's.
+    """
+    jsonschema = pytest.importorskip("jsonschema")
+    import re
+    from spatial_reasoning.llm_parser import (
+        FEW_SHOT, InvalidProgram, json_schema, query_from_json)
+
+    directions = QA.directions()
+    validator = jsonschema.Draft202012Validator(json_schema(directions))
+    for _, program in FEW_SHOT:
+        assert not list(validator.iter_errors(program)), program
+
+    seen = accepted = 0
+    for path in (ROOT / "spatial_reasoning/results").glob("*/rows_*.jsonl"):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            raw = json.loads(line)["program_raw"]
+            try:
+                query_from_json(raw, frozenset(directions))
+            except InvalidProgram:
+                continue
+            seen += 1
+            blob = json.loads(re.search(r"\{.*\}", raw, re.S).group(0))
+            accepted += not list(validator.iter_errors(blob))
+    assert seen > 1000 and accepted == seen
+
+
+@pytest.mark.parametrize("program", [
+    {"op": "count", "target": {"category": "*", "status": None, "negate_status": False,
+                               "direction": None, "anchor": None},
+     "second": None, "comparison": None},
+    {"op": "count", "target": {"category": "car", "status": None, "negate_status": False,
+                               "direction": "left", "anchor": None},
+     "second": None, "comparison": None},
+    {"op": "count", "target": {"category": "car", "status": "red", "negate_status": False,
+                               "direction": None, "anchor": None},
+     "second": None, "comparison": None},
+    {"op": "tally", "target": {"category": "car", "status": None, "negate_status": False,
+                               "direction": None, "anchor": None},
+     "second": None, "comparison": None},
+])
+def test_flat_schema_closes_the_vocabulary(program):
+    jsonschema = pytest.importorskip("jsonschema")
+    from spatial_reasoning.llm_parser import json_schema
+
+    validator = jsonschema.Draft202012Validator(json_schema(QA.directions()))
+    assert list(validator.iter_errors(program))
+    assert not list(validator.iter_errors({"op": None}))     # a refusal stays expressible
+
+
+def test_constrained_decoding_has_its_own_cache_identity():
+    from spatial_reasoning.llm_parser import QwenQuestionParser
+
+    free = QwenQuestionParser(directions=QA.directions())
+    constrained = QwenQuestionParser(directions=QA.directions(), constrained=True)
+    assert free.config_fingerprint()["decoding"] == "greedy"
+    assert constrained.config_fingerprint()["decoding"] == "greedy+json_schema"
+    assert free.config_id() != constrained.config_id()

@@ -218,6 +218,20 @@ class QwenRuntime:
         self.ensure_loaded()
         return len(self._tokenizer(self._template(messages))["input_ids"])
 
+    def json_constraint(self, schema: Dict[str, object]):
+        """A ``prefix_allowed_tokens_fn`` that only admits JSON matching ``schema``.
+
+        The dependency is optional and imported here: free decoding, which is
+        every archived run, must not need it.
+        """
+        from lmformatenforcer import JsonSchemaParser
+        from lmformatenforcer.integrations.transformers import (
+            build_transformers_prefix_allowed_tokens_fn)
+
+        self.ensure_loaded()
+        return build_transformers_prefix_allowed_tokens_fn(
+            self._tokenizer, JsonSchemaParser(schema))
+
     # -- generation ------------------------------------------------------- #
 
     def generate(

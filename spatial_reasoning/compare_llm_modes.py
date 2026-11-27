@@ -574,6 +574,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--thinking", default="default", choices=("default", "on", "off"),
                    help="chat-template thinking switch (Qwen3); 'default' "
                         "leaves the template alone")
+    p.add_argument("--constrained", action="store_true",
+                   help="decode programs under a JSON Schema with the closed "
+                        "vocabulary (needs lm-format-enforcer). A separate "
+                        "condition, never a replacement for free decoding")
     p.add_argument("--limit", type=int, default=0)
     return p
 
@@ -637,7 +641,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         precision=args.precision,
         device_map=args.device_map,
         directions=config.directions(),
-        runtime=runtime)
+        runtime=runtime,
+        constrained=args.constrained)
 
     functional = None
     if args.functional:
@@ -647,7 +652,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             max_new_tokens=budget,
             device=args.device, batch_size=args.batch_size,
             region_config=config, precision=args.precision,
-            device_map=args.device_map, runtime=runtime)
+            device_map=args.device_map, runtime=runtime,
+            constrained=args.constrained)
 
     print(f"{args.split}: {len(items)} examples over "
           f"{len({i.scene_token for i in items})} scenes")
@@ -682,6 +688,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "direct_style": args.direct_style,
             "direct_max_new_tokens": args.direct_max_new_tokens or budget,
             "dsl_version": DSL_VERSION,
+            "program_decoding": "json_schema" if args.constrained else "free",
             "layout": args.layout,
             "min_lidar_points": min_lidar,
             "scope": manifest.config.get("scope", "narrow"),
