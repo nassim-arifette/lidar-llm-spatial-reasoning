@@ -221,16 +221,41 @@ class QwenRuntime:
     def json_constraint(self, schema: Dict[str, object]):
         """A ``prefix_allowed_tokens_fn`` that only admits JSON matching ``schema``.
 
-        The dependency is optional and imported here: free decoding, which is
-        every archived run, must not need it.
+        Built on the core of ``lm-format-enforcer``. Its own transformers
+        integration imports a module path that transformers 5 removed, so the
+        few lines of glue are here instead; they need only ``encode``,
+        ``decode`` and the special-token ids. The dependency is imported
+        lazily: free decoding, which is every archived run, must not need it.
         """
         from lmformatenforcer import JsonSchemaParser
-        from lmformatenforcer.integrations.transformers import (
-            build_transformers_prefix_allowed_tokens_fn)
+        from lmformatenforcer.tokenenforcer import (TokenEnforcer,
+                                                    TokenEnforcerTokenizerData)
 
         self.ensure_loaded()
-        return build_transformers_prefix_allowed_tokens_fn(
-            self._tokenizer, JsonSchemaParser(schema))
+        tokenizer = self._tokenizer
+        zero = tokenizer.encode("0")[-1]
+        special = set(tokenizer.all_special_ids)
+        regular = []
+        for index in range(len(tokenizer)):
+            if index in special:
+                continue
+            # Decoding after a "0" shows whether the token starts a new word.
+            after = tokenizer.decode([zero, index])[1:]
+            regular.append((index, after, len(after) > len(tokenizer.decode([index]))))
+
+        def decode(tokens):
+            return tokenizer.decode(tokens).rstrip("\ufffd")
+
+        enforcer = TokenEnforcer(
+            TokenEnforcerTokenizerData(regular, decode, tokenizer.eos_token_id,
+                                       False, len(tokenizer)),
+            JsonSchemaParser(schema))
+
+        def allowed(batch_id, sent):
+            tokens = enforcer.get_allowed_tokens(sent.tolist())
+            return getattr(tokens, "allowed_tokens", tokens)
+
+        return allowed
 
     # -- generation ------------------------------------------------------- #
 
