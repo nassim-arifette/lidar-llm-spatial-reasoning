@@ -23,6 +23,19 @@ PUBLISHED = (
 )
 
 
+#: Re-executions of archived programs under another layout
+#: (``rescore_programs``). Checked like a published run, plus against their
+#: source: same questions, same model outputs, hashes of what they came from.
+RESCORED_ROOTS = ("rescored_as_labelled",)
+
+#: What a rescoring may not touch: everything the model produced.
+FROZEN_IN_RESCORE = (
+    "question_id", "sample_token", "scene_token", "family", "template",
+    "question", "reference_answer", "direct_answer", "direct_status",
+    "direct_raw", "direct_correct", "program_raw", "functional_raw",
+    "model", "model_revision", "prompt_version", "scene_hash", "n_objects")
+
+
 def _hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -97,8 +110,57 @@ def audit(root: Path) -> dict:
             "by_scene": recomputed["by_scene"],
             "all_rows_have_model_revision": all(r.model_revision for r in rows),
         })
+    rescored = []
+    for folder in RESCORED_ROOTS:
+        for relative in PUBLISHED:
+            summary_path = results / folder / relative
+            saved = json.loads(summary_path.read_text(encoding="utf-8"))
+            split = saved["split"]
+            rows_path = summary_path.with_name(f"rows_{split}.jsonl")
+            raw_rows = [json.loads(line) for line in
+                        rows_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            source_summary = results / relative
+            source_rows_path = source_summary.with_name(f"rows_{split}.jsonl")
+            source_rows = [json.loads(line) for line in
+                           source_rows_path.read_text(encoding="utf-8").splitlines()
+                           if line.strip()]
+            where = f"{folder}/{relative}"
+            origin = saved["rescored_from"]
+            _same(origin["sha256"], {"summary": _hash(source_summary),
+                                     "rows": _hash(source_rows_path)},
+                  f"{where}.rescored_from.sha256")
+            if saved["layout"] == origin["layout"]:
+                raise ValueError(f"{where}: rescored under its own archived layout")
+            if len(raw_rows) != len(source_rows):
+                raise ValueError(f"{where}: row count differs from its source")
+            for new, old in zip(raw_rows, source_rows):
+                for key in FROZEN_IN_RESCORE:
+                    _same(old.get(key, ""), new.get(key, ""),
+                          f"{where}:{old['question_id']}.{key}")
+                for mode in ("executed", "functional"):
+                    if mode == "functional" and not new.get("functional_status"):
+                        continue
+                    answer = new.get(f"{mode}_answer")
+                    right = (answer is not None and str(answer).strip().lower()
+                             == str(new["reference_answer"]).strip().lower())
+                    _same(right, new[f"{mode}_correct"],
+                          f"{where}:{new['question_id']}.{mode}_correct")
+            rows = [Row(**row) for row in raw_rows]
+            recomputed = summarise(rows)
+            recomputed["scene_dependence"] = scene_dependence(rows)
+            _same(saved["summary"], recomputed, f"{where}.summary")
+            rescored.append({
+                "summary": str(summary_path.relative_to(root)).replace("\\", "/"),
+                "source": str(source_summary.relative_to(root)).replace("\\", "/"),
+                "layout": saved["layout"],
+                "sha256": {"summary": _hash(summary_path), "rows": _hash(rows_path)},
+                "n": len(rows),
+                "accuracy": {mode: recomputed[mode]["accuracy"] for mode in
+                             ("direct", "executed", "functional") if mode in recomputed},
+                "changed_rows": saved["changed_rows"],
+            })
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "verified",
         "checks": ["complete manifest membership", "no duplicate question IDs",
                    "no scene overlap across splits", "question/reference provenance",
@@ -108,6 +170,15 @@ def audit(root: Path) -> dict:
                    "Hashes attest these files, not historical execution or provider identity.",
                    "Question-level p-values assume independence; only three evaluation scenes exist."],
         "experiments": checked,
+        "rescored": rescored,
+        "rescored_checks": [
+            "source hashes match the archive", "model outputs and references unchanged",
+            "correctness recomputed from re-executed answers",
+            "all saved summary fields"],
+        "rescored_limits": [
+            "Re-execution itself needs nuScenes metadata and is not repeated here; "
+            "run rescore_programs to reproduce it.",
+            "Direct answers are the archived ones, given under the archived prompt."],
     }
 
 
@@ -121,6 +192,8 @@ def main(argv=None) -> int:
         args.out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(f"Verified {len(result['experiments'])} complete comparisons "
           f"({sum(e['n'] for e in result['experiments'])} saved rows).")
+    print(f"Verified {len(result['rescored'])} rescored comparisons "
+          f"({sum(e['n'] for e in result['rescored'])} rows) against their sources.")
     return 0
 
 

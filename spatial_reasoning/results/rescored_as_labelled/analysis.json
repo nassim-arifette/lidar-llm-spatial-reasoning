@@ -1,0 +1,1027 @@
+{
+  "layouts": {
+    "old": "nuscenes_qa",
+    "new": "nuscenes_qa_as_labelled"
+  },
+  "headline": {
+    "llm_modes": {
+      "label": "Qwen2.5 1.5B",
+      "n": 200,
+      "direct_1": 0.505,
+      "flat_old": 0.685,
+      "flat_answered_old": 0.91,
+      "flat_new": 0.765,
+      "flat_answered_new": 0.91
+    },
+    "llm_modes_7b": {
+      "label": "Qwen2.5 7B",
+      "n": 200,
+      "direct_1": 0.505,
+      "flat_old": 0.825,
+      "flat_answered_old": 0.985,
+      "flat_new": 0.95,
+      "flat_answered_new": 0.985
+    },
+    "llm_modes_32b": {
+      "label": "Qwen2.5 32B (int4)",
+      "n": 200,
+      "direct_1": 0.58,
+      "flat_old": 0.845,
+      "flat_answered_old": 0.995,
+      "flat_new": 0.98,
+      "flat_answered_new": 0.995
+    },
+    "gw_qwen3_32b": {
+      "label": "Qwen3 32B",
+      "n": 200,
+      "direct_1": 0.56,
+      "flat_old": 0.84,
+      "flat_answered_old": 0.99,
+      "flat_new": 0.975,
+      "flat_answered_new": 0.99
+    },
+    "gw_qwen3_next_80b": {
+      "label": "Qwen3-Next 80B",
+      "n": 200,
+      "direct_1": 0.61,
+      "flat_old": 0.845,
+      "flat_answered_old": 0.995,
+      "flat_new": 0.98,
+      "flat_answered_new": 0.995
+    },
+    "gw_qwen3p8_27b": {
+      "label": "Qwen3.8 27B",
+      "n": 200,
+      "direct_1": 0.84,
+      "flat_old": 0.845,
+      "flat_answered_old": 0.995,
+      "flat_new": 0.98,
+      "flat_answered_new": 0.995
+    },
+    "wide_1p5b": {
+      "label": "Qwen2.5 1.5B, wide scope",
+      "n": 280,
+      "direct_1": 0.5214285714285715,
+      "flat_old": 0.45714285714285713,
+      "flat_answered_old": 0.5714285714285714,
+      "typed_old": 0.29642857142857143,
+      "flat_new": 0.5214285714285715,
+      "flat_answered_new": 0.5964285714285714,
+      "typed_new": 0.3142857142857143
+    }
+  },
+  "fallback": {
+    "llm_modes": {
+      "old": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 151,
+          "n": 200,
+          "accuracy": 0.755,
+          "answered_by": {
+            "executed": 182,
+            "direct": 18
+          }
+        }
+      },
+      "new": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 167,
+          "n": 200,
+          "accuracy": 0.835,
+          "answered_by": {
+            "executed": 182,
+            "direct": 18
+          }
+        }
+      }
+    },
+    "llm_modes_7b": {
+      "old": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 166,
+          "n": 200,
+          "accuracy": 0.83,
+          "answered_by": {
+            "executed": 197,
+            "direct": 3
+          }
+        }
+      },
+      "new": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 191,
+          "n": 200,
+          "accuracy": 0.955,
+          "answered_by": {
+            "executed": 197,
+            "direct": 3
+          }
+        }
+      }
+    },
+    "llm_modes_32b": {
+      "old": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 170,
+          "n": 200,
+          "accuracy": 0.85,
+          "answered_by": {
+            "executed": 199,
+            "direct": 1
+          }
+        }
+      },
+      "new": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 197,
+          "n": 200,
+          "accuracy": 0.985,
+          "answered_by": {
+            "executed": 199,
+            "direct": 1
+          }
+        }
+      }
+    },
+    "gw_qwen3_32b": {
+      "old": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 169,
+          "n": 200,
+          "accuracy": 0.845,
+          "answered_by": {
+            "executed": 198,
+            "direct": 2
+          }
+        }
+      },
+      "new": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 196,
+          "n": 200,
+          "accuracy": 0.98,
+          "answered_by": {
+            "executed": 198,
+            "direct": 2
+          }
+        }
+      }
+    },
+    "gw_qwen3_next_80b": {
+      "old": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 170,
+          "n": 200,
+          "accuracy": 0.85,
+          "answered_by": {
+            "executed": 199,
+            "direct": 1
+          }
+        }
+      },
+      "new": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 197,
+          "n": 200,
+          "accuracy": 0.985,
+          "answered_by": {
+            "executed": 199,
+            "direct": 1
+          }
+        }
+      }
+    },
+    "gw_qwen3p8_27b": {
+      "old": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 169,
+          "n": 200,
+          "accuracy": 0.845,
+          "answered_by": {
+            "executed": 199,
+            "direct": 1
+          }
+        }
+      },
+      "new": {
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 196,
+          "n": 200,
+          "accuracy": 0.98,
+          "answered_by": {
+            "executed": 199,
+            "direct": 1
+          }
+        }
+      }
+    },
+    "wide_1p5b": {
+      "old": {
+        "functional -> direct": {
+          "order": [
+            "functional",
+            "direct"
+          ],
+          "correct": 181,
+          "n": 280,
+          "accuracy": 0.6464285714285715,
+          "answered_by": {
+            "functional": 97,
+            "direct": 183
+          }
+        },
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 189,
+          "n": 280,
+          "accuracy": 0.675,
+          "answered_by": {
+            "executed": 160,
+            "direct": 120
+          }
+        },
+        "functional -> executed -> direct": {
+          "order": [
+            "functional",
+            "executed",
+            "direct"
+          ],
+          "correct": 196,
+          "n": 280,
+          "accuracy": 0.7,
+          "answered_by": {
+            "functional": 97,
+            "executed": 77,
+            "direct": 106
+          }
+        }
+      },
+      "new": {
+        "functional -> direct": {
+          "order": [
+            "functional",
+            "direct"
+          ],
+          "correct": 185,
+          "n": 280,
+          "accuracy": 0.6607142857142857,
+          "answered_by": {
+            "functional": 98,
+            "direct": 182
+          }
+        },
+        "executed -> direct": {
+          "order": [
+            "executed",
+            "direct"
+          ],
+          "correct": 203,
+          "n": 280,
+          "accuracy": 0.725,
+          "answered_by": {
+            "executed": 167,
+            "direct": 113
+          }
+        },
+        "functional -> executed -> direct": {
+          "order": [
+            "functional",
+            "executed",
+            "direct"
+          ],
+          "correct": 207,
+          "n": 280,
+          "accuracy": 0.7392857142857143,
+          "answered_by": {
+            "functional": 98,
+            "executed": 83,
+            "direct": 99
+          }
+        }
+      }
+    }
+  },
+  "ceiling": {
+    "family_sizes": {
+      "category_anchor_relation": 54,
+      "category_ego_region": 43,
+      "category_status": 53,
+      "count_exist_category": 50
+    },
+    "old": {
+      "n_wrong_for_all_six": 28,
+      "ceiling_accuracy": 0.86,
+      "by_family": {
+        "category_anchor_relation": 14,
+        "category_ego_region": 13,
+        "category_status": 1
+      },
+      "questions": [
+        {
+          "question_id": "q_0ed50fd9b8aa",
+          "family": "category_anchor_relation",
+          "question": "How many buss are to the front left of the not standing pedestrian?",
+          "reference": "1",
+          "executed": {
+            "llm_modes": null,
+            "llm_modes_7b": null,
+            "llm_modes_32b": null,
+            "gw_qwen3_32b": null,
+            "gw_qwen3_next_80b": null,
+            "gw_qwen3p8_27b": null
+          }
+        },
+        {
+          "question_id": "q_128f807b0abe",
+          "family": "category_anchor_relation",
+          "question": "There is a stopped bus; are there any standing pedestrians to the back right of it?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_273a127c4656",
+          "family": "category_anchor_relation",
+          "question": "There is a bus; how many pedestrians are to the back right of it?",
+          "reference": "1",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_30d9ecc90fb4",
+          "family": "category_anchor_relation",
+          "question": "There is a bus; are there any motorcycles to the front left of it?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_48297834e05b",
+          "family": "category_anchor_relation",
+          "question": "How many standing pedestrians are to the back right of the moving bus?",
+          "reference": "1",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_4f433c9c7879",
+          "family": "category_ego_region",
+          "question": "Are there any things to the back left of me?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_585ef10d999c",
+          "family": "category_ego_region",
+          "question": "Are there any cars to the front left of me?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "no",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_5b21661aa89b",
+          "family": "category_ego_region",
+          "question": "How many with rider things are to the front left of me?",
+          "reference": "2",
+          "executed": {
+            "llm_modes": "1",
+            "llm_modes_7b": "1",
+            "llm_modes_32b": "1",
+            "gw_qwen3_32b": "1",
+            "gw_qwen3_next_80b": "1",
+            "gw_qwen3p8_27b": "1"
+          }
+        },
+        {
+          "question_id": "q_6ac1f27f4b27",
+          "family": "category_anchor_relation",
+          "question": "There is a standing pedestrian; what number of trucks are to the front left of it?",
+          "reference": "1",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_6d0f90974c2b",
+          "family": "category_ego_region",
+          "question": "Are there any without rider bicycles to the front left of me?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "no",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_7aaea28ca7a8",
+          "family": "category_anchor_relation",
+          "question": "There is a moving bus; what number of things are to the front left of it?",
+          "reference": "2",
+          "executed": {
+            "llm_modes": "1",
+            "llm_modes_7b": "1",
+            "llm_modes_32b": "1",
+            "gw_qwen3_32b": "1",
+            "gw_qwen3_next_80b": "1",
+            "gw_qwen3p8_27b": "1"
+          }
+        },
+        {
+          "question_id": "q_814e1c7f6ca6",
+          "family": "category_ego_region",
+          "question": "How many cars are to the front left of me?",
+          "reference": "3",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_86bc4e080fcb",
+          "family": "category_ego_region",
+          "question": "Are there any things to the front right of me?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_91530fa76eae",
+          "family": "category_ego_region",
+          "question": "Are there any motorcycles to the front right of me?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_995f583b2911",
+          "family": "category_ego_region",
+          "question": "What number of parked things are to the front left of me?",
+          "reference": "6",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_a9e29aab8a21",
+          "family": "category_ego_region",
+          "question": "What number of cars are to the front left of me?",
+          "reference": "6",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_ab74e772e695",
+          "family": "category_anchor_relation",
+          "question": "There is a moving bus; are there any without rider motorcycles to the back right of it?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_b0330647b580",
+          "family": "category_ego_region",
+          "question": "Are there any stopped cars to the front right of me?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "1",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_b6cd412f6b42",
+          "family": "category_ego_region",
+          "question": "Are there any moving cars to the front left of me?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_c1381d05f9f4",
+          "family": "category_anchor_relation",
+          "question": "There is a bus; what number of moving pedestrians are to the back right of it?",
+          "reference": "3",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        },
+        {
+          "question_id": "q_c47a8b3296cb",
+          "family": "category_anchor_relation",
+          "question": "There is a bus; how many without rider things are to the back left of it?",
+          "reference": "0",
+          "executed": {
+            "llm_modes": "6",
+            "llm_modes_7b": "6",
+            "llm_modes_32b": "6",
+            "gw_qwen3_32b": "6",
+            "gw_qwen3_next_80b": "6",
+            "gw_qwen3p8_27b": "6"
+          }
+        },
+        {
+          "question_id": "q_c497daabf935",
+          "family": "category_anchor_relation",
+          "question": "There is a moving bus; are there any trucks to the front left of it?",
+          "reference": "yes",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "no",
+            "llm_modes_32b": "no",
+            "gw_qwen3_32b": "no",
+            "gw_qwen3_next_80b": "no",
+            "gw_qwen3p8_27b": "no"
+          }
+        },
+        {
+          "question_id": "q_cfbc221c8e2a",
+          "family": "category_status",
+          "question": "Are there any not standing pedestrians?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_e4e1a16ca6c5",
+          "family": "category_ego_region",
+          "question": "How many standing pedestrians are to the front right of me?",
+          "reference": "0",
+          "executed": {
+            "llm_modes": "1",
+            "llm_modes_7b": "1",
+            "llm_modes_32b": "1",
+            "gw_qwen3_32b": "1",
+            "gw_qwen3_next_80b": "1",
+            "gw_qwen3p8_27b": "1"
+          }
+        },
+        {
+          "question_id": "q_eb5c285a4a15",
+          "family": "category_ego_region",
+          "question": "Are there any parked things to the front right of me?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_eb8c87a92d8f",
+          "family": "category_anchor_relation",
+          "question": "Are there any things to the front right of the bus?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_f241958680f7",
+          "family": "category_anchor_relation",
+          "question": "There is a moving bus; are there any moving pedestrians to the back left of it?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "6",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        },
+        {
+          "question_id": "q_ff59bc06f72d",
+          "family": "category_anchor_relation",
+          "question": "How many stopped things are to the back right of the stopped bus?",
+          "reference": "1",
+          "executed": {
+            "llm_modes": "0",
+            "llm_modes_7b": "0",
+            "llm_modes_32b": "0",
+            "gw_qwen3_32b": "0",
+            "gw_qwen3_next_80b": "0",
+            "gw_qwen3p8_27b": "0"
+          }
+        }
+      ]
+    },
+    "new": {
+      "n_wrong_for_all_six": 4,
+      "ceiling_accuracy": 0.98,
+      "by_family": {
+        "category_anchor_relation": 2,
+        "category_ego_region": 1,
+        "category_status": 1
+      },
+      "questions": [
+        {
+          "question_id": "q_0aa6927791ce",
+          "family": "category_ego_region",
+          "question": "What number of parked cars are to the back right of me?",
+          "reference": "9",
+          "executed": {
+            "llm_modes": "10",
+            "llm_modes_7b": "10",
+            "llm_modes_32b": "10",
+            "gw_qwen3_32b": "10",
+            "gw_qwen3_next_80b": "10",
+            "gw_qwen3p8_27b": "10"
+          }
+        },
+        {
+          "question_id": "q_0ed50fd9b8aa",
+          "family": "category_anchor_relation",
+          "question": "How many buss are to the front left of the not standing pedestrian?",
+          "reference": "1",
+          "executed": {
+            "llm_modes": null,
+            "llm_modes_7b": null,
+            "llm_modes_32b": null,
+            "gw_qwen3_32b": null,
+            "gw_qwen3_next_80b": null,
+            "gw_qwen3p8_27b": null
+          }
+        },
+        {
+          "question_id": "q_7aaea28ca7a8",
+          "family": "category_anchor_relation",
+          "question": "There is a moving bus; what number of things are to the front left of it?",
+          "reference": "2",
+          "executed": {
+            "llm_modes": "1",
+            "llm_modes_7b": "1",
+            "llm_modes_32b": "1",
+            "gw_qwen3_32b": "1",
+            "gw_qwen3_next_80b": "1",
+            "gw_qwen3p8_27b": "1"
+          }
+        },
+        {
+          "question_id": "q_cfbc221c8e2a",
+          "family": "category_status",
+          "question": "Are there any not standing pedestrians?",
+          "reference": "no",
+          "executed": {
+            "llm_modes": "yes",
+            "llm_modes_7b": "yes",
+            "llm_modes_32b": "yes",
+            "gw_qwen3_32b": "yes",
+            "gw_qwen3_next_80b": "yes",
+            "gw_qwen3p8_27b": "yes"
+          }
+        }
+      ]
+    }
+  },
+  "relations": {
+    "llm_modes": {
+      "back right": {
+        "n": 18,
+        "old": 8,
+        "new": 11
+      },
+      "back": {
+        "n": 15,
+        "old": 11,
+        "new": 11
+      },
+      "back left": {
+        "n": 16,
+        "old": 9,
+        "new": 11
+      },
+      "front right": {
+        "n": 11,
+        "old": 2,
+        "new": 7
+      },
+      "front left": {
+        "n": 27,
+        "old": 6,
+        "new": 12
+      },
+      "front": {
+        "n": 10,
+        "old": 8,
+        "new": 8
+      }
+    },
+    "llm_modes_7b": {
+      "back right": {
+        "n": 18,
+        "old": 11,
+        "new": 16
+      },
+      "back": {
+        "n": 15,
+        "old": 14,
+        "new": 14
+      },
+      "back left": {
+        "n": 16,
+        "old": 12,
+        "new": 16
+      },
+      "front right": {
+        "n": 11,
+        "old": 5,
+        "new": 11
+      },
+      "front left": {
+        "n": 27,
+        "old": 13,
+        "new": 23
+      },
+      "front": {
+        "n": 10,
+        "old": 10,
+        "new": 10
+      }
+    },
+    "llm_modes_32b": {
+      "back right": {
+        "n": 18,
+        "old": 12,
+        "new": 17
+      },
+      "back": {
+        "n": 15,
+        "old": 15,
+        "new": 15
+      },
+      "back left": {
+        "n": 16,
+        "old": 10,
+        "new": 16
+      },
+      "front right": {
+        "n": 11,
+        "old": 5,
+        "new": 11
+      },
+      "front left": {
+        "n": 27,
+        "old": 15,
+        "new": 25
+      },
+      "front": {
+        "n": 10,
+        "old": 10,
+        "new": 10
+      }
+    },
+    "gw_qwen3_32b": {
+      "back right": {
+        "n": 18,
+        "old": 12,
+        "new": 17
+      },
+      "back": {
+        "n": 15,
+        "old": 14,
+        "new": 14
+      },
+      "back left": {
+        "n": 16,
+        "old": 10,
+        "new": 16
+      },
+      "front right": {
+        "n": 11,
+        "old": 5,
+        "new": 11
+      },
+      "front left": {
+        "n": 27,
+        "old": 15,
+        "new": 25
+      },
+      "front": {
+        "n": 10,
+        "old": 10,
+        "new": 10
+      }
+    },
+    "gw_qwen3_next_80b": {
+      "back right": {
+        "n": 18,
+        "old": 12,
+        "new": 17
+      },
+      "back": {
+        "n": 15,
+        "old": 15,
+        "new": 15
+      },
+      "back left": {
+        "n": 16,
+        "old": 10,
+        "new": 16
+      },
+      "front right": {
+        "n": 11,
+        "old": 5,
+        "new": 11
+      },
+      "front left": {
+        "n": 27,
+        "old": 15,
+        "new": 25
+      },
+      "front": {
+        "n": 10,
+        "old": 10,
+        "new": 10
+      }
+    },
+    "gw_qwen3p8_27b": {
+      "back right": {
+        "n": 18,
+        "old": 12,
+        "new": 17
+      },
+      "back": {
+        "n": 15,
+        "old": 15,
+        "new": 15
+      },
+      "back left": {
+        "n": 16,
+        "old": 10,
+        "new": 16
+      },
+      "front right": {
+        "n": 11,
+        "old": 5,
+        "new": 11
+      },
+      "front left": {
+        "n": 27,
+        "old": 15,
+        "new": 25
+      },
+      "front": {
+        "n": 10,
+        "old": 10,
+        "new": 10
+      }
+    }
+  }
+}
