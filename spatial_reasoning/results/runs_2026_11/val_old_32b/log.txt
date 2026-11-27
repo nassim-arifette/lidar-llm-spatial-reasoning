@@ -1,0 +1,858 @@
+eval: 1460 examples over 146 scenes
+model: Qwen/Qwen2.5-32B-Instruct  backend=local  (95cf855efeb9)
+objects: min_lidar_points=0, things=named -> 40301 annotations
+layout: nuscenes_qa -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-1 (budget 256)
+
+direct: generating 1460 of 1460 (0 cached)
+
+Loading weights:   0%|          | 0/771 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/771 [00:01<16:04,  1.25s/it]
+Loading weights:   0%|          | 2/771 [00:02<15:10,  1.18s/it]
+Loading weights:   1%|          | 4/771 [00:02<06:22,  2.01it/s]
+Loading weights:   1%|          | 5/771 [00:02<04:49,  2.64it/s]
+Loading weights:   1%|          | 6/771 [00:02<03:45,  3.40it/s]
+Loading weights:   2%|▏         | 16/771 [00:02<00:50, 14.92it/s]
+Loading weights:   2%|▏         | 19/771 [00:03<00:51, 14.74it/s]
+Loading weights:   4%|▎         | 28/771 [00:03<00:30, 24.20it/s]
+Loading weights:   4%|▍         | 32/771 [00:03<00:32, 22.93it/s]
+Loading weights:   5%|▌         | 40/771 [00:03<00:24, 30.02it/s]
+Loading weights:   6%|▌         | 44/771 [00:03<00:27, 26.58it/s]
+Loading weights:   7%|▋         | 52/771 [00:04<00:21, 33.08it/s]
+Loading weights:   7%|▋         | 56/771 [00:04<00:25, 28.48it/s]
+Loading weights:   8%|▊         | 64/771 [00:04<00:20, 34.73it/s]
+Loading weights:   9%|▉         | 68/771 [00:04<00:23, 29.39it/s]
+Loading weights:  10%|▉         | 76/771 [00:04<00:20, 34.32it/s]
+Loading weights:  10%|█         | 80/771 [00:04<00:23, 29.18it/s]
+Loading weights:  11%|█▏        | 88/771 [00:05<00:19, 35.70it/s]
+Loading weights:  12%|█▏        | 92/771 [00:05<00:22, 30.07it/s]
+Loading weights:  13%|█▎        | 100/771 [00:05<00:18, 35.94it/s]
+Loading weights:  13%|█▎        | 104/771 [00:05<00:21, 30.34it/s]
+Loading weights:  15%|█▍        | 112/771 [00:05<00:18, 36.12it/s]
+Loading weights:  15%|█▌        | 116/771 [00:06<00:21, 30.52it/s]
+Loading weights:  16%|█▌        | 124/771 [00:06<00:17, 36.45it/s]
+Loading weights:  17%|█▋        | 128/771 [00:06<00:21, 30.58it/s]
+Loading weights:  18%|█▊        | 136/771 [00:06<00:17, 36.80it/s]
+Loading weights:  18%|█▊        | 140/771 [00:06<00:20, 30.76it/s]
+Loading weights:  19%|█▉        | 148/771 [00:06<00:16, 36.73it/s]
+Loading weights:  20%|█▉        | 152/771 [00:07<00:20, 30.90it/s]
+Loading weights:  21%|██        | 160/771 [00:07<00:16, 36.74it/s]
+Loading weights:  21%|██▏       | 164/771 [00:07<00:19, 30.80it/s]
+Loading weights:  22%|██▏       | 172/771 [00:07<00:16, 36.47it/s]
+Loading weights:  23%|██▎       | 176/771 [00:07<00:19, 31.09it/s]
+Loading weights:  24%|██▍       | 184/771 [00:07<00:16, 36.69it/s]
+Loading weights:  24%|██▍       | 188/771 [00:08<00:19, 30.32it/s]
+Loading weights:  25%|██▌       | 196/771 [00:08<00:16, 35.89it/s]
+Loading weights:  26%|██▌       | 200/771 [00:08<00:19, 30.00it/s]
+Loading weights:  27%|██▋       | 208/771 [00:08<00:15, 35.80it/s]
+Loading weights:  27%|██▋       | 212/771 [00:08<00:18, 29.70it/s]
+Loading weights:  29%|██▊       | 220/771 [00:09<00:15, 34.83it/s]
+Loading weights:  29%|██▉       | 224/771 [00:09<00:18, 29.47it/s]
+Loading weights:  30%|███       | 232/771 [00:09<00:15, 35.72it/s]
+Loading weights:  31%|███       | 236/771 [00:09<00:17, 30.39it/s]
+Loading weights:  32%|███▏      | 244/771 [00:09<00:14, 36.22it/s]
+Loading weights:  32%|███▏      | 248/771 [00:10<00:17, 30.60it/s]
+Loading weights:  33%|███▎      | 256/771 [00:10<00:14, 36.54it/s]
+Loading weights:  34%|███▎      | 260/771 [00:10<00:16, 30.61it/s]
+Loading weights:  35%|███▍      | 268/771 [00:10<00:14, 35.72it/s]
+Loading weights:  35%|███▌      | 272/771 [00:10<00:16, 30.50it/s]
+Loading weights:  36%|███▋      | 280/771 [00:10<00:13, 36.61it/s]
+Loading weights:  37%|███▋      | 284/771 [00:11<00:15, 30.72it/s]
+Loading weights:  38%|███▊      | 292/771 [00:11<00:12, 36.95it/s]
+Loading weights:  38%|███▊      | 296/771 [00:11<00:15, 31.25it/s]
+Loading weights:  39%|███▉      | 304/771 [00:11<00:12, 37.37it/s]
+Loading weights:  40%|████      | 309/771 [00:11<00:14, 32.98it/s]
+Loading weights:  41%|████      | 316/771 [00:11<00:12, 36.52it/s]
+Loading weights:  42%|████▏     | 320/771 [00:12<00:14, 31.36it/s]
+Loading weights:  43%|████▎     | 328/771 [00:12<00:11, 37.66it/s]
+Loading weights:  43%|████▎     | 333/771 [00:12<00:13, 33.05it/s]
+Loading weights:  44%|████▍     | 340/771 [00:12<00:11, 36.95it/s]
+Loading weights:  45%|████▍     | 344/771 [00:12<00:13, 31.21it/s]
+Loading weights:  46%|████▌     | 352/771 [00:12<00:11, 37.35it/s]
+Loading weights:  46%|████▌     | 356/771 [00:13<00:13, 31.39it/s]
+Loading weights:  47%|████▋     | 364/771 [00:13<00:11, 36.83it/s]
+Loading weights:  48%|████▊     | 368/771 [00:13<00:12, 31.53it/s]
+Loading weights:  49%|████▉     | 376/771 [00:13<00:10, 37.69it/s]
+Loading weights:  49%|████▉     | 381/771 [00:13<00:11, 33.19it/s]
+Loading weights:  50%|█████     | 388/771 [00:14<00:10, 37.07it/s]
+Loading weights:  51%|█████     | 392/771 [00:14<00:12, 31.29it/s]
+Loading weights:  52%|█████▏    | 400/771 [00:14<00:10, 36.67it/s]
+Loading weights:  52%|█████▏    | 404/771 [00:14<00:12, 30.42it/s]
+Loading weights:  53%|█████▎    | 412/771 [00:14<00:09, 35.92it/s]
+Loading weights:  54%|█████▍    | 416/771 [00:14<00:11, 30.37it/s]
+Loading weights:  55%|█████▍    | 424/771 [00:15<00:09, 36.03it/s]
+Loading weights:  56%|█████▌    | 428/771 [00:15<00:11, 30.50it/s]
+Loading weights:  57%|█████▋    | 436/771 [00:15<00:09, 36.05it/s]
+Loading weights:  57%|█████▋    | 440/771 [00:15<00:10, 30.36it/s]
+Loading weights:  58%|█████▊    | 448/771 [00:15<00:08, 36.10it/s]
+Loading weights:  59%|█████▊    | 452/771 [00:16<00:10, 30.36it/s]
+Loading weights:  60%|█████▉    | 460/771 [00:16<00:08, 35.66it/s]
+Loading weights:  60%|██████    | 464/771 [00:16<00:10, 30.50it/s]
+Loading weights:  61%|██████    | 472/771 [00:16<00:08, 36.44it/s]
+Loading weights:  62%|██████▏   | 476/771 [00:16<00:09, 30.42it/s]
+Loading weights:  63%|██████▎   | 484/771 [00:16<00:07, 36.22it/s]
+Loading weights:  63%|██████▎   | 488/771 [00:17<00:09, 30.45it/s]
+Loading weights:  64%|██████▍   | 496/771 [00:17<00:07, 36.40it/s]
+Loading weights:  65%|██████▍   | 500/771 [00:17<00:08, 30.64it/s]
+Loading weights:  66%|██████▌   | 508/771 [00:17<00:07, 36.05it/s]
+Loading weights:  66%|██████▋   | 512/771 [00:17<00:08, 30.88it/s]
+Loading weights:  67%|██████▋   | 520/771 [00:17<00:06, 37.14it/s]
+Loading weights:  68%|██████▊   | 524/771 [00:18<00:07, 31.24it/s]
+Loading weights:  69%|██████▉   | 532/771 [00:18<00:06, 37.29it/s]
+Loading weights:  70%|██████▉   | 537/771 [00:18<00:07, 32.97it/s]
+Loading weights:  71%|███████   | 544/771 [00:18<00:06, 36.88it/s]
+Loading weights:  71%|███████   | 548/771 [00:18<00:07, 31.09it/s]
+Loading weights:  72%|███████▏  | 556/771 [00:19<00:05, 36.73it/s]
+Loading weights:  73%|███████▎  | 560/771 [00:19<00:06, 31.48it/s]
+Loading weights:  74%|███████▎  | 568/771 [00:19<00:05, 37.75it/s]
+Loading weights:  74%|███████▍  | 573/771 [00:19<00:05, 33.32it/s]
+Loading weights:  75%|███████▌  | 580/771 [00:19<00:05, 37.40it/s]
+Loading weights:  76%|███████▌  | 584/771 [00:19<00:05, 31.55it/s]
+Loading weights:  77%|███████▋  | 592/771 [00:20<00:04, 37.03it/s]
+Loading weights:  77%|███████▋  | 596/771 [00:20<00:05, 30.54it/s]
+Loading weights:  78%|███████▊  | 604/771 [00:20<00:04, 35.66it/s]
+Loading weights:  79%|███████▉  | 608/771 [00:20<00:05, 30.21it/s]
+Loading weights:  80%|███████▉  | 616/771 [00:20<00:04, 36.11it/s]
+Loading weights:  80%|████████  | 620/771 [00:21<00:04, 30.33it/s]
+Loading weights:  81%|████████▏ | 628/771 [00:21<00:03, 36.02it/s]
+Loading weights:  82%|████████▏ | 632/771 [00:21<00:04, 30.15it/s]
+Loading weights:  83%|████████▎ | 640/771 [00:21<00:03, 35.74it/s]
+Loading weights:  84%|████████▎ | 644/771 [00:21<00:04, 29.82it/s]
+Loading weights:  85%|████████▍ | 652/771 [00:21<00:03, 35.18it/s]
+Loading weights:  85%|████████▌ | 656/771 [00:22<00:03, 30.02it/s]
+Loading weights:  86%|████████▌ | 664/771 [00:22<00:02, 36.01it/s]
+Loading weights:  87%|████████▋ | 668/771 [00:22<00:03, 30.17it/s]
+Loading weights:  88%|████████▊ | 676/771 [00:22<00:02, 35.95it/s]
+Loading weights:  88%|████████▊ | 680/771 [00:22<00:03, 30.15it/s]
+Loading weights:  89%|████████▉ | 688/771 [00:22<00:02, 35.86it/s]
+Loading weights:  90%|████████▉ | 692/771 [00:23<00:02, 29.95it/s]
+Loading weights:  91%|█████████ | 700/771 [00:23<00:01, 35.66it/s]
+Loading weights:  91%|█████████▏| 704/771 [00:23<00:02, 30.72it/s]
+Loading weights:  92%|█████████▏| 712/771 [00:23<00:01, 36.56it/s]
+Loading weights:  93%|█████████▎| 716/771 [00:23<00:01, 30.74it/s]
+Loading weights:  94%|█████████▍| 724/771 [00:24<00:01, 36.62it/s]
+Loading weights:  94%|█████████▍| 728/771 [00:24<00:01, 30.67it/s]
+Loading weights:  95%|█████████▌| 736/771 [00:24<00:00, 36.42it/s]
+Loading weights:  96%|█████████▌| 740/771 [00:24<00:01, 30.52it/s]
+Loading weights:  97%|█████████▋| 748/771 [00:24<00:00, 36.44it/s]
+Loading weights:  98%|█████████▊| 752/771 [00:24<00:00, 30.65it/s]
+Loading weights:  99%|█████████▊| 760/771 [00:25<00:00, 37.16it/s]
+Loading weights:  99%|█████████▉| 765/771 [00:25<00:00, 32.48it/s]
+Loading weights: 100%|██████████| 771/771 [00:25<00:00, 30.38it/s]
+  generated 4/1460
+  generated 8/1460
+  generated 12/1460
+  generated 16/1460
+  generated 20/1460
+  generated 24/1460
+  generated 28/1460
+  generated 32/1460
+  generated 36/1460
+  generated 40/1460
+  generated 44/1460
+  generated 48/1460
+  generated 52/1460
+  generated 56/1460
+  generated 60/1460
+  generated 64/1460
+  generated 68/1460
+  generated 72/1460
+  generated 76/1460
+  generated 80/1460
+  generated 84/1460
+  generated 88/1460
+  generated 92/1460
+  generated 96/1460
+  generated 100/1460
+  generated 104/1460
+  generated 108/1460
+  generated 112/1460
+  generated 116/1460
+  generated 120/1460
+  generated 124/1460
+  generated 128/1460
+  generated 132/1460
+  generated 136/1460
+  generated 140/1460
+  generated 144/1460
+  generated 148/1460
+  generated 152/1460
+  generated 156/1460
+  generated 160/1460
+  generated 164/1460
+  generated 168/1460
+  generated 172/1460
+  generated 176/1460
+  generated 180/1460
+  generated 184/1460
+  generated 188/1460
+  generated 192/1460
+  generated 196/1460
+  generated 200/1460
+  generated 204/1460
+  generated 208/1460
+  generated 212/1460
+  generated 216/1460
+  generated 220/1460
+  generated 224/1460
+  generated 228/1460
+  generated 232/1460
+  generated 236/1460
+  generated 240/1460
+  generated 244/1460
+  generated 248/1460
+  generated 252/1460
+  generated 256/1460
+  generated 260/1460
+  generated 264/1460
+  generated 268/1460
+  generated 272/1460
+  generated 276/1460
+  generated 280/1460
+  generated 284/1460
+  generated 288/1460
+  generated 292/1460
+  generated 296/1460
+  generated 300/1460
+  generated 304/1460
+  generated 308/1460
+  generated 312/1460
+  generated 316/1460
+  generated 320/1460
+  generated 324/1460
+  generated 328/1460
+  generated 332/1460
+  generated 336/1460
+  generated 340/1460
+  generated 344/1460
+  generated 348/1460
+  generated 352/1460
+  generated 356/1460
+  generated 360/1460
+  generated 364/1460
+  generated 368/1460
+  generated 372/1460
+  generated 376/1460
+  generated 380/1460
+  generated 384/1460
+  generated 388/1460
+  generated 392/1460
+  generated 396/1460
+  generated 400/1460
+  generated 404/1460
+  generated 408/1460
+  generated 412/1460
+  generated 416/1460
+  generated 420/1460
+  generated 424/1460
+  generated 428/1460
+  generated 432/1460
+  generated 436/1460
+  generated 440/1460
+  generated 444/1460
+  generated 448/1460
+  generated 452/1460
+  generated 456/1460
+  generated 460/1460
+  generated 464/1460
+  generated 468/1460
+  generated 472/1460
+  generated 476/1460
+  generated 480/1460
+  generated 484/1460
+  generated 488/1460
+  generated 492/1460
+  generated 496/1460
+  generated 500/1460
+  generated 504/1460
+  generated 508/1460
+  generated 512/1460
+  generated 516/1460
+  generated 520/1460
+  generated 524/1460
+  generated 528/1460
+  generated 532/1460
+  generated 536/1460
+  generated 540/1460
+  generated 544/1460
+  generated 548/1460
+  generated 552/1460
+  generated 556/1460
+  generated 560/1460
+  generated 564/1460
+  generated 568/1460
+  generated 572/1460
+  generated 576/1460
+  generated 580/1460
+  generated 584/1460
+  generated 588/1460
+  generated 592/1460
+  generated 596/1460
+  generated 600/1460
+  generated 604/1460
+  generated 608/1460
+  generated 612/1460
+  generated 616/1460
+  generated 620/1460
+  generated 624/1460
+  generated 628/1460
+  generated 632/1460
+  generated 636/1460
+  generated 640/1460
+  generated 644/1460
+  generated 648/1460
+  generated 652/1460
+  generated 656/1460
+  generated 660/1460
+  generated 664/1460
+  generated 668/1460
+  generated 672/1460
+  generated 676/1460
+  generated 680/1460
+  generated 684/1460
+  generated 688/1460
+  generated 692/1460
+  generated 696/1460
+  generated 700/1460
+  generated 704/1460
+  generated 708/1460
+  generated 712/1460
+  generated 716/1460
+  generated 720/1460
+  generated 724/1460
+  generated 728/1460
+  generated 732/1460
+  generated 736/1460
+  generated 740/1460
+  generated 744/1460
+  generated 748/1460
+  generated 752/1460
+  generated 756/1460
+  generated 760/1460
+  generated 764/1460
+  generated 768/1460
+  generated 772/1460
+  generated 776/1460
+  generated 780/1460
+  generated 784/1460
+  generated 788/1460
+  generated 792/1460
+  generated 796/1460
+  generated 800/1460
+  generated 804/1460
+  generated 808/1460
+  generated 812/1460
+  generated 816/1460
+  generated 820/1460
+  generated 824/1460
+  generated 828/1460
+  generated 832/1460
+  generated 836/1460
+  generated 840/1460
+  generated 844/1460
+  generated 848/1460
+  generated 852/1460
+  generated 856/1460
+  generated 860/1460
+  generated 864/1460
+  generated 868/1460
+  generated 872/1460
+  generated 876/1460
+  generated 880/1460
+  generated 884/1460
+  generated 888/1460
+  generated 892/1460
+  generated 896/1460
+  generated 900/1460
+  generated 904/1460
+  generated 908/1460
+  generated 912/1460
+  generated 916/1460
+  generated 920/1460
+  generated 924/1460
+  generated 928/1460
+  generated 932/1460
+  generated 936/1460
+  generated 940/1460
+  generated 944/1460
+  generated 948/1460
+  generated 952/1460
+  generated 956/1460
+  generated 960/1460
+  generated 964/1460
+  generated 968/1460
+  generated 972/1460
+  generated 976/1460
+  generated 980/1460
+  generated 984/1460
+  generated 988/1460
+  generated 992/1460
+  generated 996/1460
+  generated 1000/1460
+  generated 1004/1460
+  generated 1008/1460
+  generated 1012/1460
+  generated 1016/1460
+  generated 1020/1460
+  generated 1024/1460
+  generated 1028/1460
+  generated 1032/1460
+  generated 1036/1460
+  generated 1040/1460
+  generated 1044/1460
+  generated 1048/1460
+  generated 1052/1460
+  generated 1056/1460
+  generated 1060/1460
+  generated 1064/1460
+  generated 1068/1460
+  generated 1072/1460
+  generated 1076/1460
+  generated 1080/1460
+  generated 1084/1460
+  generated 1088/1460
+  generated 1092/1460
+  generated 1096/1460
+  generated 1100/1460
+  generated 1104/1460
+  generated 1108/1460
+  generated 1112/1460
+  generated 1116/1460
+  generated 1120/1460
+  generated 1124/1460
+  generated 1128/1460
+  generated 1132/1460
+  generated 1136/1460
+  generated 1140/1460
+  generated 1144/1460
+  generated 1148/1460
+  generated 1152/1460
+  generated 1156/1460
+  generated 1160/1460
+  generated 1164/1460
+  generated 1168/1460
+  generated 1172/1460
+  generated 1176/1460
+  generated 1180/1460
+  generated 1184/1460
+  generated 1188/1460
+  generated 1192/1460
+  generated 1196/1460
+  generated 1200/1460
+  generated 1204/1460
+  generated 1208/1460
+  generated 1212/1460
+  generated 1216/1460
+  generated 1220/1460
+  generated 1224/1460
+  generated 1228/1460
+  generated 1232/1460
+  generated 1236/1460
+  generated 1240/1460
+  generated 1244/1460
+  generated 1248/1460
+  generated 1252/1460
+  generated 1256/1460
+  generated 1260/1460
+  generated 1264/1460
+  generated 1268/1460
+  generated 1272/1460
+  generated 1276/1460
+  generated 1280/1460
+  generated 1284/1460
+  generated 1288/1460
+  generated 1292/1460
+  generated 1296/1460
+  generated 1300/1460
+  generated 1304/1460
+  generated 1308/1460
+  generated 1312/1460
+  generated 1316/1460
+  generated 1320/1460
+  generated 1324/1460
+  generated 1328/1460
+  generated 1332/1460
+  generated 1336/1460
+  generated 1340/1460
+  generated 1344/1460
+  generated 1348/1460
+  generated 1352/1460
+  generated 1356/1460
+  generated 1360/1460
+  generated 1364/1460
+  generated 1368/1460
+  generated 1372/1460
+  generated 1376/1460
+  generated 1380/1460
+  generated 1384/1460
+  generated 1388/1460
+  generated 1392/1460
+  generated 1396/1460
+  generated 1400/1460
+  generated 1404/1460
+  generated 1408/1460
+  generated 1412/1460
+  generated 1416/1460
+  generated 1420/1460
+  generated 1424/1460
+  generated 1428/1460
+  generated 1432/1460
+  generated 1436/1460
+  generated 1440/1460
+  generated 1444/1460
+  generated 1448/1460
+  generated 1452/1460
+  generated 1456/1460
+  generated 1460/1460
+executed: generating programs for 1460 questions
+  parsed 4/560 unique questions (5s)
+  parsed 8/560 unique questions (10s)
+  parsed 12/560 unique questions (14s)
+  parsed 16/560 unique questions (19s)
+  parsed 20/560 unique questions (24s)
+  parsed 24/560 unique questions (29s)
+  parsed 28/560 unique questions (34s)
+  parsed 32/560 unique questions (39s)
+  parsed 36/560 unique questions (44s)
+  parsed 40/560 unique questions (49s)
+  parsed 44/560 unique questions (55s)
+  parsed 48/560 unique questions (62s)
+  parsed 52/560 unique questions (68s)
+  parsed 56/560 unique questions (75s)
+  parsed 60/560 unique questions (81s)
+  parsed 64/560 unique questions (88s)
+  parsed 68/560 unique questions (94s)
+  parsed 72/560 unique questions (101s)
+  parsed 76/560 unique questions (107s)
+  parsed 80/560 unique questions (114s)
+  parsed 84/560 unique questions (121s)
+  parsed 88/560 unique questions (127s)
+  parsed 92/560 unique questions (134s)
+  parsed 96/560 unique questions (141s)
+  parsed 100/560 unique questions (146s)
+  parsed 104/560 unique questions (152s)
+  parsed 108/560 unique questions (159s)
+  parsed 112/560 unique questions (166s)
+  parsed 116/560 unique questions (172s)
+  parsed 120/560 unique questions (179s)
+  parsed 124/560 unique questions (186s)
+  parsed 128/560 unique questions (192s)
+  parsed 132/560 unique questions (199s)
+  parsed 136/560 unique questions (205s)
+  parsed 140/560 unique questions (212s)
+  parsed 144/560 unique questions (219s)
+  parsed 148/560 unique questions (225s)
+  parsed 152/560 unique questions (232s)
+  parsed 156/560 unique questions (239s)
+  parsed 160/560 unique questions (245s)
+  parsed 164/560 unique questions (252s)
+  parsed 168/560 unique questions (259s)
+  parsed 172/560 unique questions (266s)
+  parsed 176/560 unique questions (272s)
+  parsed 180/560 unique questions (277s)
+  parsed 184/560 unique questions (284s)
+  parsed 188/560 unique questions (290s)
+  parsed 192/560 unique questions (297s)
+  parsed 196/560 unique questions (303s)
+  parsed 200/560 unique questions (310s)
+  parsed 204/560 unique questions (316s)
+  parsed 208/560 unique questions (323s)
+  parsed 212/560 unique questions (328s)
+  parsed 216/560 unique questions (333s)
+  parsed 220/560 unique questions (340s)
+  parsed 224/560 unique questions (346s)
+  parsed 228/560 unique questions (353s)
+  parsed 232/560 unique questions (359s)
+  parsed 236/560 unique questions (364s)
+  parsed 240/560 unique questions (371s)
+  parsed 244/560 unique questions (378s)
+  parsed 248/560 unique questions (384s)
+  parsed 252/560 unique questions (391s)
+  parsed 256/560 unique questions (399s)
+  parsed 260/560 unique questions (404s)
+  parsed 264/560 unique questions (411s)
+  parsed 268/560 unique questions (416s)
+  parsed 272/560 unique questions (422s)
+  parsed 276/560 unique questions (427s)
+  parsed 280/560 unique questions (434s)
+  parsed 284/560 unique questions (439s)
+  parsed 288/560 unique questions (444s)
+  parsed 292/560 unique questions (449s)
+  parsed 296/560 unique questions (456s)
+  parsed 300/560 unique questions (462s)
+  parsed 304/560 unique questions (469s)
+  parsed 308/560 unique questions (474s)
+  parsed 312/560 unique questions (481s)
+  parsed 316/560 unique questions (487s)
+  parsed 320/560 unique questions (494s)
+  parsed 324/560 unique questions (500s)
+  parsed 328/560 unique questions (505s)
+  parsed 332/560 unique questions (512s)
+  parsed 336/560 unique questions (519s)
+  parsed 340/560 unique questions (525s)
+  parsed 344/560 unique questions (532s)
+  parsed 348/560 unique questions (539s)
+  parsed 352/560 unique questions (545s)
+  parsed 356/560 unique questions (552s)
+  parsed 360/560 unique questions (558s)
+  parsed 364/560 unique questions (565s)
+  parsed 368/560 unique questions (572s)
+  parsed 372/560 unique questions (578s)
+  parsed 376/560 unique questions (585s)
+  parsed 380/560 unique questions (592s)
+  parsed 384/560 unique questions (598s)
+  parsed 388/560 unique questions (605s)
+  parsed 392/560 unique questions (611s)
+  parsed 396/560 unique questions (618s)
+  parsed 400/560 unique questions (625s)
+  parsed 404/560 unique questions (631s)
+  parsed 408/560 unique questions (638s)
+  parsed 412/560 unique questions (645s)
+  parsed 416/560 unique questions (652s)
+  parsed 420/560 unique questions (658s)
+  parsed 424/560 unique questions (665s)
+  parsed 428/560 unique questions (672s)
+  parsed 432/560 unique questions (678s)
+  parsed 436/560 unique questions (685s)
+  parsed 440/560 unique questions (692s)
+  parsed 444/560 unique questions (698s)
+  parsed 448/560 unique questions (705s)
+  parsed 452/560 unique questions (712s)
+  parsed 456/560 unique questions (718s)
+  parsed 460/560 unique questions (725s)
+  parsed 464/560 unique questions (732s)
+  parsed 468/560 unique questions (738s)
+  parsed 472/560 unique questions (745s)
+  parsed 476/560 unique questions (751s)
+  parsed 480/560 unique questions (758s)
+  parsed 484/560 unique questions (765s)
+  parsed 488/560 unique questions (771s)
+  parsed 492/560 unique questions (778s)
+  parsed 496/560 unique questions (783s)
+  parsed 500/560 unique questions (788s)
+  parsed 504/560 unique questions (795s)
+  parsed 508/560 unique questions (801s)
+  parsed 512/560 unique questions (808s)
+  parsed 516/560 unique questions (814s)
+  parsed 520/560 unique questions (821s)
+  parsed 524/560 unique questions (826s)
+  parsed 528/560 unique questions (833s)
+  parsed 532/560 unique questions (839s)
+  parsed 536/560 unique questions (846s)
+  parsed 540/560 unique questions (851s)
+  parsed 544/560 unique questions (858s)
+  parsed 548/560 unique questions (865s)
+  parsed 552/560 unique questions (872s)
+  parsed 556/560 unique questions (877s)
+  parsed 560/560 unique questions (881s)
+executed: executing 1460 programs
+  executed 50/1460
+  executed 100/1460
+  executed 150/1460
+  executed 200/1460
+  executed 250/1460
+  executed 300/1460
+  executed 350/1460
+  executed 400/1460
+  executed 450/1460
+  executed 500/1460
+  executed 550/1460
+  executed 600/1460
+  executed 650/1460
+  executed 700/1460
+  executed 750/1460
+  executed 800/1460
+  executed 850/1460
+  executed 900/1460
+  executed 950/1460
+  executed 1000/1460
+  executed 1050/1460
+  executed 1100/1460
+  executed 1150/1460
+  executed 1200/1460
+  executed 1250/1460
+  executed 1300/1460
+  executed 1350/1460
+  executed 1400/1460
+  executed 1450/1460
+
+n = 1460
+
+                          direct  executed
+accuracy (all)             0.628     0.853
+answers                    1.000     0.996
+accuracy when answered     0.628     0.856
+
+counting                  direct  executed
+  numeric coverage         1.000     0.998
+  under                     1.45      0.68
+  over                      0.26      0.03
+  MAE                       1.70      0.71
+  n numeric                  555       554
+
+paired:  both right 870 | direct only 47 | executed only 375 | neither 168
+
+direct statuses   : {'ok': 1460}
+program statuses  : {'ok': 1460}
+execution statuses: {'ok': 1454, 'ambiguous': 6}
+
+cost: direct 1312301in/2961out 766.4s | executed 1635384in/80865out 2182.5s
+
+family                          n   direct  executed
+category_anchor_relation      290    0.403     0.717
+category_ego_region           292    0.483     0.723
+category_status               438    0.751     0.984
+count_exist_category          440    0.750     0.898
+
+scene                           n   direct  executed
+01452fbfbf4543af8acdfd3e8a     10    0.600     0.800
+01e4fcbe6e49483293ce457271     10    0.600     1.000
+034dee1695304630b0692da8c1     10    0.800     0.700
+04219bfdc9004ba2af16d3079e     10    0.800     0.800
+07aed9dae37340a997535ad991     10    0.800     1.000
+080a52cb8f59489b9cddc7b721     10    0.500     0.600
+0ac05652a4c44374998be876ba     10    0.700     0.800
+0dae482684ce4cd69a7258f55b     10    0.600     0.700
+0e7ede02718341558414865d5c     10    0.300     0.800
+112ca771e318478a88cfa692f6     10    0.400     0.500
+16be583c31a2403caa6c158bb5     10    0.700     0.900
+16e50a63b809463099cb4c378f     10    0.700     0.900
+197a7e4d3de84e57af17b3d65f     10    0.700     0.900
+19d97841d6f64eba9f6eb9b6e8     10    0.300     0.900
+1aa633b683174280b243e0a9a7     10    0.900     1.000
+201b7c65a61f4bc1a2333ea90b     10    0.600     1.000
+2086743226764f268fe8d4b0b7     10    0.600     1.000
+21a7ba093614493b83838b9656     10    0.500     0.800
+223096a415cc45bf8ecd4c3a42     10    0.700     0.900
+265f002f02d447ad9074813292     10    0.500     0.800
+26a6b03c8e2f4e6692f174a707     10    0.700     1.000
+2abb3f3517c64446a5768df566     10    0.500     0.800
+2ca15f59d656489a8b1a0be4d9     10    0.700     0.700
+2eb4d7f00e584a548aa0b89963     10    0.400     0.800
+2ed0fcbfc214478ca3b3ce013e     10    0.500     0.800
+2f56eb47c64f43df8902d9f88a     10    0.700     0.800
+3045ed93c2534ec2a5cabea89b     10    0.700     1.000
+30a1a4ccd60047b4a22ee3bf06     10    0.500     0.900
+32185f91e68f4069ab3cdd2f4f     10    0.600     0.800
+3363f396bb43405fbdd17d65dc     10    0.600     1.000
+36f27b26ef4c423c9b79ac984d     10    0.600     0.900
+380ff00ec86447e3b986edc8e8     10    0.700     0.900
+3927699fa562451a98bb13bf84     10    0.500     0.800
+3a2d9bf6115f40898005d1c1df     10    0.600     0.800
+3ada261efee347cba2e7557794     10    0.600     0.900
+3b2ee26cb8484f77895bc33666     10    0.300     0.800
+3dd2be428534403ba150a0b60a     10    0.700     0.900
+3dd9ad3f963e4f588d75c112cb     10    0.600     1.000
+3f90afe9f7dc49399347ae1626     10    0.700     0.900
+40209c4e465d4b4e8341ebd52b     10    0.500     1.000
+41fde20fedcd4d22ab26811688     10    0.400     0.700
+44c9089913db4d4ab839a2fcb3     10    0.600     0.800
+4962cb207a824e57bd10a2af49     10    0.600     0.700
+4bb9626f13184da7a67ba1b241     10    0.900     1.000
+4efbf4c0b77f467385fc2e19da     10    0.800     0.900
+50ff554b3ecb4d208849d042b7     10    0.400     0.800
+5301151d8b6a42b0b252e95634     10    0.500     0.600
+54f56f80350b4c07af598ee87c     10    0.700     0.900
+5521cd85ed0e441f8d23938ed0     10    0.300     1.000
+55b3a17359014f398b6bbd90e9     10    0.500     0.700
+57dc3221a3d845b5ab17ff0f98     10    0.700     0.800
+5a0dd8908a3a459b83ec5eb6ac     10    0.500     0.800
+5af9c7f124d84e7e9ac729fafa     10    0.800     0.900
+5eaff323af5b4df4b864dbd433     10    0.900     0.900
+6498fce2f38645fc9bf9d4464b     10    0.800     1.000
+64bfc5edd71147858ce7446892     10    0.600     1.000
+656bb27689dc4e9b8e4559e3f6     10    0.600     0.900
+6741d407b1b44511853e5ec7aa     10    0.700     0.900
+6776b91389394ff18e57b26986     10    0.700     1.000
+68e79a88244f447f993a72da44     10    0.600     1.000
+696a45dbd11346b794fdce43fa     10    0.800     0.700
+6a24a80e2ea3493c81f5fdb9fe     10    0.200     0.800
+6af9b75e439e4811ad3b04dc22     10    0.700     0.800
+6d872d1448814fd189e631b118     10    0.400     0.600
+7052d21b95fc4bae8761b8d952     10    0.600     0.800
+7061c08f7eec4495979a0cf68a     10    0.500     1.000
+7210f928860043b5a7e0d3dd4b     10    0.500     1.000
+7365495b74464629813b41eacd     10    0.700     0.900
+76ceedbcc6a54b158eba9945a1     10    0.600     0.700
+7bd098ac88cb4221addd19202a     10    0.800     0.700
+7e8ff24069ff4023ac699669b2     10    0.800     0.800
+813213458a214a39a1d1fc77fa     10    0.400     0.600
+8180a1dbbba3479bb0c7f4ff6e     10    0.400     0.700
+82cabcf15a1a48aca6bbf082f8     10    0.900     0.900
+8377abf77f464a9cb62eacf63f     10    0.700     1.000
+848ac962547c4508b8f3b0fcc8     10    0.800     0.900
+84e056bd8e994362a37cba45c0     10    0.800     0.900
+85651af9c04945c3a394cf845c     10    0.700     0.900
+85889db3628342a482c5c0255e     10    0.500     0.900
+8e3364691ee94c698458e0913a     10    0.900     0.900
+8edbc31083ab4fb187626e5b3c     10    0.600     0.900
+905cfed4f0fc46679e8df8890c     10    0.900     1.000
+9068766ee9374872a380fe75fc     10    0.800     1.000
+9088db17416043e5880a53178b     10    0.500     0.600
+91c071bcc1ad4fa1b555399e1c     10    0.600     1.000
+91f797db8fb34ae5b32ba85eec     10    0.700     1.000
+931c5c57011944459bba3825ab     10    0.600     1.000
+93608f0d57794ba6b014314c48     10    0.400     0.600
+952cb0bcd89b4ca4b904cdcbbf     10    0.900     0.800
+955ff42a1990442d868cdfc0c0     10    0.400     0.600
+96e5f1f0944946f391b4ef33ad     10    0.600     1.000
+9709626638f5406f9f77334815     10    0.800     1.000
+991d65cab952449a821deb32e9     10    0.900     0.900
+9d1307e95c524ca4a51e03087b     10    0.600     0.600
+9f1f69646d644e35be4fe0122a     10    0.600     0.800
+a04daf2d0f194b2ab2ff2a47df     10    0.800     0.800
+a178a1b5415f45c08d179bd2ca     10    0.700     1.000
+a2b005c4dd654af48194ada186     10    0.400     0.800
+a499ee875da34e2b9655afb999     10    0.600     0.700
+a7d073bc435b4356a0a9a5ebfb     10    0.500     0.800
+aacd6706a091407fb1b0e5343d     10    0.800     1.000
+acc29386502047339e1ec6b9c7     10    0.700     1.000
+aedcd3cf7c4a49d7a4a43ab744     10    0.700     0.900
+afbc2583cc324938b2e8931d42     10    0.700     0.900
+afd73f70ff7d46d6b772d341c0     10    0.900     0.900
+b07358651c604e2d83da7c4d47     10    0.600     0.900
+b4b82c4d338a4b6d86835388ce     10    0.500     1.000
+b51869782c0e464b8021eb7986     10    0.800     0.800
+b789de07180846cc972118ee6d     10    0.500     0.700
+b94fbf78579f4ff5ab5dbd897d     10    0.400     0.600
+bd338b912ce9434995b29b6dac     10    0.700     0.800
+bed67ef03c4a4066a74f6c0117     10    0.800     0.800
+c164a8e8e8b8489f964f711f47     10    0.800     1.000
+c3ab8ee2c1a54068a72d7eb4cf     10    0.700     0.900
+c4df079d260241ff8015218e29     10    0.700     0.700
+c525507ee2ef4c6d8bb64b0e0c     10    0.800     1.000
+c65c4acf86954f8cbd53a3541a     10    0.900     1.000
+c92fdd793fbb4401b12782a9b8     10    0.700     1.000
+ca6e45c25d954dc4af6e12dd7b     10    0.600     1.000
+cb3e964697d448b3bc04a9bc06     10    0.900     0.900
+cba3ddd5c3664a43b6a08e586e     10    0.600     0.900
+d01e7279da2649ef896dc42f6b     10    0.400     0.700
+d1e57234fd6a463d963670938f     10    0.600     0.500
+d29527ec841045d18d04a933e7     10    0.600     1.000
+d3b86ca0a17840109e9e049b3d     10    0.400     0.900
+d7bacba9119840f78f3c804134     10    0.300     1.000
+d87ec0461e3f4c4ea29b0f0c0e     10    0.300     0.900
+dce6f3f2bf6b4859abcf326858     10    0.500     1.000
+ddb615d9bb22484cabc6545b63     10    0.600     0.700
+e005041f659c47e194cd5b18ea     10    0.600     1.000
+e036014a715945aa965f4ec24e     10    0.800     1.000
+e60ef590e3614187b7800db3e5     10    0.400     0.800
+e6f1a7e6218a4737bfedc6af90     10    0.800     0.800
+e7ef871f77f44331aefdebc24e     10    0.700     1.000
+e8099a6136804f3bb9b38ff94d     10    0.800     1.000
+e8834785d9ff4783a5950281a4     10    0.600     0.600
+ec7b7459461e4da1a236ba23e2     10    0.900     0.800
+ed242d80ccb34b139aaf9ab898     10    0.300     0.700
+ee48ee50025e40b4ae27dbdf84     10    0.700     0.800
+efa5c96f05594f41a2498eb9f2     10    0.900     0.900
+f24b4682fbb9482aba149534de     10    0.700     0.800
+f2541977a00a448db9b46a3218     10    0.500     1.000
+f5b29a1e09d04355adcd60ab72     10    0.600     0.900
+f97bf749746c4c3a8ad9f1c11e     10    0.600     0.700
+fb73d1a6c16147ee9416faf6b3     10    0.700     0.600
+fcc020250f884397965ba00c1d     10    0.400     0.700
+
+scene-dependence control: {"n_question_groups": 125, "direct_gave_one_answer_to_all": 19, "direct_correct_on_every_scene": 47, "executed_gave_one_answer_to_all": 7, "executed_correct_on_every_scene": 96}
+
+wrote /vol/outputs/val_old_32b/rows_eval.jsonl
+wrote /vol/outputs/val_old_32b/summary_eval.json
