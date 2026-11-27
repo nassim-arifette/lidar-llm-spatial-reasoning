@@ -44,6 +44,7 @@ from .functional import (
     ProgramError,
     Signature,
     catalogue,
+    json_schema,
     program_from_json,
 )
 from .qwen_runtime import QwenRuntime, RuntimeConfig
@@ -240,7 +241,12 @@ class FunctionalQwenParser:
         precision: str = "fp16",
         device_map: Optional[str] = None,
         runtime: Optional[QwenRuntime] = None,
+        constrained: bool = False,
     ) -> None:
+        #: Decode under the catalogue's JSON Schema. A separate condition with
+        #: its own cache identity; typing is still checked afterwards.
+        self.constrained = constrained
+        self._constraint = None
         self.region_config = region_config or DEFAULT_REGION_CONFIG
         self.catalogue = catalogue(self.region_config)
         # Share the caller's runtime when given one: three modes that each
@@ -264,7 +270,22 @@ class FunctionalQwenParser:
         out.update(prompt_sha256=digest.hexdigest()[:16],
                    schema_version=SCHEMA_VERSION,
                    layout=self.region_config.layout)
+        if self.constrained:
+            out["decoding"] = "greedy+json_schema"
         return out
+
+    def _generate(self, questions: Sequence[str]):
+        extra = {}
+        if self.constrained:
+            if self._constraint is None:
+                schema = json_schema(self.region_config)
+                # The prompt lets the model decline with an empty program, and
+                # a decoder that could not decline would have to invent one.
+                schema["properties"]["program"]["minItems"] = 0
+                self._constraint = self.runtime.json_constraint(schema)
+            extra["prefix_allowed_tokens_fn"] = self._constraint
+        return self.runtime.generate(
+            [build_messages(q, self.region_config) for q in questions], **extra)
 
     def config_id(self) -> str:
         blob = json.dumps(self.config_fingerprint(), sort_keys=True)
@@ -306,8 +327,7 @@ class FunctionalQwenParser:
         size = max(self.runtime.config.batch_size, 1)
         for i in range(0, len(missing), size):
             chunk = missing[i:i + size]
-            generations = self.runtime.generate(
-                [build_messages(q, self.region_config) for q in chunk])
+            generations = self._generate(chunk)
             for q, g in zip(chunk, generations):
                 if g.hit_token_budget:
                     self.stats.truncated += 1
@@ -327,7 +347,7 @@ class FunctionalQwenParser:
         entry = self._usable(question)
         from_cache = entry is not None
         if entry is None:
-            g = self.runtime.generate([build_messages(question, self.region_config)])[0]
+            g = self._generate([question])[0]
             if g.hit_token_budget:
                 self.stats.truncated += 1
             entry = {"raw": g.text, "config": self.config_id(),

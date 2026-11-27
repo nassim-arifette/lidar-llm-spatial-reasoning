@@ -1,0 +1,178 @@
+eval: 280 examples over 3 scenes
+model: Qwen/Qwen2.5-1.5B-Instruct  backend=local  (93ec571c2cfd)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 384)
+
+direct: generating 280 of 280 (0 cached)
+
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/338 [00:00<02:34,  2.18it/s]
+Loading weights:  37%|███▋      | 124/338 [00:00<00:00, 278.52it/s]
+Loading weights:  54%|█████▍    | 184/338 [00:00<00:00, 269.47it/s]
+Loading weights:  67%|██████▋   | 228/338 [00:00<00:00, 290.53it/s]
+Loading weights:  80%|███████▉  | 269/338 [00:01<00:00, 274.49it/s]
+Loading weights:  90%|████████▉ | 304/338 [00:01<00:00, 285.38it/s]
+Loading weights: 100%|██████████| 338/338 [00:01<00:00, 261.04it/s]
+  generated 8/280
+  generated 16/280
+  generated 24/280
+  generated 32/280
+  generated 40/280
+  generated 48/280
+  generated 56/280
+  generated 64/280
+  generated 72/280
+  generated 80/280
+  generated 88/280
+  generated 96/280
+  generated 104/280
+  generated 112/280
+  generated 120/280
+  generated 128/280
+  generated 136/280
+  generated 144/280
+  generated 152/280
+  generated 160/280
+  generated 168/280
+  generated 176/280
+  generated 184/280
+  generated 192/280
+  generated 200/280
+  generated 208/280
+  generated 216/280
+  generated 224/280
+  generated 232/280
+  generated 240/280
+  generated 248/280
+  generated 256/280
+  generated 264/280
+  generated 272/280
+  generated 280/280
+executed: generating programs for 280 questions
+  parsed 8/252 unique questions (3s)
+  parsed 16/252 unique questions (6s)
+  parsed 24/252 unique questions (10s)
+  parsed 32/252 unique questions (14s)
+  parsed 40/252 unique questions (18s)
+  parsed 48/252 unique questions (22s)
+  parsed 56/252 unique questions (26s)
+  parsed 64/252 unique questions (31s)
+  parsed 72/252 unique questions (36s)
+  parsed 80/252 unique questions (41s)
+  parsed 88/252 unique questions (47s)
+  parsed 96/252 unique questions (52s)
+  parsed 104/252 unique questions (56s)
+  parsed 112/252 unique questions (60s)
+  parsed 120/252 unique questions (66s)
+  parsed 128/252 unique questions (71s)
+  parsed 136/252 unique questions (77s)
+  parsed 144/252 unique questions (81s)
+  parsed 152/252 unique questions (86s)
+  parsed 160/252 unique questions (91s)
+  parsed 168/252 unique questions (95s)
+  parsed 176/252 unique questions (100s)
+  parsed 184/252 unique questions (105s)
+  parsed 192/252 unique questions (110s)
+  parsed 200/252 unique questions (115s)
+  parsed 208/252 unique questions (120s)
+  parsed 216/252 unique questions (126s)
+  parsed 224/252 unique questions (131s)
+  parsed 232/252 unique questions (135s)
+  parsed 240/252 unique questions (139s)
+  parsed 248/252 unique questions (143s)
+  parsed 252/252 unique questions (146s)
+functional: generating programs for 280 questions
+  programs 8/252 (6s)
+  programs 16/252 (11s)
+  programs 24/252 (19s)
+  programs 32/252 (30s)
+  programs 40/252 (37s)
+  programs 48/252 (45s)
+  programs 56/252 (52s)
+  programs 64/252 (61s)
+  programs 72/252 (72s)
+  programs 80/252 (82s)
+  programs 88/252 (94s)
+  programs 96/252 (106s)
+  programs 104/252 (114s)
+  programs 112/252 (122s)
+  programs 120/252 (134s)
+  programs 128/252 (145s)
+  programs 136/252 (156s)
+  programs 144/252 (164s)
+  programs 152/252 (179s)
+  programs 160/252 (189s)
+  programs 168/252 (200s)
+  programs 176/252 (208s)
+  programs 184/252 (217s)
+  programs 192/252 (226s)
+  programs 200/252 (236s)
+  programs 208/252 (245s)
+  programs 216/252 (254s)
+  programs 224/252 (262s)
+  programs 232/252 (277s)
+  programs 240/252 (286s)
+  programs 248/252 (293s)
+  programs 252/252 (297s)
+executed: executing 280 programs
+  executed 50/280
+  executed 100/280
+  executed 150/280
+  executed 200/280
+  executed 250/280
+
+n = 280
+
+                          direct  executed
+accuracy (all)             0.557     0.521
+answers                    0.989     0.596
+accuracy when answered     0.563     0.874
+
+counting                  direct  executed
+  numeric coverage         0.943     0.887
+  under                     2.14      0.13
+  over                      0.28      3.77
+  MAE                       2.42      3.89
+  n numeric                   50        47
+
+paired:  both right 88 | direct only 68 | executed only 58 | neither 66
+
+direct statuses   : {'ok': 277, 'unparseable': 3}
+program statuses  : {'ok': 240, 'invalid': 35, 'refused': 5}
+execution statuses: {'ok': 167, 'ambiguous': 43, 'missing': 30}
+
+cost: direct 323218in/589out 71.6s | executed 315375in/20729out 159.1s
+
+family                          n   direct  executed
+category_anchor_relation       31    0.452     0.484
+category_ego_region            31    0.581     0.774
+category_status                31    0.548     0.871
+compare_attribute              31    0.677     0.290
+compare_count                  31    0.613     0.194
+count_exist_category           31    0.742     0.774
+identify_object                31    0.387     0.452
+query_status                   32    0.656     0.750
+same_attribute_set             31    0.355     0.097
+
+functional (typed)                   0.314
+  answers                            0.350
+  acc when answering                 0.898
+  counting MAE                  1.6129032258064515
+  statuses: {'ok': 110, 'ill_typed': 165, 'malformed': 5}
+  execution: {'ok': 98, 'missing': 9, 'ambiguous': 3}
+  cost: 546375in/35995out 323.4s
+
+  direct_vs_executed       {'both': 88, 'direct_only': 68, 'executed_only': 58, 'neither': 66}  p=4.23e-01
+  direct_vs_functional     {'both': 51, 'direct_only': 105, 'functional_only': 37, 'neither': 87}  p=9.88e-09
+  executed_vs_functional   {'both': 69, 'executed_only': 77, 'functional_only': 19, 'neither': 115}  p=1.86e-09
+
+scene                           n   direct  executed
+325cef682f064c55a255f2625c    119    0.504     0.496
+de7d80a1f5fb4c3e82ce8a4f21     94    0.596     0.500
+e233467e827140efa4b42d2b4c     67    0.597     0.597
+
+scene-dependence control: {"n_question_groups": 6, "direct_gave_one_answer_to_all": 1, "direct_correct_on_every_scene": 1, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/free_wide_1p5b_eval/rows_eval.jsonl
+wrote /vol/outputs/free_wide_1p5b_eval/summary_eval.json

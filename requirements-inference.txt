@@ -2,3 +2,4 @@
 transformers>=4.51,<6
 accelerate>=1,<2
 bitsandbytes>=0.45,<1
+lm-format-enforcer>=0.10,<1

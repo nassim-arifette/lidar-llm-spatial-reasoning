@@ -1,3 +1,4 @@
 ﻿-r requirements-audit.txt
-pytest>=8,<9
+pytest>=8,<10
+jsonschema>=4,<5
 torch>=2.4,<3

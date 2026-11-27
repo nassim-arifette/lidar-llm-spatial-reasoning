@@ -1,0 +1,85 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen2.5-1.5B-Instruct  backend=local  (076d6d12270b)
+objects: min_lidar_points=0 -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2r (budget 1536)
+
+direct: generating 100 of 100 (0 cached)
+
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/338 [00:00<03:49,  1.47it/s]
+Loading weights:  40%|███▉      | 135/338 [00:00<00:00, 233.79it/s]
+Loading weights:  63%|██████▎   | 214/338 [00:01<00:00, 218.51it/s]
+Loading weights:  79%|███████▊  | 266/338 [00:01<00:00, 236.16it/s]
+Loading weights:  91%|█████████▏| 309/338 [00:01<00:00, 225.27it/s]
+Loading weights: 100%|██████████| 338/338 [00:01<00:00, 207.09it/s]
+  generated 8/100
+  generated 16/100
+  generated 24/100
+  generated 32/100
+  generated 40/100
+  generated 48/100
+  generated 56/100
+  generated 64/100
+  generated 72/100
+  generated 80/100
+  generated 88/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 8/85 unique questions (4s)
+  parsed 16/85 unique questions (9s)
+  parsed 24/85 unique questions (14s)
+  parsed 32/85 unique questions (19s)
+  parsed 40/85 unique questions (24s)
+  parsed 48/85 unique questions (29s)
+  parsed 56/85 unique questions (34s)
+  parsed 64/85 unique questions (40s)
+  parsed 72/85 unique questions (45s)
+  parsed 80/85 unique questions (50s)
+  parsed 85/85 unique questions (53s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.370     0.800
+answers                    0.750     0.860
+accuracy when answered     0.493     0.930
+
+counting                  direct  executed
+  numeric coverage         0.865     0.946
+  under                     1.47      0.00
+  over                      1.75      0.00
+  MAE                       3.22      0.00
+  n numeric                   32        35
+
+paired:  both right 26 | direct only 11 | executed only 54 | neither 9
+
+direct statuses   : {'ok': 75, 'unparseable': 17, 'truncated': 8}
+program statuses  : {'ok': 88, 'invalid': 12}
+execution statuses: {'ok': 86, 'ambiguous': 2}
+
+cost: direct 136011in/30583out 571.7s | executed 112095in/5756out 61.7s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.200     0.560
+category_ego_region            25    0.240     0.920
+category_status                25    0.440     1.000
+count_exist_category           25    0.600     0.720
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.333     0.933
+6f83169d067343658251f72e1d     13    0.538     0.769
+bebf5f5b2a674631ab5c88fd1a     13    0.231     0.846
+c5224b9b454b4ded9b5d2d2634     15    0.333     0.800
+cc8c0bf57f984915a77078b10e     18    0.278     0.778
+d25718445d89453381c659b9c8     16    0.562     0.812
+fcbccedd61424f1b85dcbf8f89     10    0.300     0.600
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 1, "direct_correct_on_every_scene": 0, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/d2r_1p5b_dev_v3/rows_dev.jsonl
+wrote /vol/outputs/d2r_1p5b_dev_v3/summary_dev.json

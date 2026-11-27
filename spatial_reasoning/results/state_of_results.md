@@ -13,6 +13,24 @@ All object lists are **nuScenes ground-truth annotations**, not a detector.
 That is an oracle condition: it fixes perception so that the comparison is
 about what each system does with a scene, not about who sees it better.
 
+> **November 2026.** Everything below was measured under the published
+> reading of the nuScenes-QA relations (layout `nuscenes_qa`, signed sectors).
+> The released answers follow another convention: they do not distinguish left
+> from right. The numbers below are unchanged and remain what they say they
+> are, results under the published reading. What changes is their
+> interpretation, in particular the 84.5% plateau of the program mode and the
+> attribution of executor disagreements to sector boundaries.
+>
+> | where | what |
+> |---|---|
+> | `docs/LABEL_AUDIT.md` | the three label conventions and their evidence |
+> | `label_audit/` | the geometry-free tests on the official train and val sets |
+> | `rescored_as_labelled/` | every archived program re-executed under the as-labelled layout, with `analysis.md` (headline, fallback, ceiling, by relation) |
+> | `executor_verification_as_labelled/`, `executor_verification_val_drives/` | the executor against reference programs under each convention |
+> | `symbolic_diagnostic_as_labelled/` | the zero-LiDAR analysis under both layouts |
+> | `runs_2026_11/` | new GPU runs with provenance; `README.md` there holds the tables |
+> | `artifact_audit_2026_11.json` | audit receipt covering the archive, the rescoring and the new runs |
+
 ---
 
 ## 0. The central comparison — one model, two ways of using it

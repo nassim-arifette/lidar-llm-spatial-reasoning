@@ -1,0 +1,100 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen2.5-7B-Instruct  backend=local  (e7bdb9ea90ac)
+objects: min_lidar_points=0 -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 256)
+
+direct: generating 100 of 100 (0 cached)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 4 files:   0%|          | 0/4 [00:00<?, ?it/s]
+Fetching 4 files:  25%|██▌       | 1/4 [01:00<03:02, 60.95s/it]
+Fetching 4 files:  50%|█████     | 2/4 [01:10<01:01, 30.91s/it]
+Fetching 4 files:  75%|███████▌  | 3/4 [01:21<00:21, 21.48s/it]
+Fetching 4 files: 100%|██████████| 4/4 [01:24<00:00, 14.17s/it]
+Fetching 4 files: 100%|██████████| 4/4 [01:24<00:00, 21.02s/it]
+
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/339 [00:00<02:56,  1.92it/s]
+Loading weights:  19%|█▉        | 64/339 [00:00<00:02, 136.06it/s]
+Loading weights:  30%|██▉       | 101/339 [00:00<00:01, 149.68it/s]
+Loading weights:  38%|███▊      | 129/339 [00:01<00:01, 144.05it/s]
+Loading weights:  45%|████▍     | 151/339 [00:01<00:01, 141.25it/s]
+Loading weights:  51%|█████     | 172/339 [00:01<00:01, 153.54it/s]
+Loading weights:  58%|█████▊    | 196/339 [00:01<00:00, 167.32it/s]
+Loading weights:  65%|██████▍   | 220/339 [00:01<00:00, 172.79it/s]
+Loading weights:  72%|███████▏  | 244/339 [00:01<00:00, 175.29it/s]
+Loading weights:  79%|███████▉  | 268/339 [00:01<00:00, 182.81it/s]
+Loading weights:  86%|████████▌ | 292/339 [00:01<00:00, 183.11it/s]
+Loading weights:  93%|█████████▎| 316/339 [00:02<00:00, 187.14it/s]
+Loading weights: 100%|██████████| 339/339 [00:02<00:00, 158.42it/s]
+  generated 8/100
+  generated 16/100
+  generated 24/100
+  generated 32/100
+  generated 40/100
+  generated 48/100
+  generated 56/100
+  generated 64/100
+  generated 72/100
+  generated 80/100
+  generated 88/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 8/85 unique questions (4s)
+  parsed 16/85 unique questions (10s)
+  parsed 24/85 unique questions (15s)
+  parsed 32/85 unique questions (21s)
+  parsed 40/85 unique questions (26s)
+  parsed 48/85 unique questions (31s)
+  parsed 56/85 unique questions (37s)
+  parsed 64/85 unique questions (42s)
+  parsed 72/85 unique questions (48s)
+  parsed 80/85 unique questions (54s)
+  parsed 85/85 unique questions (57s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.590     0.950
+answers                    1.000     0.960
+accuracy when answered     0.590     0.990
+
+counting                  direct  executed
+  numeric coverage         1.000     0.946
+  under                     1.65      0.00
+  over                      0.27      0.00
+  MAE                       1.92      0.00
+  n numeric                   37        35
+
+paired:  both right 57 | direct only 2 | executed only 38 | neither 3
+
+direct statuses   : {'ok': 100}
+program statuses  : {'ok': 99, 'refused': 1}
+execution statuses: {'ok': 96, 'ambiguous': 3}
+
+cost: direct 128211in/200out 67.5s | executed 112095in/5622out 66.3s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.360     0.840
+category_ego_region            25    0.520     0.960
+category_status                25    0.640     1.000
+count_exist_category           25    0.840     1.000
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.533     1.000
+6f83169d067343658251f72e1d     13    0.692     1.000
+bebf5f5b2a674631ab5c88fd1a     13    0.615     1.000
+c5224b9b454b4ded9b5d2d2634     15    0.667     0.933
+cc8c0bf57f984915a77078b10e     18    0.500     0.889
+d25718445d89453381c659b9c8     16    0.688     1.000
+fcbccedd61424f1b85dcbf8f89     10    0.400     0.800
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 3, "direct_correct_on_every_scene": 0, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/d2_bare_7b_dev/rows_dev.jsonl
+wrote /vol/outputs/d2_bare_7b_dev/summary_dev.json

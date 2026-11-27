@@ -161,6 +161,55 @@ _SELECTOR_FIELDS = frozenset(
 _PROGRAM_FIELDS = frozenset({"op", "target", "second", "comparison"})
 
 
+def json_schema(directions: Sequence[str] = DIRECTIONS) -> Dict[str, object]:
+    """A JSON Schema of exactly the programs :func:`query_from_json` accepts.
+
+    Given to a constrained decoder, it turns the vocabulary into ``enum``s: a
+    category of ``"*"`` or a direction outside the layout cannot be emitted.
+    What is left is whether the program says what the question asks, which is
+    the model's part. The explicit refusal ``{"op": null}`` stays expressible;
+    a decoder that could not decline would be forced to invent a program for
+    a question outside the language.
+
+    Cross-field rules (a second selector for a binary operation, a comparison
+    for ``compare_count``) are still checked by the validator afterwards.
+    """
+    def nullable(values: Sequence[str]) -> Dict[str, object]:
+        return {"anyOf": [{"type": "string", "enum": list(values)}, {"type": "null"}]}
+
+    def selector(depth: int) -> Dict[str, object]:
+        # The validator accepts anchors down to depth 2 and nothing below.
+        anchor = ({"type": "null"} if depth >= 2 else
+                  {"anyOf": [selector(depth + 1), {"type": "null"}]})
+        return {
+            "type": "object",
+            "properties": {
+                "category": {"type": "string", "enum": sorted(_VALID_CATEGORIES)},
+                "status": nullable(sorted(_VALID_STATUSES)),
+                "negate_status": {"type": "boolean"},
+                "direction": nullable(list(directions)),
+                "anchor": anchor,
+            },
+            "required": ["category", "status", "negate_status", "direction", "anchor"],
+            "additionalProperties": False,
+        }
+
+    program = {
+        "type": "object",
+        "properties": {
+            "op": {"type": "string", "enum": [op.value for op in Op]},
+            "target": selector(0),
+            "second": {"anyOf": [selector(0), {"type": "null"}]},
+            "comparison": nullable(["more", "fewer"]),
+        },
+        "required": ["op", "target", "second", "comparison"],
+        "additionalProperties": False,
+    }
+    refusal = {"type": "object", "properties": {"op": {"type": "null"}},
+               "required": ["op"], "additionalProperties": False}
+    return {"anyOf": [program, refusal]}
+
+
 class InvalidProgram(ValueError):
     """The model produced something that is not a program in the DSL."""
 
@@ -390,7 +439,12 @@ class QwenQuestionParser:
         precision: str = "fp16",
         device_map: Optional[str] = None,
         runtime=None,
+        constrained: bool = False,
     ) -> None:
+        #: Decode under :func:`json_schema`. A separate condition: it changes
+        #: what the model can emit, so it has its own cache identity.
+        self.constrained = constrained
+        self._constraint = None
         self.model_name = model_name
         self.cache_path = cache_path
         self.max_new_tokens = max_new_tokens
@@ -437,7 +491,7 @@ class QwenQuestionParser:
             "max_new_tokens": self.max_new_tokens,
             "schema_version": self.schema_version,
             "precision": self.precision,
-            "decoding": "greedy",
+            "decoding": "greedy+json_schema" if self.constrained else "greedy",
         }
 
     def config_id(self) -> str:
@@ -534,8 +588,14 @@ class QwenQuestionParser:
         """Generate, keeping the token counts the comparison has to report."""
         self._ensure_model()
         assert self._runtime is not None
+        extra = {}
+        if self.constrained:
+            if self._constraint is None:
+                self._constraint = self._runtime.json_constraint(
+                    json_schema(self.directions))
+            extra["prefix_allowed_tokens_fn"] = self._constraint
         generations = self._runtime.generate(
-            [build_messages(q, self.directions) for q in questions])
+            [build_messages(q, self.directions) for q in questions], **extra)
         for generation in generations:
             if generation.hit_token_budget:
                 # A program cut off by the budget is unparseable for a reason

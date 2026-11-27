@@ -1,0 +1,82 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen2.5-1.5B-Instruct  backend=local  (076d6d12270b)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 256)
+
+direct: generating 100 of 100 (0 cached)
+
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/338 [00:01<06:19,  1.13s/it]
+Loading weights:  76%|███████▌  | 257/338 [00:01<00:00, 286.60it/s]
+Loading weights: 100%|██████████| 338/338 [00:01<00:00, 225.10it/s]
+  generated 8/100
+  generated 16/100
+  generated 24/100
+  generated 32/100
+  generated 40/100
+  generated 48/100
+  generated 56/100
+  generated 64/100
+  generated 72/100
+  generated 80/100
+  generated 88/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 8/85 unique questions (9s)
+  parsed 16/85 unique questions (16s)
+  parsed 24/85 unique questions (24s)
+  parsed 32/85 unique questions (31s)
+  parsed 40/85 unique questions (39s)
+  parsed 48/85 unique questions (46s)
+  parsed 56/85 unique questions (54s)
+  parsed 64/85 unique questions (61s)
+  parsed 72/85 unique questions (69s)
+  parsed 80/85 unique questions (76s)
+  parsed 85/85 unique questions (81s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.550     0.880
+answers                    0.980     0.960
+accuracy when answered     0.561     0.917
+
+counting                  direct  executed
+  numeric coverage         0.946     0.973
+  under                     2.29      0.00
+  over                      0.29      0.00
+  MAE                       2.57      0.00
+  n numeric                   35        36
+
+paired:  both right 49 | direct only 6 | executed only 39 | neither 6
+
+direct statuses   : {'ok': 98, 'unparseable': 2}
+program statuses  : {'ok': 100}
+execution statuses: {'ok': 96, 'ambiguous': 3, 'missing': 1}
+
+cost: direct 128211in/202out 59.8s | executed 112095in/5768out 90.2s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.320     0.600
+category_ego_region            25    0.560     0.920
+category_status                25    0.560     1.000
+count_exist_category           25    0.760     1.000
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.533     0.933
+6f83169d067343658251f72e1d     13    0.538     0.846
+bebf5f5b2a674631ab5c88fd1a     13    0.769     0.923
+c5224b9b454b4ded9b5d2d2634     15    0.333     0.867
+cc8c0bf57f984915a77078b10e     18    0.556     0.778
+d25718445d89453381c659b9c8     16    0.562     1.000
+fcbccedd61424f1b85dcbf8f89     10    0.600     0.800
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 1, "direct_correct_on_every_scene": 0, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/c_1p5b_dev/rows_dev.jsonl
+wrote /vol/outputs/c_1p5b_dev/summary_dev.json

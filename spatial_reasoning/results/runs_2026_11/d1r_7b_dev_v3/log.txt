@@ -1,0 +1,102 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen2.5-7B-Instruct  backend=local  (e7bdb9ea90ac)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-1r (budget 2048)
+
+direct: generating 100 of 100 (0 cached)
+
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/339 [00:00<05:00,  1.12it/s]
+Loading weights:  16%|█▌        | 54/339 [00:01<00:04, 71.03it/s]
+Loading weights:  23%|██▎       | 78/339 [00:01<00:03, 79.92it/s]
+Loading weights:  28%|██▊       | 96/339 [00:01<00:02, 91.60it/s]
+Loading weights:  33%|███▎      | 113/339 [00:01<00:02, 85.87it/s]
+Loading weights:  37%|███▋      | 126/339 [00:01<00:02, 85.22it/s]
+Loading weights:  41%|████      | 138/339 [00:01<00:02, 85.66it/s]
+Loading weights:  44%|████▍     | 149/339 [00:02<00:02, 80.67it/s]
+Loading weights:  48%|████▊     | 162/339 [00:02<00:02, 83.69it/s]
+Loading weights:  51%|█████     | 173/339 [00:02<00:01, 88.66it/s]
+Loading weights:  55%|█████▍    | 185/339 [00:02<00:01, 95.29it/s]
+Loading weights:  58%|█████▊    | 197/339 [00:02<00:01, 88.43it/s]
+Loading weights:  62%|██████▏   | 210/339 [00:02<00:01, 87.34it/s]
+Loading weights:  67%|██████▋   | 226/339 [00:02<00:01, 103.98it/s]
+Loading weights:  70%|███████   | 238/339 [00:02<00:01, 96.60it/s] 
+Loading weights:  73%|███████▎  | 249/339 [00:03<00:00, 99.31it/s]
+Loading weights:  77%|███████▋  | 260/339 [00:03<00:00, 91.22it/s]
+Loading weights:  80%|███████▉  | 270/339 [00:03<00:00, 87.55it/s]
+Loading weights:  83%|████████▎ | 282/339 [00:03<00:00, 94.57it/s]
+Loading weights:  86%|████████▋ | 293/339 [00:03<00:00, 89.87it/s]
+Loading weights:  90%|█████████ | 306/339 [00:03<00:00, 92.54it/s]
+Loading weights:  94%|█████████▎| 317/339 [00:03<00:00, 96.01it/s]
+Loading weights: 100%|██████████| 339/339 [00:03<00:00, 86.29it/s]
+  generated 8/100
+  generated 16/100
+  generated 24/100
+  generated 32/100
+  generated 40/100
+  generated 48/100
+  generated 56/100
+  generated 64/100
+  generated 72/100
+  generated 80/100
+  generated 88/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 8/85 unique questions (4s)
+  parsed 16/85 unique questions (10s)
+  parsed 24/85 unique questions (15s)
+  parsed 32/85 unique questions (20s)
+  parsed 40/85 unique questions (25s)
+  parsed 48/85 unique questions (31s)
+  parsed 56/85 unique questions (36s)
+  parsed 64/85 unique questions (41s)
+  parsed 72/85 unique questions (47s)
+  parsed 80/85 unique questions (52s)
+  parsed 85/85 unique questions (56s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.570     0.880
+answers                    0.960     0.960
+accuracy when answered     0.594     0.917
+
+counting                  direct  executed
+  numeric coverage         0.946     0.946
+  under                     1.11      0.34
+  over                      1.46      0.00
+  MAE                       2.57      0.34
+  n numeric                   35        35
+
+paired:  both right 55 | direct only 2 | executed only 33 | neither 10
+
+direct statuses   : {'ok': 96, 'truncated': 4}
+program statuses  : {'ok': 99, 'refused': 1}
+execution statuses: {'ok': 96, 'ambiguous': 3}
+
+cost: direct 132111in/38198out 742.8s | executed 112095in/5622out 64.7s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.360     0.680
+category_ego_region            25    0.360     0.840
+category_status                25    0.840     1.000
+count_exist_category           25    0.720     1.000
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.600     1.000
+6f83169d067343658251f72e1d     13    0.692     0.846
+bebf5f5b2a674631ab5c88fd1a     13    0.538     1.000
+c5224b9b454b4ded9b5d2d2634     15    0.600     0.933
+cc8c0bf57f984915a77078b10e     18    0.500     0.833
+d25718445d89453381c659b9c8     16    0.438     0.875
+fcbccedd61424f1b85dcbf8f89     10    0.700     0.600
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 1, "direct_correct_on_every_scene": 2, "executed_gave_one_answer_to_all": 1, "executed_correct_on_every_scene": 4}
+
+wrote /vol/outputs/d1r_7b_dev_v3/rows_dev.jsonl
+wrote /vol/outputs/d1r_7b_dev_v3/summary_dev.json

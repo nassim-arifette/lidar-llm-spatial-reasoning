@@ -1,0 +1,268 @@
+{
+  "manifest": "spatial_reasoning/manifests/first_comparison.json",
+  "split": "dev",
+  "runtime": {
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "max_new_tokens": 256,
+    "max_input_tokens": 8192,
+    "precision": "fp16",
+    "decoding": "greedy"
+  },
+  "backend": "local",
+  "prompt_version": "direct-1r",
+  "direct_style": "reasoned",
+  "direct_max_new_tokens": 2048,
+  "dsl_version": "dsl-1",
+  "program_decoding": "free",
+  "layout": "nuscenes_qa",
+  "min_lidar_points": 0,
+  "things": "named",
+  "scope": "narrow",
+  "parser_stats": {
+    "total": 100,
+    "unique_questions": 85,
+    "coverage": 0.99,
+    "refused": 0.01,
+    "invalid": 0.0,
+    "cache_hit_rate": 1.0,
+    "truncated_generations": 0,
+    "foreign_cache_used": 0.0,
+    "seconds": 55.6
+  },
+  "functional_schema": null,
+  "functional_stats": null,
+  "wall_seconds": 811.4,
+  "summary": {
+    "n": 100,
+    "direct": {
+      "accuracy": 0.57,
+      "answered_fraction": 0.96,
+      "accuracy_when_answered": 0.59375,
+      "statuses": {
+        "ok": 96,
+        "truncated": 4
+      },
+      "count_errors": {
+        "n_asked": 37,
+        "n_numeric": 35,
+        "numeric_coverage": 0.9459459459459459,
+        "under": 1.1142857142857143,
+        "over": 1.457142857142857,
+        "mae": 2.5714285714285716,
+        "n_undercounted": 12,
+        "n_overcounted": 9,
+        "worst": [
+          {
+            "error": 24,
+            "question_id": "q_539fc1124ede"
+          },
+          {
+            "error": 17,
+            "question_id": "q_2eb00988af0b"
+          },
+          {
+            "error": 6,
+            "question_id": "q_f4fde7c05825"
+          },
+          {
+            "error": 6,
+            "question_id": "q_e4629ed00759"
+          },
+          {
+            "error": 4,
+            "question_id": "q_e0448a45a223"
+          }
+        ]
+      },
+      "input_tokens": 132111,
+      "output_tokens": 38198,
+      "seconds": 742.8
+    },
+    "executed": {
+      "accuracy": 0.88,
+      "answered_fraction": 0.96,
+      "accuracy_when_answered": 0.9166666666666666,
+      "program_statuses": {
+        "ok": 99,
+        "refused": 1
+      },
+      "execution_statuses": {
+        "ok": 96,
+        "ambiguous": 3
+      },
+      "count_errors": {
+        "n_asked": 37,
+        "n_numeric": 35,
+        "numeric_coverage": 0.9459459459459459,
+        "under": 0.34285714285714286,
+        "over": 0.0,
+        "mae": 0.34285714285714286,
+        "n_undercounted": 4,
+        "n_overcounted": 0,
+        "worst": [
+          {
+            "error": 7,
+            "question_id": "q_e4629ed00759"
+          },
+          {
+            "error": 2,
+            "question_id": "q_f4fde7c05825"
+          },
+          {
+            "error": 2,
+            "question_id": "q_5a741aa58fc8"
+          },
+          {
+            "error": 1,
+            "question_id": "q_301e5285ceda"
+          },
+          {
+            "error": 0,
+            "question_id": "q_f9baa3215a20"
+          }
+        ]
+      },
+      "input_tokens": 112095,
+      "output_tokens": 5622,
+      "seconds": 64.7
+    },
+    "paired": {
+      "both": 55,
+      "direct_only": 2,
+      "executed_only": 33,
+      "neither": 10
+    },
+    "by_family": {
+      "category_anchor_relation": {
+        "n": 25,
+        "direct": 0.36,
+        "executed": 0.68,
+        "paired": {
+          "both": 8,
+          "direct_only": 1,
+          "executed_only": 9,
+          "neither": 7
+        }
+      },
+      "category_ego_region": {
+        "n": 25,
+        "direct": 0.36,
+        "executed": 0.84,
+        "paired": {
+          "both": 8,
+          "direct_only": 1,
+          "executed_only": 13,
+          "neither": 3
+        }
+      },
+      "category_status": {
+        "n": 25,
+        "direct": 0.84,
+        "executed": 1.0,
+        "paired": {
+          "both": 21,
+          "direct_only": 0,
+          "executed_only": 4,
+          "neither": 0
+        }
+      },
+      "count_exist_category": {
+        "n": 25,
+        "direct": 0.72,
+        "executed": 1.0,
+        "paired": {
+          "both": 18,
+          "direct_only": 0,
+          "executed_only": 7,
+          "neither": 0
+        }
+      }
+    },
+    "by_scene": {
+      "2fc3753772e241f2ab2cd16a784cc680": {
+        "n": 15,
+        "direct": 0.6,
+        "executed": 1.0,
+        "paired": {
+          "both": 9,
+          "direct_only": 0,
+          "executed_only": 6,
+          "neither": 0
+        }
+      },
+      "6f83169d067343658251f72e1dd17dbc": {
+        "n": 13,
+        "direct": 0.6923076923076923,
+        "executed": 0.8461538461538461,
+        "paired": {
+          "both": 9,
+          "direct_only": 0,
+          "executed_only": 2,
+          "neither": 2
+        }
+      },
+      "bebf5f5b2a674631ab5c88fd1aa9e87a": {
+        "n": 13,
+        "direct": 0.5384615384615384,
+        "executed": 1.0,
+        "paired": {
+          "both": 7,
+          "direct_only": 0,
+          "executed_only": 6,
+          "neither": 0
+        }
+      },
+      "c5224b9b454b4ded9b5d2d2634bbda8a": {
+        "n": 15,
+        "direct": 0.6,
+        "executed": 0.9333333333333333,
+        "paired": {
+          "both": 9,
+          "direct_only": 0,
+          "executed_only": 5,
+          "neither": 1
+        }
+      },
+      "cc8c0bf57f984915a77078b10eb33198": {
+        "n": 18,
+        "direct": 0.5,
+        "executed": 0.8333333333333334,
+        "paired": {
+          "both": 8,
+          "direct_only": 1,
+          "executed_only": 7,
+          "neither": 2
+        }
+      },
+      "d25718445d89453381c659b9c8734939": {
+        "n": 16,
+        "direct": 0.4375,
+        "executed": 0.875,
+        "paired": {
+          "both": 7,
+          "direct_only": 0,
+          "executed_only": 7,
+          "neither": 2
+        }
+      },
+      "fcbccedd61424f1b85dcbf8f897f9754": {
+        "n": 10,
+        "direct": 0.7,
+        "executed": 0.6,
+        "paired": {
+          "both": 6,
+          "direct_only": 1,
+          "executed_only": 0,
+          "neither": 3
+        }
+      }
+    },
+    "scene_dependence": {
+      "n_question_groups": 5,
+      "direct_gave_one_answer_to_all": 1,
+      "direct_correct_on_every_scene": 2,
+      "executed_gave_one_answer_to_all": 1,
+      "executed_correct_on_every_scene": 4
+    }
+  }
+}

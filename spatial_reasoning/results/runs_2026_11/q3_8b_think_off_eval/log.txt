@@ -1,0 +1,121 @@
+eval: 200 examples over 3 scenes
+model: Qwen/Qwen3-8B  backend=local  (c48ae62e26d2)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 256)
+
+direct: generating 200 of 200 (0 cached)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]
+Fetching 5 files:  20%|██        | 1/5 [00:20<01:21, 20.48s/it]
+Fetching 5 files:  40%|████      | 2/5 [00:33<00:48, 16.23s/it]
+Fetching 5 files:  60%|██████    | 3/5 [00:43<00:26, 13.16s/it]
+Fetching 5 files:  80%|████████  | 4/5 [00:51<00:11, 11.04s/it]
+Fetching 5 files: 100%|██████████| 5/5 [00:51<00:00,  7.35s/it]
+Fetching 5 files: 100%|██████████| 5/5 [00:51<00:00, 10.37s/it]
+
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/399 [00:00<04:35,  1.44it/s]
+Loading weights:  21%|██        | 83/399 [00:00<00:02, 139.60it/s]
+Loading weights:  32%|███▏      | 129/399 [00:01<00:01, 160.65it/s]
+Loading weights:  41%|████      | 163/399 [00:01<00:01, 170.11it/s]
+Loading weights:  48%|████▊     | 192/399 [00:01<00:01, 169.87it/s]
+Loading weights:  54%|█████▍    | 217/399 [00:01<00:01, 178.35it/s]
+Loading weights:  60%|██████    | 240/399 [00:01<00:00, 184.13it/s]
+Loading weights:  66%|██████▌   | 263/399 [00:01<00:00, 187.71it/s]
+Loading weights:  71%|███████▏  | 285/399 [00:01<00:00, 188.89it/s]
+Loading weights:  77%|███████▋  | 306/399 [00:01<00:00, 187.14it/s]
+Loading weights:  82%|████████▏ | 326/399 [00:02<00:00, 183.63it/s]
+Loading weights:  87%|████████▋ | 346/399 [00:02<00:00, 180.89it/s]
+Loading weights:  92%|█████████▏| 367/399 [00:02<00:00, 183.12it/s]
+Loading weights:  97%|█████████▋| 389/399 [00:02<00:00, 186.76it/s]
+Loading weights: 100%|██████████| 399/399 [00:02<00:00, 165.26it/s]
+  generated 8/200
+  generated 16/200
+  generated 24/200
+  generated 32/200
+  generated 40/200
+  generated 48/200
+  generated 56/200
+  generated 64/200
+  generated 72/200
+  generated 80/200
+  generated 88/200
+  generated 96/200
+  generated 104/200
+  generated 112/200
+  generated 120/200
+  generated 128/200
+  generated 136/200
+  generated 144/200
+  generated 152/200
+  generated 160/200
+  generated 168/200
+  generated 176/200
+  generated 184/200
+  generated 192/200
+  generated 200/200
+executed: generating programs for 200 questions
+  parsed 8/151 unique questions (5s)
+  parsed 16/151 unique questions (10s)
+  parsed 24/151 unique questions (15s)
+  parsed 32/151 unique questions (21s)
+  parsed 40/151 unique questions (28s)
+  parsed 48/151 unique questions (34s)
+  parsed 56/151 unique questions (41s)
+  parsed 64/151 unique questions (47s)
+  parsed 72/151 unique questions (54s)
+  parsed 80/151 unique questions (59s)
+  parsed 88/151 unique questions (65s)
+  parsed 96/151 unique questions (72s)
+  parsed 104/151 unique questions (78s)
+  parsed 112/151 unique questions (85s)
+  parsed 120/151 unique questions (91s)
+  parsed 128/151 unique questions (98s)
+  parsed 136/151 unique questions (104s)
+  parsed 144/151 unique questions (111s)
+  parsed 151/151 unique questions (117s)
+executed: executing 200 programs
+  executed 50/200
+  executed 100/200
+  executed 150/200
+  executed 200/200
+
+n = 200
+
+                          direct  executed
+accuracy (all)             0.580     0.980
+answers                    1.000     0.995
+accuracy when answered     0.580     0.985
+
+counting                  direct  executed
+  numeric coverage         1.000     0.988
+  under                     0.45      0.01
+  over                      2.31      0.01
+  MAE                       2.76      0.02
+  n numeric                   83        82
+
+paired:  both right 116 | direct only 0 | executed only 80 | neither 4
+
+direct statuses   : {'ok': 200}
+program statuses  : {'ok': 199, 'invalid': 1}
+execution statuses: {'ok': 199}
+
+cost: direct 225872in/422out 90.3s | executed 225001in/11537out 153.3s
+
+family                          n   direct  executed
+category_anchor_relation       54    0.370     0.963
+category_ego_region            43    0.488     0.977
+category_status                53    0.660     0.981
+count_exist_category           50    0.800     1.000
+
+scene                           n   direct  executed
+325cef682f064c55a255f2625c     66    0.621     0.970
+de7d80a1f5fb4c3e82ce8a4f21     69    0.565     0.986
+e233467e827140efa4b42d2b4c     65    0.554     0.985
+
+scene-dependence control: {"n_question_groups": 13, "direct_gave_one_answer_to_all": 0, "direct_correct_on_every_scene": 2, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 13}
+
+wrote /vol/outputs/q3_8b_think_off_eval/rows_eval.jsonl
+wrote /vol/outputs/q3_8b_think_off_eval/summary_eval.json

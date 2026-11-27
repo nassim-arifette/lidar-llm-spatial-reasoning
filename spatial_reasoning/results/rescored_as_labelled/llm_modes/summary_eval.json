@@ -1,0 +1,228 @@
+{
+  "manifest": "spatial_reasoning/manifests/first_comparison.json",
+  "split": "eval",
+  "runtime": {
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "max_new_tokens": 256,
+    "max_input_tokens": 8192,
+    "decoding": "greedy"
+  },
+  "prompt_version": "direct-1",
+  "dsl_version": "dsl-1",
+  "layout": "nuscenes_qa_as_labelled",
+  "min_lidar_points": 0,
+  "parser_stats": {
+    "total": 200,
+    "unique_questions": 151,
+    "coverage": 0.96,
+    "refused": 0.0,
+    "invalid": 0.04,
+    "cache_hit_rate": 1.0,
+    "truncated_generations": 0,
+    "foreign_cache_used": 0.0,
+    "seconds": 88.0
+  },
+  "wall_seconds": 159.1,
+  "rescored_from": {
+    "summary": "spatial_reasoning/results/llm_modes/summary_eval.json",
+    "sha256": {
+      "summary": "99e7558f5bfaaf2b1c7d76ef00a6bb2743a0f93d5bd514cef2bf7678d644e619",
+      "rows": "0a5829cd8548335f588ce74b1c1c07b8c5ffeb5e69ee64f68bd1b6edec505c1f"
+    },
+    "layout": "nuscenes_qa",
+    "replay_check": "identical to the archive under nuscenes_qa (200 rows, fields: program_status, program_valid, program, executed_answer, execution_status, executed_correct, selected)"
+  },
+  "direct_note": "direct_* fields are the archived answers, unchanged. They were given under prompt direct-1, which states the nuscenes_qa convention; a direct result under this layout needs a new run.",
+  "changed_rows": {
+    "executed": 26
+  },
+  "summary": {
+    "n": 200,
+    "direct": {
+      "accuracy": 0.505,
+      "answered_fraction": 1.0,
+      "accuracy_when_answered": 0.505,
+      "statuses": {
+        "ok": 200
+      },
+      "count_errors": {
+        "n_asked": 83,
+        "n_numeric": 83,
+        "numeric_coverage": 1.0,
+        "under": 1.8433734939759037,
+        "over": 0.3132530120481928,
+        "mae": 2.1566265060240966,
+        "n_undercounted": 46,
+        "n_overcounted": 21,
+        "worst": [
+          {
+            "error": 9,
+            "question_id": "q_386fc3d66a60"
+          },
+          {
+            "error": 7,
+            "question_id": "q_a0014a578f04"
+          },
+          {
+            "error": 6,
+            "question_id": "q_fa37083a8636"
+          },
+          {
+            "error": 6,
+            "question_id": "q_e66e50e6be37"
+          },
+          {
+            "error": 6,
+            "question_id": "q_778a2dd404f8"
+          }
+        ]
+      },
+      "input_tokens": 217272,
+      "output_tokens": 400,
+      "seconds": 58.8
+    },
+    "executed": {
+      "accuracy": 0.765,
+      "answered_fraction": 0.91,
+      "accuracy_when_answered": 0.8406593406593407,
+      "program_statuses": {
+        "ok": 192,
+        "invalid": 8
+      },
+      "execution_statuses": {
+        "ok": 182,
+        "ambiguous": 8,
+        "missing": 2
+      },
+      "count_errors": {
+        "n_asked": 83,
+        "n_numeric": 82,
+        "numeric_coverage": 0.9879518072289156,
+        "under": 0.07317073170731707,
+        "over": 0.2682926829268293,
+        "mae": 0.34146341463414637,
+        "n_undercounted": 4,
+        "n_overcounted": 2,
+        "worst": [
+          {
+            "error": 21,
+            "question_id": "q_c8626bd5ca90"
+          },
+          {
+            "error": 3,
+            "question_id": "q_4369467c601c"
+          },
+          {
+            "error": 1,
+            "question_id": "q_c893bacad1f6"
+          },
+          {
+            "error": 1,
+            "question_id": "q_7aaea28ca7a8"
+          },
+          {
+            "error": 1,
+            "question_id": "q_6ac1f27f4b27"
+          }
+        ]
+      },
+      "input_tokens": 178402,
+      "output_tokens": 9731,
+      "seconds": 101.0
+    },
+    "paired": {
+      "both": 76,
+      "direct_only": 25,
+      "executed_only": 77,
+      "neither": 22
+    },
+    "by_family": {
+      "category_anchor_relation": {
+        "n": 54,
+        "direct": 0.35185185185185186,
+        "executed": 0.5555555555555556,
+        "paired": {
+          "both": 10,
+          "direct_only": 9,
+          "executed_only": 20,
+          "neither": 15
+        }
+      },
+      "category_ego_region": {
+        "n": 43,
+        "direct": 0.4418604651162791,
+        "executed": 0.6976744186046512,
+        "paired": {
+          "both": 12,
+          "direct_only": 7,
+          "executed_only": 18,
+          "neither": 6
+        }
+      },
+      "category_status": {
+        "n": 53,
+        "direct": 0.5471698113207547,
+        "executed": 0.9622641509433962,
+        "paired": {
+          "both": 28,
+          "direct_only": 1,
+          "executed_only": 23,
+          "neither": 1
+        }
+      },
+      "count_exist_category": {
+        "n": 50,
+        "direct": 0.68,
+        "executed": 0.84,
+        "paired": {
+          "both": 26,
+          "direct_only": 8,
+          "executed_only": 16,
+          "neither": 0
+        }
+      }
+    },
+    "by_scene": {
+      "325cef682f064c55a255f2625c533b75": {
+        "n": 66,
+        "direct": 0.5454545454545454,
+        "executed": 0.8181818181818182,
+        "paired": {
+          "both": 29,
+          "direct_only": 7,
+          "executed_only": 25,
+          "neither": 5
+        }
+      },
+      "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+        "n": 69,
+        "direct": 0.5362318840579711,
+        "executed": 0.782608695652174,
+        "paired": {
+          "both": 28,
+          "direct_only": 9,
+          "executed_only": 26,
+          "neither": 6
+        }
+      },
+      "e233467e827140efa4b42d2b4c435855": {
+        "n": 65,
+        "direct": 0.4307692307692308,
+        "executed": 0.6923076923076923,
+        "paired": {
+          "both": 19,
+          "direct_only": 9,
+          "executed_only": 26,
+          "neither": 11
+        }
+      }
+    },
+    "scene_dependence": {
+      "n_question_groups": 13,
+      "direct_gave_one_answer_to_all": 4,
+      "direct_correct_on_every_scene": 1,
+      "executed_gave_one_answer_to_all": 0,
+      "executed_correct_on_every_scene": 13
+    }
+  }
+}

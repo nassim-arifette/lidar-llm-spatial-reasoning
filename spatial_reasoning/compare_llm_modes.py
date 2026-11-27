@@ -337,6 +337,66 @@ def scene_dependence(rows: Sequence[Row]) -> Dict[str, object]:
 # The run
 # --------------------------------------------------------------------------- #
 
+def fill_executed(row: "Row", attempt, scene: Scene, config: RegionConfig) -> None:
+    """Write mode B's fields from one program attempt.
+
+    Shared by the live run and by ``rescore_programs``, which replays archived
+    programs under another layout: two copies of this would be two executors
+    that had to agree.
+    """
+    # The generation's own time, not the caller's loop: by here the program
+    # has already been produced in a batch, and timing the cache lookup would
+    # report the executed branch as free.
+    row.program_seconds = attempt.seconds
+    row.program_raw = attempt.raw
+    row.program_status = attempt.status
+    row.program_valid = attempt.ok
+    row.program_input_tokens = attempt.input_tokens
+    row.program_output_tokens = attempt.output_tokens
+    row.program = ""
+    row.executed_answer = None
+    row.executed_correct = False
+    row.selected = []
+
+    if attempt.ok and attempt.query is not None:
+        row.program = attempt.query.describe()
+        result = execute(attempt.query, scene, config)
+        row.execution_status = result.status.value
+        row.execution_reason = result.reason
+        if result.ok:
+            row.executed_answer = str(result.answer)
+            row.executed_correct = _correct(result.answer, row.reference_answer)
+            row.selected = [o.token for o in result.selected if o.token][:40]
+    else:
+        row.execution_status = "not_attempted"
+        row.execution_reason = attempt.reason
+
+
+def fill_functional(row: "Row", tried, scene: Scene, config: RegionConfig) -> None:
+    """Write mode C's fields from one typed-program attempt."""
+    row.functional_raw = tried.raw
+    row.functional_status = tried.status
+    row.functional_valid = tried.ok
+    row.functional_input_tokens = tried.input_tokens
+    row.functional_output_tokens = tried.output_tokens
+    row.functional_seconds = tried.seconds
+    row.functional_program = ""
+    row.functional_answer = None
+    row.functional_correct = False
+    if tried.ok and tried.program is not None:
+        row.functional_program = tried.program.describe()
+        outcome = execute_functional(tried.program, scene, config)
+        row.functional_execution_status = (
+            outcome.failure.value if outcome.failure else "ok")
+        row.functional_reason = outcome.reason
+        if outcome.ok:
+            row.functional_answer = str(outcome.answer)
+            row.functional_correct = _correct(outcome.answer, row.reference_answer)
+    else:
+        row.functional_execution_status = "not_attempted"
+        row.functional_reason = tried.reason
+
+
 def run(
     items: Sequence[ManifestItem],
     scenes: Dict[str, Scene],
@@ -392,51 +452,12 @@ def run(
             row.direct_input_tokens = answer.input_tokens
             row.direct_output_tokens = answer.output_tokens
             row.direct_seconds = answer.seconds
+        row.prompt_version = direct.prompt_version
 
-        attempt = parser.parse_detailed(item.question)
-        # The generation's own time, not this loop's: by here the program has
-        # already been produced in a batch, and timing the cache lookup would
-        # report the executed branch as free.
-        row.program_seconds = attempt.seconds
-        row.program_raw = attempt.raw
-        row.program_status = attempt.status
-        row.program_valid = attempt.ok
-        row.program_input_tokens = attempt.input_tokens
-        row.program_output_tokens = attempt.output_tokens
-
-        if attempt.ok and attempt.query is not None:
-            row.program = attempt.query.describe()
-            result = execute(attempt.query, scene, config)
-            row.execution_status = result.status.value
-            row.execution_reason = result.reason
-            if result.ok:
-                row.executed_answer = str(result.answer)
-                row.executed_correct = _correct(result.answer, item.answer)
-                row.selected = [o.token for o in result.selected if o.token][:40]
-        else:
-            row.execution_status = "not_attempted"
-            row.execution_reason = attempt.reason
-
+        fill_executed(row, parser.parse_detailed(item.question), scene, config)
         if functional is not None:
-            tried = functional.parse_detailed(item.question)
-            row.functional_raw = tried.raw
-            row.functional_status = tried.status
-            row.functional_valid = tried.ok
-            row.functional_input_tokens = tried.input_tokens
-            row.functional_output_tokens = tried.output_tokens
-            row.functional_seconds = tried.seconds
-            if tried.ok and tried.program is not None:
-                row.functional_program = tried.program.describe()
-                outcome = execute_functional(tried.program, scene, config)
-                row.functional_execution_status = (
-                    outcome.failure.value if outcome.failure else "ok")
-                row.functional_reason = outcome.reason
-                if outcome.ok:
-                    row.functional_answer = str(outcome.answer)
-                    row.functional_correct = _correct(outcome.answer, item.answer)
-            else:
-                row.functional_execution_status = "not_attempted"
-                row.functional_reason = tried.reason
+            fill_functional(row, functional.parse_detailed(item.question),
+                            scene, config)
 
         rows.append(row)
         if verbose and (index + 1) % 50 == 0:
@@ -543,6 +564,25 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help="also run the typed functional catalogue as a third "
                         "mode; a separate target language and a separate "
                         "experiment, recorded under its own schema version")
+    p.add_argument("--direct-style", default="bare", choices=("bare", "reasoned"),
+                   help="bare: answer alone, working forbidden (the archived "
+                        "condition). reasoned: working allowed, then a final "
+                        "'Answer: ...' line. A separate prompt version")
+    p.add_argument("--direct-max-new-tokens", type=int, default=None,
+                   help="output budget for the direct mode alone; choose it on "
+                        "the development split. Defaults to --max-new-tokens")
+    p.add_argument("--thinking", default="default", choices=("default", "on", "off"),
+                   help="chat-template thinking switch (Qwen3); 'default' "
+                        "leaves the template alone")
+    p.add_argument("--things", default=None, choices=("named", "all"),
+                   help="what the object list holds: the ten named classes "
+                        "(archived runs), or everything nuScenes-QA counts as a "
+                        "thing, unnamed classes and the ego vehicle included. "
+                        "Defaults to the manifest's setting, else 'named'")
+    p.add_argument("--constrained", action="store_true",
+                   help="decode programs under a JSON Schema with the closed "
+                        "vocabulary (needs lm-format-enforcer). A separate "
+                        "condition, never a replacement for free decoding")
     p.add_argument("--limit", type=int, default=0)
     return p
 
@@ -557,7 +597,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     min_lidar = args.min_lidar_points
     if min_lidar is None:
         min_lidar = int(manifest.config.get("min_lidar_points", 0))
-    scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar)
+    things = args.things or str(manifest.config.get("things", "named"))
+    scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar,
+                                          things=things)
     config = RegionConfig(layout=args.layout)
 
     # One budget for every mode, because one runtime now serves all of them.
@@ -581,6 +623,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             device=args.device,
             precision=args.precision,
             device_map=args.device_map,
+            enable_thinking={"on": True, "off": False}.get(args.thinking),
             **({"model_name": args.model} if args.model else {}))
         runtime = QwenRuntime(runtime_config)
 
@@ -593,7 +636,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     direct = DirectQwenQA(runtime=runtime, region_config=config,
                           cache_path=direct_cache,
                           coordinate_precision=int(
-                              manifest.config.get("coordinate_precision", 1)))
+                              manifest.config.get("coordinate_precision", 1)),
+                          style=args.direct_style,
+                          max_new_tokens=args.direct_max_new_tokens)
     parser = QwenQuestionParser(
         model_name=runtime_config.model_name,
         cache_path=program_cache,
@@ -603,7 +648,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         precision=args.precision,
         device_map=args.device_map,
         directions=config.directions(),
-        runtime=runtime)
+        runtime=runtime,
+        constrained=args.constrained)
 
     functional = None
     if args.functional:
@@ -613,15 +659,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             max_new_tokens=budget,
             device=args.device, batch_size=args.batch_size,
             region_config=config, precision=args.precision,
-            device_map=args.device_map, runtime=runtime)
+            device_map=args.device_map, runtime=runtime,
+            constrained=args.constrained)
 
     print(f"{args.split}: {len(items)} examples over "
           f"{len({i.scene_token for i in items})} scenes")
     print(f"model: {runtime_config.model_name}  backend={args.backend}  "
           f"({runtime_config.identity()})")
-    print(f"objects: min_lidar_points={min_lidar} -> {report.annotations_kept} "
-          f"annotations")
-    print(f"layout: {args.layout} -> {config.directions()}\n")
+    print(f"objects: min_lidar_points={min_lidar}, things={things} -> "
+          f"{report.annotations_kept} annotations")
+    print(f"layout: {args.layout} -> {config.directions()}")
+    print(f"direct prompt: {direct.prompt_version} "
+          f"(budget {args.direct_max_new_tokens or budget})\n")
 
     started = time.time()
     rows = run(items, scenes, direct, parser, config, functional=functional)
@@ -642,10 +691,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "split": args.split,
             "runtime": runtime_config.fingerprint(),
             "backend": args.backend,
-            "prompt_version": PROMPT_VERSION,
+            "prompt_version": direct.prompt_version,
+            "direct_style": args.direct_style,
+            "direct_max_new_tokens": args.direct_max_new_tokens or budget,
             "dsl_version": DSL_VERSION,
+            "program_decoding": "json_schema" if args.constrained else "free",
             "layout": args.layout,
             "min_lidar_points": min_lidar,
+            "things": things,
             "scope": manifest.config.get("scope", "narrow"),
             "parser_stats": parser.stats.as_dict(),
             "functional_schema": SCHEMA_VERSION if functional else None,

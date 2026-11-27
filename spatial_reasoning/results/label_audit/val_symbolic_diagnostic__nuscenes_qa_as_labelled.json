@@ -1,0 +1,1524 @@
+{
+  "layout": "nuscenes_qa_as_labelled",
+  "conversions": {
+    "1": {
+      "samples": 34149,
+      "scenes": 850,
+      "annotations_total": 1166187,
+      "annotations_kept": 907003,
+      "dropped_no_lidar_points": 231193,
+      "dropped_unknown_category": 27991,
+      "samples_without_pose": 0
+    },
+    "0": {
+      "samples": 34149,
+      "scenes": 850,
+      "annotations_total": 1166187,
+      "annotations_kept": 1134379,
+      "dropped_no_lidar_points": 0,
+      "dropped_unknown_category": 31808,
+      "samples_without_pose": 0
+    }
+  },
+  "n_items": 83337,
+  "conditions": [
+    {
+      "name": "expressive_parser__min_lidar_1",
+      "n": 83337,
+      "accuracy": 0.21554651595329805,
+      "answered_fraction": 0.29505501757922653,
+      "accuracy_when_answered": 0.7305299117491562,
+      "outcomes": {
+        "correct": 17963,
+        "declined_by_parser": 57044,
+        "wrong": 6626,
+        "declined_by_executor": 1704
+      },
+      "refusal_reasons": {
+        "no supported operation (expected a counting, existence or comparison q": 33561,
+        "question compares attributes between objects; the executor cannot bind": 22838,
+        "no known category mentioned": 642,
+        "question refers back to an object with a pronoun and no antecedent was": 3
+      },
+      "executor_failures": {
+        "missing": 1427,
+        "ambiguous": 277
+      },
+      "count_errors": {
+        "n": 10087,
+        "under": 1.1784475066917814,
+        "over": 0.03390502627143849,
+        "mae": 1.2123525329632199,
+        "over_share": 0.027966309591953557,
+        "gold_max": 10,
+        "n_overcounted": 97,
+        "n_undercounted": 5749,
+        "worst": [
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 23,
+            "gold": 0,
+            "error": 23
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 21,
+            "gold": 0,
+            "error": 21
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 19,
+            "gold": 2,
+            "error": 17
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 17,
+            "gold": 2,
+            "error": 15
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 17,
+            "gold": 2,
+            "error": 15
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 16,
+            "gold": 3,
+            "error": 13
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 15,
+            "gold": 3,
+            "error": 12
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 14,
+            "gold": 3,
+            "error": 11
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 11,
+            "gold": 0,
+            "error": 11
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 13,
+            "gold": 2,
+            "error": 11
+          }
+        ]
+      },
+      "seconds": 2.9
+    },
+    {
+      "name": "expressive_parser__min_lidar_0",
+      "n": 83337,
+      "accuracy": 0.286559391386779,
+      "answered_fraction": 0.3116622868593782,
+      "accuracy_when_answered": 0.9194548184653294,
+      "outcomes": {
+        "correct": 23881,
+        "declined_by_parser": 57044,
+        "wrong": 2092,
+        "declined_by_executor": 320
+      },
+      "refusal_reasons": {
+        "no supported operation (expected a counting, existence or comparison q": 33561,
+        "question compares attributes between objects; the executor cannot bind": 22838,
+        "no known category mentioned": 642,
+        "question refers back to an object with a pronoun and no antecedent was": 3
+      },
+      "executor_failures": {
+        "missing": 36,
+        "ambiguous": 284
+      },
+      "count_errors": {
+        "n": 10621,
+        "under": 0.2686187741267301,
+        "over": 0.04396949439789097,
+        "mae": 0.31258826852462107,
+        "over_share": 0.14066265060240962,
+        "gold_max": 10,
+        "n_overcounted": 147,
+        "n_undercounted": 1726,
+        "worst": [
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 27,
+            "gold": 0,
+            "error": 27
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 23,
+            "gold": 0,
+            "error": 23
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 20,
+            "gold": 2,
+            "error": 18
+          },
+          {
+            "question": "There is a stopped thing; what number of parked buss are to the back of it?",
+            "predicted": 24,
+            "gold": 7,
+            "error": 17
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 18,
+            "gold": 2,
+            "error": 16
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 18,
+            "gold": 2,
+            "error": 16
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 14,
+            "gold": 0,
+            "error": 14
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 17,
+            "gold": 3,
+            "error": 14
+          },
+          {
+            "question": "What number of not standing pedestrians are there?",
+            "predicted": 17,
+            "gold": 3,
+            "error": 14
+          },
+          {
+            "question": "How many not standing pedestrians are there?",
+            "predicted": 14,
+            "gold": 2,
+            "error": 12
+          }
+        ]
+      },
+      "seconds": 3.0
+    },
+    {
+      "name": "strict_parser__min_lidar_1",
+      "n": 83337,
+      "accuracy": 0.05843742875313486,
+      "answered_fraction": 0.08651619328749535,
+      "accuracy_when_answered": 0.6754507628294036,
+      "outcomes": {
+        "declined_by_parser": 76018,
+        "correct": 4870,
+        "wrong": 2340,
+        "declined_by_executor": 109
+      },
+      "refusal_reasons": {
+        "question constrains object status (moving / parked / stopped / standin": 40624,
+        "question compares attributes between objects; the executor cannot bind": 22838,
+        "no supported operation (expected a counting, existence or comparison q": 7514,
+        "question introduces a referent in a preamble clause and then asks abou": 4808,
+        "no known category mentioned": 234
+      },
+      "executor_failures": {
+        "missing": 109
+      },
+      "count_errors": {
+        "n": 3344,
+        "under": 1.4144736842105263,
+        "over": 0.009868421052631578,
+        "mae": 1.424342105263158,
+        "over_share": 0.0069284064665127015,
+        "gold_max": 10,
+        "n_overcounted": 32,
+        "n_undercounted": 2150,
+        "worst": [
+          {
+            "question": "How many things are to the front left of the bus?",
+            "predicted": 0,
+            "gold": 9,
+            "error": -9
+          },
+          {
+            "question": "What number of things are there?",
+            "predicted": 1,
+            "gold": 10,
+            "error": -9
+          },
+          {
+            "question": "How many things are there?",
+            "predicted": 1,
+            "gold": 10,
+            "error": -9
+          },
+          {
+            "question": "What number of things are to the back of the construction vehicle?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          },
+          {
+            "question": "What number of barriers are to the front left of the bus?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          },
+          {
+            "question": "What number of things are to the back of the bicycle?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          },
+          {
+            "question": "How many things are there?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          },
+          {
+            "question": "What number of things are there?",
+            "predicted": 2,
+            "gold": 10,
+            "error": -8
+          },
+          {
+            "question": "How many things are there?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          },
+          {
+            "question": "How many things are there?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          }
+        ]
+      },
+      "seconds": 1.4
+    },
+    {
+      "name": "strict_parser__min_lidar_0",
+      "n": 83337,
+      "accuracy": 0.07587266160288947,
+      "answered_fraction": 0.0878121362660043,
+      "accuracy_when_answered": 0.8640338890407215,
+      "outcomes": {
+        "declined_by_parser": 76018,
+        "correct": 6323,
+        "wrong": 995,
+        "declined_by_executor": 1
+      },
+      "refusal_reasons": {
+        "question constrains object status (moving / parked / stopped / standin": 40624,
+        "question compares attributes between objects; the executor cannot bind": 22838,
+        "no supported operation (expected a counting, existence or comparison q": 7514,
+        "question introduces a referent in a preamble clause and then asks abou": 4808,
+        "no known category mentioned": 234
+      },
+      "executor_failures": {
+        "missing": 1
+      },
+      "count_errors": {
+        "n": 3379,
+        "under": 0.44066291802308377,
+        "over": 0.022491861497484462,
+        "mae": 0.4631547795205682,
+        "over_share": 0.04856230031948881,
+        "gold_max": 10,
+        "n_overcounted": 63,
+        "n_undercounted": 908,
+        "worst": [
+          {
+            "question": "What number of things are to the back of the bicycle?",
+            "predicted": 1,
+            "gold": 9,
+            "error": -8
+          },
+          {
+            "question": "What number of things are to the back of me?",
+            "predicted": 3,
+            "gold": 10,
+            "error": -7
+          },
+          {
+            "question": "How many things are to the back of me?",
+            "predicted": 3,
+            "gold": 10,
+            "error": -7
+          },
+          {
+            "question": "What number of things are there?",
+            "predicted": 3,
+            "gold": 10,
+            "error": -7
+          },
+          {
+            "question": "What number of things are to the front of me?",
+            "predicted": 3,
+            "gold": 10,
+            "error": -7
+          },
+          {
+            "question": "What number of things are to the back right of me?",
+            "predicted": 3,
+            "gold": 10,
+            "error": -7
+          },
+          {
+            "question": "What number of things are there?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "What number of things are there?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "What number of things are there?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          },
+          {
+            "question": "How many things are there?",
+            "predicted": 0,
+            "gold": 6,
+            "error": -6
+          }
+        ]
+      },
+      "seconds": 1.5
+    },
+    {
+      "name": "legacy_parser__min_lidar_1",
+      "n": 83337,
+      "accuracy": 0.16522073028786732,
+      "answered_fraction": 0.2852154505201771,
+      "accuracy_when_answered": 0.5792839412680382,
+      "outcomes": {
+        "correct": 13769,
+        "declined_by_parser": 57041,
+        "wrong": 10000,
+        "declined_by_executor": 2527
+      },
+      "refusal_reasons": {
+        "no supported operation (expected a counting, existence or comparison q": 33561,
+        "question compares attributes between objects; the executor cannot bind": 22838,
+        "no known category mentioned": 642
+      },
+      "executor_failures": {
+        "ambiguous": 2200,
+        "missing": 327
+      },
+      "count_errors": {
+        "n": 9770,
+        "under": 1.5366427840327532,
+        "over": 3.019037871033777,
+        "mae": 4.5556806550665305,
+        "over_share": 0.6626974319800489,
+        "gold_max": 10,
+        "n_overcounted": 2870,
+        "n_undercounted": 4566,
+        "worst": [
+          {
+            "question": "What number of parked things are there?",
+            "predicted": 94,
+            "gold": 3,
+            "error": 91
+          },
+          {
+            "question": "How many parked things are there?",
+            "predicted": 92,
+            "gold": 2,
+            "error": 90
+          },
+          {
+            "question": "How many stopped things are there?",
+            "predicted": 94,
+            "gold": 5,
+            "error": 89
+          },
+          {
+            "question": "What number of stopped things are there?",
+            "predicted": 93,
+            "gold": 5,
+            "error": 88
+          },
+          {
+            "question": "What number of parked things are there?",
+            "predicted": 92,
+            "gold": 9,
+            "error": 83
+          },
+          {
+            "question": "How many without rider things are there?",
+            "predicted": 73,
+            "gold": 2,
+            "error": 71
+          },
+          {
+            "question": "How many parked things are there?",
+            "predicted": 79,
+            "gold": 9,
+            "error": 70
+          },
+          {
+            "question": "What number of moving things are there?",
+            "predicted": 75,
+            "gold": 5,
+            "error": 70
+          },
+          {
+            "question": "How many parked things are there?",
+            "predicted": 73,
+            "gold": 3,
+            "error": 70
+          },
+          {
+            "question": "How many stopped things are there?",
+            "predicted": 76,
+            "gold": 6,
+            "error": 70
+          }
+        ]
+      },
+      "seconds": 2.1
+    },
+    {
+      "name": "legacy_parser__min_lidar_0",
+      "n": 83337,
+      "accuracy": 0.18699977201003157,
+      "answered_fraction": 0.2877713380611253,
+      "accuracy_when_answered": 0.6498206988574764,
+      "outcomes": {
+        "correct": 15584,
+        "declined_by_parser": 57041,
+        "wrong": 8398,
+        "declined_by_executor": 2314
+      },
+      "refusal_reasons": {
+        "no supported operation (expected a counting, existence or comparison q": 33561,
+        "question compares attributes between objects; the executor cannot bind": 22838,
+        "no known category mentioned": 642
+      },
+      "executor_failures": {
+        "ambiguous": 2313,
+        "missing": 1
+      },
+      "count_errors": {
+        "n": 9833,
+        "under": 1.0283738431811247,
+        "over": 4.166785314756432,
+        "mae": 5.195159157937557,
+        "over_share": 0.8020515229817556,
+        "gold_max": 10,
+        "n_overcounted": 3413,
+        "n_undercounted": 2629,
+        "worst": [
+          {
+            "question": "How many parked things are there?",
+            "predicted": 104,
+            "gold": 2,
+            "error": 102
+          },
+          {
+            "question": "What number of stopped things are there?",
+            "predicted": 107,
+            "gold": 5,
+            "error": 102
+          },
+          {
+            "question": "What number of parked things are there?",
+            "predicted": 104,
+            "gold": 3,
+            "error": 101
+          },
+          {
+            "question": "How many stopped things are there?",
+            "predicted": 106,
+            "gold": 5,
+            "error": 101
+          },
+          {
+            "question": "What number of parked things are there?",
+            "predicted": 107,
+            "gold": 9,
+            "error": 98
+          },
+          {
+            "question": "What number of without rider things are there?",
+            "predicted": 95,
+            "gold": 2,
+            "error": 93
+          },
+          {
+            "question": "How many without rider things are there?",
+            "predicted": 91,
+            "gold": 2,
+            "error": 89
+          },
+          {
+            "question": "How many without rider things are there?",
+            "predicted": 91,
+            "gold": 2,
+            "error": 89
+          },
+          {
+            "question": "How many parked things are there?",
+            "predicted": 98,
+            "gold": 9,
+            "error": 89
+          },
+          {
+            "question": "What number of moving things are there?",
+            "predicted": 91,
+            "gold": 5,
+            "error": 86
+          }
+        ]
+      },
+      "seconds": 2.4
+    }
+  ],
+  "paired_numeric": {
+    "B_filter_at_expressive_parser": {
+      "expressive_parser__min_lidar_1": {
+        "n_paired": 10087,
+        "accuracy": 0.42044215326658074,
+        "count_errors": {
+          "n": 10087,
+          "under": 1.1784475066917814,
+          "over": 0.03390502627143849,
+          "mae": 1.2123525329632199,
+          "over_share": 0.027966309591953557,
+          "gold_max": 10,
+          "n_overcounted": 97,
+          "n_undercounted": 5749,
+          "worst": [
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 23,
+              "gold": 0,
+              "error": 23
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 21,
+              "gold": 0,
+              "error": 21
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 19,
+              "gold": 2,
+              "error": 17
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 17,
+              "gold": 2,
+              "error": 15
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 17,
+              "gold": 2,
+              "error": 15
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 16,
+              "gold": 3,
+              "error": 13
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 15,
+              "gold": 3,
+              "error": 12
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 14,
+              "gold": 3,
+              "error": 11
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 11,
+              "gold": 0,
+              "error": 11
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 13,
+              "gold": 2,
+              "error": 11
+            }
+          ]
+        }
+      },
+      "expressive_parser__min_lidar_0": {
+        "n_paired": 10087,
+        "accuracy": 0.8267076435015366,
+        "count_errors": {
+          "n": 10087,
+          "under": 0.26251610984435414,
+          "over": 0.04451273916922772,
+          "mae": 0.30702884901358185,
+          "over_share": 0.14497901194704552,
+          "gold_max": 10,
+          "n_overcounted": 145,
+          "n_undercounted": 1603,
+          "worst": [
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 27,
+              "gold": 0,
+              "error": 27
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 23,
+              "gold": 0,
+              "error": 23
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 20,
+              "gold": 2,
+              "error": 18
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 18,
+              "gold": 2,
+              "error": 16
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 18,
+              "gold": 2,
+              "error": 16
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 14,
+              "gold": 0,
+              "error": 14
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 17,
+              "gold": 3,
+              "error": 14
+            },
+            {
+              "question": "What number of not standing pedestrians are there?",
+              "predicted": 17,
+              "gold": 3,
+              "error": 14
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 14,
+              "gold": 2,
+              "error": 12
+            },
+            {
+              "question": "How many not standing pedestrians are there?",
+              "predicted": 14,
+              "gold": 3,
+              "error": 11
+            }
+          ]
+        }
+      }
+    },
+    "B_filter_at_strict_parser": {
+      "strict_parser__min_lidar_1": {
+        "n_paired": 3344,
+        "accuracy": 0.34748803827751196,
+        "count_errors": {
+          "n": 3344,
+          "under": 1.4144736842105263,
+          "over": 0.009868421052631578,
+          "mae": 1.424342105263158,
+          "over_share": 0.0069284064665127015,
+          "gold_max": 10,
+          "n_overcounted": 32,
+          "n_undercounted": 2150,
+          "worst": [
+            {
+              "question": "How many things are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 9,
+              "error": -9
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "What number of things are to the back of the construction vehicle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            }
+          ]
+        }
+      },
+      "strict_parser__min_lidar_0": {
+        "n_paired": 3344,
+        "accuracy": 0.7126196172248804,
+        "count_errors": {
+          "n": 3344,
+          "under": 0.44198564593301437,
+          "over": 0.022727272727272728,
+          "mae": 0.4647129186602871,
+          "over_share": 0.04890604890604891,
+          "gold_max": 10,
+          "n_overcounted": 63,
+          "n_undercounted": 898,
+          "worst": [
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "How many things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the front of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            }
+          ]
+        }
+      }
+    },
+    "B_filter_at_legacy_parser": {
+      "legacy_parser__min_lidar_1": {
+        "n_paired": 9719,
+        "accuracy": 0.23932503343965428,
+        "count_errors": {
+          "n": 9719,
+          "under": 1.5263916040744934,
+          "over": 3.030044243234901,
+          "mae": 4.556435847309395,
+          "over_share": 0.6650031614126998,
+          "gold_max": 10,
+          "n_overcounted": 2865,
+          "n_undercounted": 4528,
+          "worst": [
+            {
+              "question": "What number of parked things are there?",
+              "predicted": 94,
+              "gold": 3,
+              "error": 91
+            },
+            {
+              "question": "How many parked things are there?",
+              "predicted": 92,
+              "gold": 2,
+              "error": 90
+            },
+            {
+              "question": "How many stopped things are there?",
+              "predicted": 94,
+              "gold": 5,
+              "error": 89
+            },
+            {
+              "question": "What number of stopped things are there?",
+              "predicted": 93,
+              "gold": 5,
+              "error": 88
+            },
+            {
+              "question": "What number of parked things are there?",
+              "predicted": 92,
+              "gold": 9,
+              "error": 83
+            },
+            {
+              "question": "How many without rider things are there?",
+              "predicted": 73,
+              "gold": 2,
+              "error": 71
+            },
+            {
+              "question": "How many parked things are there?",
+              "predicted": 79,
+              "gold": 9,
+              "error": 70
+            },
+            {
+              "question": "What number of moving things are there?",
+              "predicted": 75,
+              "gold": 5,
+              "error": 70
+            },
+            {
+              "question": "How many parked things are there?",
+              "predicted": 73,
+              "gold": 3,
+              "error": 70
+            },
+            {
+              "question": "How many stopped things are there?",
+              "predicted": 76,
+              "gold": 6,
+              "error": 70
+            }
+          ]
+        }
+      },
+      "legacy_parser__min_lidar_0": {
+        "n_paired": 9719,
+        "accuracy": 0.38388723119662516,
+        "count_errors": {
+          "n": 9719,
+          "under": 1.0375553040436258,
+          "over": 4.195904928490585,
+          "mae": 5.233460232534211,
+          "over_share": 0.8017458320226486,
+          "gold_max": 10,
+          "n_overcounted": 3381,
+          "n_undercounted": 2607,
+          "worst": [
+            {
+              "question": "How many parked things are there?",
+              "predicted": 104,
+              "gold": 2,
+              "error": 102
+            },
+            {
+              "question": "What number of stopped things are there?",
+              "predicted": 107,
+              "gold": 5,
+              "error": 102
+            },
+            {
+              "question": "What number of parked things are there?",
+              "predicted": 104,
+              "gold": 3,
+              "error": 101
+            },
+            {
+              "question": "How many stopped things are there?",
+              "predicted": 106,
+              "gold": 5,
+              "error": 101
+            },
+            {
+              "question": "What number of parked things are there?",
+              "predicted": 107,
+              "gold": 9,
+              "error": 98
+            },
+            {
+              "question": "What number of without rider things are there?",
+              "predicted": 95,
+              "gold": 2,
+              "error": 93
+            },
+            {
+              "question": "How many without rider things are there?",
+              "predicted": 91,
+              "gold": 2,
+              "error": 89
+            },
+            {
+              "question": "How many without rider things are there?",
+              "predicted": 91,
+              "gold": 2,
+              "error": 89
+            },
+            {
+              "question": "How many parked things are there?",
+              "predicted": 98,
+              "gold": 9,
+              "error": 89
+            },
+            {
+              "question": "What number of moving things are there?",
+              "predicted": 91,
+              "gold": 5,
+              "error": 86
+            }
+          ]
+        }
+      }
+    },
+    "A_grammar_at_min_lidar_1": {
+      "expressive_parser__min_lidar_1": {
+        "n_paired": 3344,
+        "accuracy": 0.34748803827751196,
+        "count_errors": {
+          "n": 3344,
+          "under": 1.4144736842105263,
+          "over": 0.009868421052631578,
+          "mae": 1.424342105263158,
+          "over_share": 0.0069284064665127015,
+          "gold_max": 10,
+          "n_overcounted": 32,
+          "n_undercounted": 2150,
+          "worst": [
+            {
+              "question": "How many things are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 9,
+              "error": -9
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "What number of things are to the back of the construction vehicle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            }
+          ]
+        }
+      },
+      "strict_parser__min_lidar_1": {
+        "n_paired": 3344,
+        "accuracy": 0.34748803827751196,
+        "count_errors": {
+          "n": 3344,
+          "under": 1.4144736842105263,
+          "over": 0.009868421052631578,
+          "mae": 1.424342105263158,
+          "over_share": 0.0069284064665127015,
+          "gold_max": 10,
+          "n_overcounted": 32,
+          "n_undercounted": 2150,
+          "worst": [
+            {
+              "question": "How many things are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 9,
+              "error": -9
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "What number of things are to the back of the construction vehicle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            }
+          ]
+        }
+      },
+      "legacy_parser__min_lidar_1": {
+        "n_paired": 3344,
+        "accuracy": 0.34748803827751196,
+        "count_errors": {
+          "n": 3344,
+          "under": 1.4144736842105263,
+          "over": 0.009868421052631578,
+          "mae": 1.424342105263158,
+          "over_share": 0.0069284064665127015,
+          "gold_max": 10,
+          "n_overcounted": 32,
+          "n_undercounted": 2150,
+          "worst": [
+            {
+              "question": "How many things are to the front left of the bus?",
+              "predicted": 0,
+              "gold": 9,
+              "error": -9
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 10,
+              "error": -9
+            },
+            {
+              "question": "What number of things are to the back of the construction vehicle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of barriers are to the front left of the bus?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 2,
+              "gold": 10,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            }
+          ]
+        }
+      }
+    },
+    "A_grammar_at_min_lidar_0": {
+      "expressive_parser__min_lidar_0": {
+        "n_paired": 3379,
+        "accuracy": 0.712636874815034,
+        "count_errors": {
+          "n": 3379,
+          "under": 0.44066291802308377,
+          "over": 0.022491861497484462,
+          "mae": 0.4631547795205682,
+          "over_share": 0.04856230031948881,
+          "gold_max": 10,
+          "n_overcounted": 63,
+          "n_undercounted": 908,
+          "worst": [
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "How many things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the front of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            }
+          ]
+        }
+      },
+      "strict_parser__min_lidar_0": {
+        "n_paired": 3379,
+        "accuracy": 0.712636874815034,
+        "count_errors": {
+          "n": 3379,
+          "under": 0.44066291802308377,
+          "over": 0.022491861497484462,
+          "mae": 0.4631547795205682,
+          "over_share": 0.04856230031948881,
+          "gold_max": 10,
+          "n_overcounted": 63,
+          "n_undercounted": 908,
+          "worst": [
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "How many things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the front of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            }
+          ]
+        }
+      },
+      "legacy_parser__min_lidar_0": {
+        "n_paired": 3379,
+        "accuracy": 0.712636874815034,
+        "count_errors": {
+          "n": 3379,
+          "under": 0.44066291802308377,
+          "over": 0.022491861497484462,
+          "mae": 0.4631547795205682,
+          "over_share": 0.04856230031948881,
+          "gold_max": 10,
+          "n_overcounted": 63,
+          "n_undercounted": 908,
+          "worst": [
+            {
+              "question": "What number of things are to the back of the bicycle?",
+              "predicted": 1,
+              "gold": 9,
+              "error": -8
+            },
+            {
+              "question": "What number of things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "How many things are to the back of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the front of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are to the back right of me?",
+              "predicted": 3,
+              "gold": 10,
+              "error": -7
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "What number of things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            },
+            {
+              "question": "How many things are there?",
+              "predicted": 0,
+              "gold": 6,
+              "error": -6
+            }
+          ]
+        }
+      }
+    }
+  }
+}

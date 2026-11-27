@@ -1,0 +1,70 @@
+{
+ "nuscenes_qa": {
+  "none": {
+   "correct": 11977,
+   "n": 12886
+  },
+  "back": {
+   "correct": 2485,
+   "n": 2855
+  },
+  "back right": {
+   "correct": 1449,
+   "n": 2535
+  },
+  "front": {
+   "correct": 2608,
+   "n": 2949
+  },
+  "back left": {
+   "correct": 763,
+   "n": 1018
+  },
+  "front left": {
+   "correct": 1408,
+   "n": 2638
+  },
+  "front right": {
+   "correct": 805,
+   "n": 1092
+  },
+  "several": {
+   "correct": 0,
+   "n": 0
+  }
+ },
+ "nuscenes_qa_as_labelled": {
+  "none": {
+   "correct": 11977,
+   "n": 12886
+  },
+  "back": {
+   "correct": 2485,
+   "n": 2855
+  },
+  "back right": {
+   "correct": 2290,
+   "n": 2535
+  },
+  "front": {
+   "correct": 2608,
+   "n": 2949
+  },
+  "back left": {
+   "correct": 1018,
+   "n": 1018
+  },
+  "front left": {
+   "correct": 2411,
+   "n": 2638
+  },
+  "front right": {
+   "correct": 1092,
+   "n": 1092
+  },
+  "several": {
+   "correct": 0,
+   "n": 0
+  }
+ }
+}

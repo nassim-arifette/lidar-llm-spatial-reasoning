@@ -243,6 +243,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help="the examined categories; an uncategorised disagreement "
                         "is an error, not a footnote")
     p.add_argument("--layout", default="nuscenes_qa")
+    p.add_argument("--things", default=None, choices=("named", "all"),
+                   help="defaults to the manifest's setting, else 'named'")
     p.add_argument("--min-lidar-points", type=int, default=None,
                    help="defaults to the value recorded in the manifest")
     p.add_argument("--out", default="spatial_reasoning/results/executor_verification")
@@ -257,7 +259,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     min_lidar = args.min_lidar_points
     if min_lidar is None:
         min_lidar = int(manifest.config.get("min_lidar_points", 0))
-    scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar)
+    things = args.things or str(manifest.config.get("things", "named"))
+    scenes, report = load_nuscenes_scenes(args.metadata_root, min_lidar_points=min_lidar,
+                                          things=things)
     config = RegionConfig(layout=args.layout)
 
     items = manifest.split(args.split)
@@ -325,6 +329,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     with open(summary_path, "w", encoding="utf-8") as fh:
         json.dump({"manifest": args.manifest, "split": args.split,
                    "min_lidar_points": min_lidar, "layout": args.layout,
+                   "things": things,
                    "conversion": report.as_dict(), "summary": stats},
                   fh, indent=2, default=str)
     print(f"\nwrote {records_path}\nwrote {summary_path}")

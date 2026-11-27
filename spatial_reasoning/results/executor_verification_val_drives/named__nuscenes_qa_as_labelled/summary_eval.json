@@ -1,0 +1,50 @@
+{
+  "manifest": "spatial_reasoning/manifests/val_drives.json",
+  "split": "eval",
+  "min_lidar_points": 0,
+  "layout": "nuscenes_qa_as_labelled",
+  "things": "named",
+  "conversion": {
+    "samples": 1321,
+    "scenes": 146,
+    "annotations_total": 41259,
+    "annotations_kept": 40301,
+    "dropped_no_lidar_points": 0,
+    "dropped_unknown_category": 958,
+    "samples_without_pose": 0
+  },
+  "summary": {
+    "n": 1460,
+    "answered": 1452,
+    "answered_fraction": 0.9945205479452055,
+    "agreed": 1355,
+    "agreement_over_all": 0.928082191780822,
+    "agreement_when_answered": 0.9331955922865014,
+    "by_family": {
+      "category_anchor_relation": {
+        "agreed": 260,
+        "n": 290
+      },
+      "category_ego_region": {
+        "agreed": 269,
+        "n": 292
+      },
+      "category_status": {
+        "agreed": 431,
+        "n": 438
+      },
+      "count_exist_category": {
+        "agreed": 395,
+        "n": 440
+      }
+    },
+    "statuses": {
+      "ok": 1452,
+      "ambiguous": 7,
+      "missing": 1
+    },
+    "disagreement_categories": {
+      "UNEXAMINED": 105
+    }
+  }
+}

@@ -1,0 +1,99 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen2.5-7B-Instruct  backend=local  (e7bdb9ea90ac)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2r (budget 2048)
+
+direct: generating 100 of 100 (0 cached)
+
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/339 [00:00<05:11,  1.09it/s]
+Loading weights:  16%|█▌        | 54/339 [00:01<00:04, 69.43it/s]
+Loading weights:  23%|██▎       | 79/339 [00:01<00:03, 82.70it/s]
+Loading weights:  29%|██▉       | 98/339 [00:01<00:02, 98.16it/s]
+Loading weights:  34%|███▍      | 116/339 [00:01<00:02, 89.35it/s]
+Loading weights:  40%|████      | 136/339 [00:01<00:02, 101.25it/s]
+Loading weights:  45%|████▍     | 151/339 [00:01<00:01, 94.50it/s] 
+Loading weights:  51%|█████     | 172/339 [00:02<00:01, 107.11it/s]
+Loading weights:  55%|█████▍    | 185/339 [00:02<00:01, 101.04it/s]
+Loading weights:  58%|█████▊    | 197/339 [00:02<00:01, 97.61it/s] 
+Loading weights:  62%|██████▏   | 210/339 [00:02<00:01, 96.28it/s]
+Loading weights:  68%|██████▊   | 232/339 [00:02<00:00, 113.25it/s]
+Loading weights:  72%|███████▏  | 244/339 [00:02<00:00, 111.82it/s]
+Loading weights:  76%|███████▌  | 256/339 [00:02<00:00, 109.32it/s]
+Loading weights:  79%|███████▉  | 268/339 [00:03<00:00, 104.61it/s]
+Loading weights:  83%|████████▎ | 280/339 [00:03<00:00, 91.30it/s] 
+Loading weights:  86%|████████▋ | 293/339 [00:03<00:00, 91.51it/s]
+Loading weights:  90%|█████████ | 306/339 [00:03<00:00, 94.64it/s]
+Loading weights:  97%|█████████▋| 328/339 [00:03<00:00, 112.27it/s]
+Loading weights: 100%|██████████| 339/339 [00:03<00:00, 92.48it/s] 
+  generated 8/100
+  generated 16/100
+  generated 24/100
+  generated 32/100
+  generated 40/100
+  generated 48/100
+  generated 56/100
+  generated 64/100
+  generated 72/100
+  generated 80/100
+  generated 88/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 8/85 unique questions (4s)
+  parsed 16/85 unique questions (10s)
+  parsed 24/85 unique questions (15s)
+  parsed 32/85 unique questions (20s)
+  parsed 40/85 unique questions (25s)
+  parsed 48/85 unique questions (31s)
+  parsed 56/85 unique questions (36s)
+  parsed 64/85 unique questions (42s)
+  parsed 72/85 unique questions (47s)
+  parsed 80/85 unique questions (52s)
+  parsed 85/85 unique questions (56s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.460     0.950
+answers                    0.960     0.960
+accuracy when answered     0.479     0.990
+
+counting                  direct  executed
+  numeric coverage         0.946     0.946
+  under                     1.60      0.00
+  over                      1.23      0.00
+  MAE                       2.83      0.00
+  n numeric                   35        35
+
+paired:  both right 46 | direct only 0 | executed only 49 | neither 5
+
+direct statuses   : {'ok': 96, 'truncated': 4}
+program statuses  : {'ok': 99, 'refused': 1}
+execution statuses: {'ok': 96, 'ambiguous': 3}
+
+cost: direct 136011in/38036out 686.1s | executed 112095in/5622out 64.9s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.200     0.840
+category_ego_region            25    0.280     0.960
+category_status                25    0.640     1.000
+count_exist_category           25    0.720     1.000
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.400     1.000
+6f83169d067343658251f72e1d     13    0.385     1.000
+bebf5f5b2a674631ab5c88fd1a     13    0.462     1.000
+c5224b9b454b4ded9b5d2d2634     15    0.533     0.933
+cc8c0bf57f984915a77078b10e     18    0.389     0.889
+d25718445d89453381c659b9c8     16    0.562     1.000
+fcbccedd61424f1b85dcbf8f89     10    0.500     0.800
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 1, "direct_correct_on_every_scene": 0, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/d2r_7b_dev_v3/rows_dev.jsonl
+wrote /vol/outputs/d2r_7b_dev_v3/summary_dev.json

@@ -1,0 +1,124 @@
+eval: 200 examples over 3 scenes
+model: Qwen/Qwen2.5-7B-Instruct  backend=local  (e7bdb9ea90ac)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 256)
+
+direct: generating 200 of 200 (0 cached)
+
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/339 [00:01<10:12,  1.81s/it]
+Loading weights:  16%|█▌        | 54/339 [00:02<00:07, 36.82it/s]
+Loading weights:  21%|██        | 71/339 [00:02<00:05, 45.57it/s]
+Loading weights:  25%|██▌       | 85/339 [00:02<00:04, 53.04it/s]
+Loading weights:  29%|██▊       | 97/339 [00:02<00:04, 57.65it/s]
+Loading weights:  32%|███▏      | 108/339 [00:02<00:03, 60.83it/s]
+Loading weights:  35%|███▍      | 118/339 [00:02<00:03, 65.53it/s]
+Loading weights:  38%|███▊      | 128/339 [00:02<00:03, 64.78it/s]
+Loading weights:  40%|████      | 137/339 [00:03<00:03, 65.51it/s]
+Loading weights:  44%|████▍     | 150/339 [00:03<00:02, 67.07it/s]
+Loading weights:  47%|████▋     | 161/339 [00:03<00:02, 74.25it/s]
+Loading weights:  51%|█████     | 173/339 [00:03<00:02, 77.99it/s]
+Loading weights:  54%|█████▍    | 184/339 [00:03<00:01, 84.24it/s]
+Loading weights:  58%|█████▊    | 196/339 [00:03<00:01, 89.99it/s]
+Loading weights:  61%|██████    | 206/339 [00:03<00:01, 90.19it/s]
+Loading weights:  64%|██████▎   | 216/339 [00:03<00:01, 86.13it/s]
+Loading weights:  66%|██████▋   | 225/339 [00:04<00:01, 74.14it/s]
+Loading weights:  69%|██████▊   | 233/339 [00:04<00:01, 74.44it/s]
+Loading weights:  72%|███████▏  | 245/339 [00:04<00:01, 73.17it/s]
+Loading weights:  76%|███████▌  | 258/339 [00:04<00:01, 73.17it/s]
+Loading weights:  81%|████████  | 274/339 [00:04<00:00, 92.27it/s]
+Loading weights:  84%|████████▍ | 285/339 [00:04<00:00, 85.93it/s]
+Loading weights:  87%|████████▋ | 295/339 [00:04<00:00, 78.25it/s]
+Loading weights:  90%|████████▉ | 305/339 [00:05<00:00, 82.25it/s]
+Loading weights:  94%|█████████▎| 317/339 [00:05<00:00, 84.33it/s]
+Loading weights:  97%|█████████▋| 329/339 [00:05<00:00, 84.50it/s]
+Loading weights: 100%|██████████| 339/339 [00:05<00:00, 63.16it/s]
+  generated 8/200
+  generated 16/200
+  generated 24/200
+  generated 32/200
+  generated 40/200
+  generated 48/200
+  generated 56/200
+  generated 64/200
+  generated 72/200
+  generated 80/200
+  generated 88/200
+  generated 96/200
+  generated 104/200
+  generated 112/200
+  generated 120/200
+  generated 128/200
+  generated 136/200
+  generated 144/200
+  generated 152/200
+  generated 160/200
+  generated 168/200
+  generated 176/200
+  generated 184/200
+  generated 192/200
+  generated 200/200
+executed: generating programs for 200 questions
+  parsed 8/151 unique questions (9s)
+  parsed 16/151 unique questions (14s)
+  parsed 24/151 unique questions (20s)
+  parsed 32/151 unique questions (27s)
+  parsed 40/151 unique questions (34s)
+  parsed 48/151 unique questions (42s)
+  parsed 56/151 unique questions (49s)
+  parsed 64/151 unique questions (56s)
+  parsed 72/151 unique questions (64s)
+  parsed 80/151 unique questions (69s)
+  parsed 88/151 unique questions (77s)
+  parsed 96/151 unique questions (84s)
+  parsed 104/151 unique questions (92s)
+  parsed 112/151 unique questions (99s)
+  parsed 120/151 unique questions (107s)
+  parsed 128/151 unique questions (114s)
+  parsed 136/151 unique questions (122s)
+  parsed 144/151 unique questions (129s)
+  parsed 151/151 unique questions (137s)
+executed: executing 200 programs
+  executed 50/200
+  executed 100/200
+  executed 150/200
+  executed 200/200
+
+n = 200
+
+                          direct  executed
+accuracy (all)             0.545     0.955
+answers                    1.000     0.990
+accuracy when answered     0.545     0.965
+
+counting                  direct  executed
+  numeric coverage         1.000     0.976
+  under                     1.37      0.05
+  over                      0.49      0.04
+  MAE                       1.87      0.09
+  n numeric                   83        81
+
+paired:  both right 106 | direct only 3 | executed only 85 | neither 6
+
+direct statuses   : {'ok': 200}
+program statuses  : {'ok': 200}
+execution statuses: {'ok': 198, 'ambiguous': 2}
+
+cost: direct 225072in/400out 81.2s | executed 224201in/11472out 176.0s
+
+family                          n   direct  executed
+category_anchor_relation       54    0.333     0.907
+category_ego_region            43    0.442     0.977
+category_status                53    0.604     0.943
+count_exist_category           50    0.800     1.000
+
+scene                           n   direct  executed
+325cef682f064c55a255f2625c     66    0.576     0.970
+de7d80a1f5fb4c3e82ce8a4f21     69    0.522     0.928
+e233467e827140efa4b42d2b4c     65    0.538     0.969
+
+scene-dependence control: {"n_question_groups": 13, "direct_gave_one_answer_to_all": 0, "direct_correct_on_every_scene": 1, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 12}
+
+wrote /vol/outputs/c_7b_eval/rows_eval.jsonl
+wrote /vol/outputs/c_7b_eval/summary_eval.json

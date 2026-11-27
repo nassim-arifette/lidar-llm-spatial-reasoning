@@ -1,4 +1,10 @@
-import { SECTORS, type SceneObject } from './executor';
+import { SECTORS, type Layout, type SceneObject } from './executor';
+
+/** Where each relation is drawn under the as-labelled layout: the unsigned angle, so two wedges for each diagonal. */
+const AS_LABELLED_WEDGES: [string, number, number][] = [
+  ['front', -30, 30], ['front_left', 30, 90], ['front_left', -90, -30],
+  ['back_right', 90, 150], ['back_right', -150, -90], ['back', 150, 210],
+];
 import { el } from './util';
 import { heightTone, type Sweep } from './lidar';
 
@@ -126,11 +132,14 @@ export class Bev {
   }
 
   /** Light up one or all sectors around an origin (null = ego). */
-  sectors(origin: SceneObject | null, only: string | null = null, labels = true) {
+  sectors(origin: SceneObject | null, only: string | null = null, labels = true, layout: Layout = 'nuscenes_qa') {
     this.gSectors.replaceChildren();
     const ox = origin?.x ?? 0, oy = origin?.y ?? 0;
     const far = this.range * 3;
-    for (const [name, [lo, hi]] of Object.entries(SECTORS)) {
+    const wedges: [string, number, number][] = layout === 'nuscenes_qa_as_labelled'
+      ? AS_LABELLED_WEDGES
+      : Object.entries(SECTORS).map(([name, [lo, hi]]) => [name, lo, hi]);
+    for (const [name, lo, hi] of wedges) {
       if (only && name !== only) continue;
       const end = hi > lo ? hi : hi + 360;
       const pts: [number, number][] = [toScreen(ox, oy)];

@@ -1,14 +1,24 @@
 % =====================================================================
-%  NPM3D project report
+%  NPM3D project report, revised towards a workshop paper
 %  Author: Nassim Arifette
 %  Build:  pdflatex rapport_npm3d.tex  (twice, for references)
 %
 %  Provenance of every number:
-%    Section 6  spatial_reasoning/results/llm_modes/summary_{dev,eval}.json
-%    Section 7  spatial_reasoning/results/llm_modes/failures_eval.json
-%    Section 4.3 spatial_reasoning/results/symbolic_diagnostic.json
+%    Section 3  docs/LABEL_AUDIT.md
+%               (results/label_audit/, results/executor_verification_*/,
+%                results/symbolic_diagnostic_as_labelled/)
+%    Section 4  spatial_reasoning/results/{llm_modes,llm_modes_7b,
+%               llm_modes_32b,gw_*}/summary_eval.json  (archived, published
+%               reading)
+%    Section 5  spatial_reasoning/results/rescored_as_labelled/analysis.md
+%               spatial_reasoning/results/runs_2026_11/README.md
+%    Section 6  spatial_reasoning/results/llm_modes/failures_eval.json;
+%               "17 of the 18" joins that file with
+%               results/rescored_as_labelled/llm_modes/rows_eval.jsonl
+%    Section 7  spatial_reasoning/results/wide_1p5b/, analysis.md
 %    Section 8  spatial_reasoning/results/all_results.json  (synthetic)
-%    collected in spatial_reasoning/results/state_of_results.md
+%  Rows not yet run are absent from the tables or shown as "--"; add them
+%  from runs_2026_11/README.md when they exist.
 % =====================================================================
 
 \documentclass[11pt,a4paper]{article}
@@ -28,9 +38,20 @@
 \usepackage[hidelinks]{hyperref}
 
 \newcommand{\code}[1]{\texttt{\small #1}}
+\newcommand{\nr}{--}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.8}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{5}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{6pt}
 
-\title{\textbf{Low-cost LiDAR spatial reasoning:\\
-answering a question versus computing its answer}}
+\title{\textbf{What the nuScenes-QA answers encode:\\
+a label audit, and direct answers\\
+against executed programs}}
 \author{Nassim Arifette\\
 \small MVA --- Nuages de Points et Modélisation 3D (NPM3D)}
 \date{\today}
@@ -40,280 +61,153 @@ answering a question versus computing its answer}}
 
 \begin{abstract}
 \noindent
-LiDAR-LLM \cite{lidarllm} couples a frozen LiDAR encoder to a large language
-model so that spatial questions about a driving scene can be answered in
-natural language. Our original project reimplemented a reduced version of that
-architecture and showed, honestly, that it could not be trained on the
-hardware available. This report changes the question rather than the hardware.
-Holding perception fixed, we ask whether a spatial question about a LiDAR
-scene is better answered by \emph{producing} the answer or by \emph{computing}
-it, and we ask it of one model under a shared model configuration: the
-same frozen Qwen2.5-1.5B-Instruct either answers from the object list, or
-writes a small program that a deterministic executor runs on that same list.
-On $200$ held-out questions from three unseen nuScenes drives the executed
-mode reaches $0.685$ against $0.505$; paired question by question it is alone
-correct on $67$ and alone wrong on $31$ ($p = 3.5\times10^{-4}$), and its
-counting error is $0.68$ against $2.16$ at near-equal numeric coverage.
-The question-level $p$-value assumes independence; the gain is positive on
-each of the three evaluation drives, but three drives limit generalization. The sharper
-instrument is a scene-dependence control: of thirteen questions asked verbatim
-of two scenes with different answers, the executed mode is right on all
-thirteen and the direct mode on one. Two findings about the data matter beyond
-this comparison. The implementation uses the six $60^{\circ}$ bearing sectors published by
-nuScenes-QA; an archived layout diagnostic checks this convention. In the
-processed mini annotations,
-$23\%$ of nuScenes annotations carry \emph{zero} LiDAR returns while
-nuScenes-QA may count them, so filtering objects by LiDAR support costs $49$
-accuracy points on $125$ paired, answerable counting questions. Nothing here is trained, and
-the core $1.5$B comparison ran on a T4; larger-model extensions used
-additional GPU resources or hosted endpoints.
+This report makes two contributions on nuScenes-QA \cite{nuscenesqa}, a
+question-answering benchmark over driving scenes. The first is an audit of
+its released answers. They do not distinguish left from right: with $a$ the
+unsigned angle between the ego heading and the direction to an object,
+``front left'' holds for $30^{\circ} < a \le 90^{\circ}$ on either side,
+``back right'' for $90^{\circ} < a \le 150^{\circ}$ on either side, and
+``front right'' and ``back left'' hold for no object. All $12{,}392$ counting
+or existence questions of the official train and validation sets that name
+one of the last two relations are answered $0$ or \emph{no}. ``Things''
+include every annotation, the classes no question names among them, and the
+ego vehicle; boxes with no LiDAR return are counted. On $1{,}460$ questions
+from $146$ validation drives, a deterministic executor agrees with the
+released answers on $85.1\%$ under the published reading and on $97.5\%$
+under these three conventions. The left/right rule was found on other
+drives; the ``things'' rule was found on these and confirmed on the train
+set. The second
+contribution is a comparison of two uses of one frozen language model on
+ground-truth object lists: answering directly, or writing a JSON program that
+a deterministic executor runs. Our earlier comparison stated the published
+convention to both modes and scored both against labels that follow another
+one. Executing the same programs under the convention of the labels moves six
+models from $0.685$--$0.845$ to $0.765$--$0.980$ on $200$ questions from
+three drives; the plateau near $0.845$ was the mismatch. On the $146$
+validation drives, with both modes told the conventions of the labels,
+Qwen2.5-7B reaches $0.961$ with programs against $0.595$ directly, a
+difference of $+0.366$ with a $95\%$ drive-level bootstrap interval of
+$[+0.337, +0.395]$; Qwen2.5-1.5B reaches $0.747$ against $0.582$ and
+Qwen2.5-32B ($4$-bit) $0.978$ against $0.679$. Asking the direct mode to
+write out its working did not close the gap for the $1.5$B and $7$B models; Qwen3-8B with its thinking mode on is right on every development question it finishes within $4{,}096$ tokens, and finishes $63$ of $100$. The rules are inferred from the answers, not read from the generation
+code, and perception is an oracle throughout. The result concerns these
+question families; it does not show that language models cannot reason about
+space.
 \end{abstract}
 
 % =====================================================================
 \section{Introduction}
 % =====================================================================
 
-Interpreting a LiDAR scene in natural language is attractive for autonomous
-driving: a system that can answer ``how many cars are ahead of us?'' exposes
-its scene understanding in a form a human can audit. LiDAR-LLM
-\cite{lidarllm} pursues this by aligning a LiDAR representation with the
-embedding space of a language model through a three-stage curriculum, with
-GPT-4 \cite{gpt4} improving the captions that form the training data and
-LLaMA-7B as the model that learns from LiDAR.
+nuScenes-QA \cite{nuscenesqa} pairs nuScenes keyframes \cite{nuscenes} with
+templated questions about what is around the ego vehicle: how many, whether
+any, in which of six directions, with which status. Systems such as LiDAR-LLM
+\cite{lidarllm} are evaluated on it, and a number on its directional
+questions is usually read as a measure of spatial reasoning.
 
-Our first report reimplemented a reduced version of this architecture.
-Section~\ref{sec:original} restates what that implementation did and, more
-usefully, what it failed to establish. Section~\ref{sec:question} argues for a
-different question, one the same hardware can answer.
+This work started as a course project that reimplemented a reduced LiDAR-LLM
+and could not train it on the hardware available (Section~\ref{sec:related}).
+The project then fixed perception and compared two uses of one frozen
+language model: \emph{direct}, where the model reads an object list and
+answers, and \emph{program}, where it writes a small JSON program and a
+deterministic executor computes the answer from the same list. A first
+version of this report presented that comparison under the relations as the
+benchmark paper defines them, six signed $60^{\circ}$ sectors. In that
+version the program mode stopped near $0.845$ for every model but the smallest, and we attributed the executor's remaining
+disagreements with the reference answers to objects near sector boundaries.
 
-The shift is motivated by an observation about counting and directional
-questions. When the correct answer to ``how many cars are in front?'' is
-determined by the object list and a geometric predicate, asking a generative
-model to emit the digit is asking it to re-derive, inside its weights, a
-computation that is already exact and essentially free. Whether that
-re-derivation buys anything is testable, and this report tests it on one model
-used two ways.
+That attribution was wrong. The disagreements came from a convention of the
+labels that the published definition does not state. This revision is
+organised around what followed.
 
-% =====================================================================
-\section{The original re-implementation and what it did not show}
-\label{sec:original}
-% =====================================================================
+\paragraph{Contribution 1: an audit of the labels
+(Section~\ref{sec:audit}).} Three conventions of the released answers differ
+from what the paper's text and the question wording suggest: left and right
+are not distinguished; ``things'' are every annotation plus the ego vehicle;
+objects with no LiDAR return are counted. Each is stated as a rule and tested
+on data that played no part in finding it, including the official train set.
 
-The first version implemented the LiDAR-LLM pipeline in reduced form: a small
-PointNet encoder, a view-aware transformer with six view-position embeddings,
-an MLP adapter projecting into the token embedding space, and GPT-2
-\cite{gpt2} fine-tuned with LoRA \cite{lora}. Data came from nuScenes-mini
-\cite{nuscenes} with nuScenes-QA \cite{nuscenesqa} questions: 323 training
-samples from 8 scenes, 81 validation samples from 2 scenes.
+\paragraph{Contribution 2: direct against program once the conventions are
+right (Section~\ref{sec:aslabelled}).} The archived comparison scored both
+modes against labels that follow a convention neither was told. We
+re-execute the archived programs under the convention of the labels, rerun
+the direct mode with a prompt that states it, add an ablation where the
+direct mode writes out its working, treat constrained decoding as a separate
+condition, and repeat the comparison on $146$ validation drives with
+intervals that resample drives. The archived numbers stay in
+Section~\ref{sec:published}, labelled as results under the published reading.
 
-It produced a debugged pipeline and no evidence. Training ran on laptops with
-roughly 6\,GB of RAM and no GPU. The functional check was that the model could
-be driven to emit a fixed string regardless of the LiDAR input, which shows
-that gradients flow and nothing more.
-
-Three weaknesses shape what follows.
-
-\paragraph{The evaluation could not separate competence from priors.}
-nuScenes-QA answers are skewed towards ``no'' and small integers. With no
-question-only control, an accuracy figure cannot distinguish a model that reads
-the scene from one that has learned the answer distribution. Real-3DQA
-\cite{real3dqa} shows how severe this is: on SQA3D a model fine-tuned on
-question--answer pairs \emph{with no 3D input at all} matches or beats existing
-3D-LLMs, and filtering the blind-answerable questions collapses LEO's exact
-match from $49.4\%$ to $14.3\%$.
-
-\paragraph{The split invited leakage.} Splitting questions rather than scenes
-puts different questions about the same LiDAR sample on both sides, rewarding
-``this scene has three cars''.
-
-\paragraph{The target task did not need a language model.} Counting, existence
-and directional questions have answers that are functions of the object list.
+\paragraph{Limits, stated once here and again where they apply.} Perception
+is an oracle: object lists are ground-truth annotations. The first comparison
+has three evaluation drives. Prompts and the layout were developed on
+nuScenes v1.0-mini. The left/right rule was found by looking at evaluation
+failures and then confirmed on held-out data; the ``things'' rule was found
+on the validation drives and confirmed on the train set. The rules describe
+the answers; the generation code was not read. The $32$B model is quantised
+to $4$ bits.
 
 % =====================================================================
-\section{A question the available hardware can answer}
-\label{sec:question}
-% =====================================================================
-
-We fix perception and vary only the reasoning stage. Every system receives
-exactly the same object list, and the question becomes:
-
-\begin{quote}
-\emph{At a fixed language model and fixed scene data, is it more reliable to
-produce the answer to a spatial question, or to produce an executable program
-and let a deterministic executor compute the answer?}
-\end{quote}
-
-Posed between \emph{two uses of one model}, this controls the checkpoint and
-decoding while comparing two different inference pipelines. A learned answer head and a program-writing model differ in
-architecture, in training and in what they see, so a gap between them says
-little; holding the checkpoint, decoding and object data fixed makes the
-comparison interpretable. The prompts and the availability of hand-written
-execution still differ by design.
-
-\paragraph{Relation to existing work.} The idea is not ours. CLEVR
-\cite{clevr} established the template: represent a question as a functional
-program over a small catalogue of operations --- filter, unique, relate,
-count, exist, query, compare --- and execute it on the scene graph.
-Neural-symbolic VQA \cite{nsvqa} then showed that recovering such a program
-and executing it on a structured scene representation is far more accurate on
-CLEVR than predicting the answer end to end. Our qualitative result is a
-reproduction of that finding on real driving data with a frozen $1.5$B model
-and no training at all; the contribution is the controlled measurement and the
-data diagnostics of Section~\ref{sec:method}, not the idea.
-
-Closer in domain, ZSVG3D \cite{zsvg3d} generates programs for zero-shot
-3D grounding, and KLDrive \cite{kldrive} combines scene facts with constrained
-LLM reasoning. These systems motivate the direction rather than supply
-numerically comparable baselines: their perception, training and evaluation
-protocols differ from our fixed ground-truth objects and three evaluation
-drives. LiDAR-LLM's own conclusion identifies lightweight operation as future
-work, while its qualitative failures include semantic facts unsupported by
-LiDAR. Our restricted executor addresses auditable factual computation given
-objects; it neither supplies missing perception nor establishes a lightweight
-end-to-end replacement for LiDAR-LLM.
-
-% =====================================================================
-\section{Method}
+\section{Setting}
 \label{sec:method}
 % =====================================================================
 
-\subsection{Object-level scene representation}
+\subsection{Related work and origin of the project}
+\label{sec:related}
 
-A scene is a list of objects, each with a canonical class (the ten nuScenes
-detection classes), a centre, a box size, a yaw, a detection score and, where
-the annotation carries one, a \emph{status} --- moving, parked, stopped,
-standing, sitting/lying down, with rider, without rider. All coordinates are
-in the ego frame: $x$ forward, $y$ left, $z$ up. nuScenes boxes and released
-detection results are in global coordinates, so the conversion through the
-sample's ego pose and the quaternion-to-yaw step are performed explicitly and
-in one place; a sign error there mirrors the scene and would be
-indistinguishable from a reasoning failure.
+CLEVR \cite{clevr} represents a question as a functional program over a small
+catalogue of operations (filter, unique, relate, count, exist, query,
+compare) executed on a scene graph, and neural-symbolic VQA \cite{nsvqa}
+showed that recovering and executing such a program is far more accurate on
+CLEVR than predicting the answer end to end. The comparison in this report
+reproduces that finding on real driving annotations with frozen models and no
+training; the idea is not ours. Closer in domain, ZSVG3D \cite{zsvg3d}
+generates programs for zero-shot 3D grounding and KLDrive \cite{kldrive}
+combines scene facts with constrained LLM reasoning. Their perception and protocols differ from ours, so they give
+no comparable numbers. Real-3DQA \cite{real3dqa} shows that on
+SQA3D a model fine-tuned with no 3D input matches or beats existing 3D-LLMs,
+and that filtering blind-answerable questions drops LEO's exact match from
+$49.4\%$ to $14.3\%$; the scene-dependence control of Section~\ref{sec:scene}
+follows that argument.
 
-An unknown status is treated as neither the attribute nor its negation. A
-traffic cone carries no attribute, so it is not ``standing'' and not ``not
-standing''; counting it under the negation would assert something the
-annotation does not support.
+The first version of the project implemented LiDAR-LLM \cite{lidarllm} in
+reduced form on $323$ training samples, without a GPU. It showed that
+gradients flow and nothing more, and its evaluation had no question-only
+control and split questions rather than scenes. The present protocol was
+designed against those two weaknesses.
 
-\subsection{Implementing the published directional convention}
-\label{sec:sectors}
+\subsection{Scenes, programs and the executor}
 
-nuScenes-QA uses six spatial relations. Our first implementation used eight
-$45^{\circ}$ octants, which silently answered a different question: an object
-at a bearing of $80^{\circ}$ is ``front left'' under the six-sector convention
-and ``left'' under the eight-sector one. ``Left'' does not exist in the
-six-relation vocabulary at all.
-
-NuScenes-QA Equation~2 \cite{nuscenesqa} explicitly specifies six
-$60^{\circ}$ sectors. This is an implementation requirement, not a newly
-discovered benchmark property. An archived diagnostic compared that layout
-with alternatives on $68$ ego-anchored questions from the evaluation manifest:
-
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{lrrr}
-\toprule
-Candidate convention & Exact & Count MAE & Bias \\
-\midrule
-\textbf{Uniform $60^{\circ}$ sectors, $y$ left, no range limit}
-                                   & \textbf{76.5\%} & 1.24 & $-1.14$ \\
-Same, with $y$ pointing right      & 72.1\% & 0.76 & $-0.76$ \\
-The six nuScenes camera frusta     & 67.6\% & 1.76 & $-0.62$ \\
-Eight $45^{\circ}$ octants         & 61.8\% & 1.62 & $-1.62$ \\
-Overlapping quadrants ($x>0$, $y>0$, \ldots) & 51.5\% & 3.86 & $+2.62$ \\
-\bottomrule
-\end{tabular}
-\caption{Archived layout diagnostic, not an independent held-out experiment. The camera
-row uses the real calibration: each camera's optical axis and horizontal field
-of view are computed from \code{calibrated\_sensor.json} and the intrinsics,
-and an object belongs to a camera if it projects inside that image.}
-\label{tab:sectors}
-\end{table}
-
-The six-camera hypothesis is tempting --- six relations, six cameras, named
-\code{CAM\_FRONT\_LEFT} and so on --- and it is wrong: the frusta overlap and
-are unequal in width ($64$--$89^{\circ}$ from the intrinsics), and they fit
-worse than uniform sectors. Every maximum-range cut from $25$ to $60$\,m also
-makes agreement worse on this subset; this does not establish a universal
-distance rule for every benchmark question.
-
-The residual is structured: on the development split the executor agrees with
-$50/50$ non-directional questions, $17/18$ axial ones (front, back) and
-$24/32$ diagonal ones, with \emph{front left} alone at $5/10$. The boundaries
-were deliberately \emph{not} fitted to close that gap. An executor whose
-sector edges were tuned on the reference answers would help the branch that
-computes with those edges far more than the branch that only reads them in
-prose, and the comparison of Section~\ref{sec:results} would be measuring the
-tuning.
-
-Objects closer than $1$\,m to the ego origin are excluded from directional
-queries, because a $10$\,cm localisation error flips the sign of their
-bearing. Relative directions (``left of the truck'') are ambiguous between the
-viewer's frame and the object's own frame; both are implemented, and the
-viewer-centric reading is the default, matching nuScenes-QA.
-
-\subsection{What the LiDAR returns say about the labels}
-\label{sec:lidar}
-
-nuScenes records how many LiDAR points fall inside each annotated box.
-Building a scene from LiDAR, one possible filter is
-to keep only annotations the sensor actually hit. On the mini split that
-discards \textbf{$4{,}278$ of $18{,}538$ annotations --- $23\%$ --- for having
-zero LiDAR returns}.
-
-It is also wrong for this benchmark. Holding the programs fixed and changing
-only the object list, over the $125$ counting questions that both conditions
-answer numerically:
-
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{lrrr}
-\toprule
-Object list & Accuracy & Under-counting & MAE \\
-\midrule
-Keep only annotations with $\geq 1$ LiDAR return & 0.336 & 1.672 & 1.76 \\
-\textbf{Keep every annotation}                   & \textbf{0.824} & \textbf{0.568} & \textbf{0.69} \\
-\bottomrule
-\end{tabular}
-\caption{Same questions, same programs, same geometry; only the object list
-changes. Filtering by LiDAR support costs $49$ accuracy points.}
-\label{tab:lidar}
-\end{table}
-
-The labels can therefore count boxes with no LiDAR return in that frame.
-This is a label/input mismatch on this subset, not a measured detector error.
-Every experiment below therefore uses the unfiltered list, and the
-choice is recorded in the manifest so both compared systems inherit it.
-
-\subsection{From question to program}
+A scene is a list of objects, each with a class (the ten nuScenes detection
+classes), a centre, a box size, a yaw and, where the annotation carries one,
+a \emph{status}: moving, parked, stopped, standing, sitting or lying down,
+with rider, without rider. Coordinates are in the ego frame, $x$ forward,
+$y$ left. An unknown status is treated as neither the attribute nor its
+negation: a traffic cone is neither ``standing'' nor ``not standing''.
 
 A program is an operation (\textsc{count}, \textsc{exists},
 \textsc{compare}) over a selector: a category or category group, an optional
-status, an optional region (a bearing sector, near, far, or a radius), and an
-optional anchor making the region relative to another object. Two parsers emit
-this language. A deterministic rule grammar serves as a reference and as a
-baseline; the frozen language model is the system under test.
+status, an optional region (one of the six relations, near, far, or a
+radius), and an optional anchor that makes the region relative to another
+object. Two parsers emit this language. A deterministic rule grammar produces
+reference programs and declines what it cannot represent; the frozen language
+model is the system under test.
 
-The grammar declines what it cannot represent rather than guessing. This
-matters more than it sounds: an earlier version had no slot for a status word
-and silently dropped it, so ``what number of stopped things are there'' was
-executed as ``how many objects are there'' and answered $71$ against a
-reference of $10$. Making the grammar able to carry the attribute and the
-preamble referent raised its end-to-end accuracy on all $5{,}916$ mini
-questions from $0.156$ (drop what you cannot express) to $0.231$ at the same
-coverage, with accuracy-when-answering rising from $0.632$ to $0.856$.
+Execution is a filter followed by an arithmetic operation. It has no learned
+parameters. A definite reference whose resolution is ambiguous (``the
+truck'' when the scene has three) is refused, not resolved by taking the
+first match. Refusals, invalid programs and unreadable answers count as wrong
+everywhere in this report. Objects closer than $1$\,m to the ego origin are
+excluded from directional queries. Relations relative to an object (``to the
+front of the bus'') keep the ego vehicle's heading and move the origin to
+that object.
 
-\subsection{Execution}
-
-Executing a program is a filter followed by an arithmetic operation. It is
-deterministic, has no learned parameters, and returns the objects it selected,
-which is what allows an error to be attributed to perception rather than to
-reasoning. A definite reference whose resolution is ambiguous (``the truck'',
-when the scene has three) is refused rather than resolved by taking the first
-match. CLEVR avoids such questions at generation time, calling them ill-posed
-\cite{clevr}; on data we did not generate, well-posedness has to be detected
-instead, and a refusal is counted as a wrong answer throughout.
+The executor takes the spatial convention as a named \emph{layout}. Two
+matter here: \code{nuscenes\_qa}, the six signed $60^{\circ}$ sectors of
+Equation~2 of the benchmark paper, which we call the \emph{published}
+reading, and \code{nuscenes\_qa\_as\_labelled}, the rule of
+Section~\ref{sec:leftright}, which we call \emph{as labelled}. A program
+names a relation and not a layout, so the same generated program can be
+executed under either.
 
 \begin{figure}[t]
 \centering
@@ -325,12 +219,12 @@ instead, and a refusal is counted as a wrong answer throughout.
   learn/.style={box, fill=blue!8},
   arr/.style={-{Latex[length=2mm]}}
 ]
-\node[fixed] (objs) {Object list in the ego frame\\\scriptsize class, box, status --- identical for both};
-\node[box, above=10mm of objs] (q) {Question};
-\node[learn, left=16mm of objs] (direct) {\textbf{A} \ Qwen\\\scriptsize answers from the list};
-\node[learn, right=16mm of objs] (prog) {\textbf{B} \ Qwen\\\scriptsize writes a program};
-\node[fixed, below=8mm of prog] (exec) {Executor\\\scriptsize filter $+$ sector $+$ count};
-\node[box, below=8mm of objs] (ans) {Answer};
+\node[fixed] (objs) {Object list in the ego frame\\\scriptsize class, position, status; identical for both};
+\node[box, above=8mm of objs] (q) {Question};
+\node[learn, left=14mm of objs] (direct) {\textbf{Direct} \ model\\\scriptsize answers from the list};
+\node[learn, right=14mm of objs] (prog) {\textbf{Program} \ model\\\scriptsize writes a program};
+\node[fixed, below=7mm of prog] (exec) {Executor\\\scriptsize filter, relation, count};
+\node[box, below=7mm of objs] (ans) {Answer};
 
 \draw[arr] (q) -- (direct);
 \draw[arr] (q) -- (prog);
@@ -338,518 +232,827 @@ instead, and a refusal is counted as a wrong answer throughout.
 \draw[arr] (objs) -- (exec);
 \draw[arr] (prog) -- (exec);
 \draw[arr] (direct) |- (ans);
-\draw[arr] (exec) |- (ans);
+\draw[arr] (exec.west) -- (exec.west -| ans.east);
 \end{tikzpicture}
 \caption{The two modes. Grey is fixed and shared; blue is the same frozen
-checkpoint used two ways. Both branches see the same objects and are told the
-same conventions.}
+checkpoint used two ways.}
 \label{fig:pipeline}
 \end{figure}
 
-% =====================================================================
-\section{Experimental protocol}
-% =====================================================================
+\subsection{Protocol}
+\label{sec:protocol}
 
-\subsection{The frozen example set}
+\paragraph{First comparison.} One set of questions was fixed before either
+mode ran, in the manifest \code{first\_comparison.json}: $100$ development
+and $200$ evaluation questions from nuScenes-QA on v1.0-mini, split by drive (seven
+development drives, three evaluation drives, no overlap). Questions are
+selected by what they ask, from the surface structure of the text, and not by
+what a parser manages: $1{,}626$ of the $5{,}916$ mini questions are in
+scope. The scope is what the rule grammar can express, because the grammar
+supplies the reference programs against which the executor is checked before
+any model runs. There are four families: category only (``are there any
+cars''), category with a status (``how many parked cars''), category in a
+region relative to the ego vehicle, and category anchored on another object.
 
-Both systems are measured on one set, fixed before either ran
-(\code{manifests/first\_comparison.json}): $100$ development and $200$
-evaluation questions drawn from nuScenes-QA mini, over nuScenes ground-truth
-annotations.
+\paragraph{Validation drives.} A second set, \code{val\_drives.json}, was built in November 2026 by the same
+rules from the official nuScenes-QA validation questions on the v1.0-trainval
+annotations: $1{,}460$ questions, ten from each of $146$ drives, none of
+which is in v1.0-mini. It has no development part; development remains the
+development split of the first comparison.
 
-\paragraph{Split by scene, never by sample.} Consecutive samples of one drive
-show the same vehicles, so splitting by sample would make the evaluation set a
-paraphrase of the development set. Development holds seven drives, evaluation
-three, with no overlap.
+\paragraph{Matched conditions.} Both modes use the same checkpoint through
+one runtime, the same precision and greedy decoding. The direct mode receives
+the object rows (id, category, $x$, $y$, status) in an order that does not
+depend on the question, with no pre-filtering and no precomputed counts. Both
+prompts state the ego frame and the treatment of unknown status; the direct
+prompt also states the spatial convention in prose, exactly as the executor
+computes it. Prompt \code{direct-1} states the published signed sectors and
+\code{direct-2} the as-labelled rule. Prompts longer than the context budget
+are refused, not trimmed, and every generation records whether it stopped on
+its own; in the archived runs, at a $256$-token budget, no generation was
+truncated.
 
-\paragraph{Selection by what the question asks, not by what a parser manages.}
-Families are assigned from the question's surface structure --- does it name an
-attribute, a direction, a reference object --- using the lexicons directly.
-Keeping the questions the grammar happens to parse would quietly select the
-examples that favour the executed branch. Of the $5{,}916$ mini questions
-$1{,}626$ are in scope; the $4{,}290$ excluded are recorded with their reason
-($2{,}199$ belong to a template outside this scope, $1{,}005$ bind an
-attribute to another object, $86$ name no known class).
-
-\paragraph{What fixes the scope, precisely.} It is the \emph{rule grammar},
-not the flat language. The flat language has operations for identifying an
-object, querying its attribute and comparing two objects' attributes, so it
-could attempt the \code{object}, \code{status} and \code{comparison}
-templates. The rule grammar cannot, and the rule grammar is what produces the
-reference programs that let the executor be checked before any model runs
-(Section~\ref{sec:verify}). Restricting the first comparison to what can be
-independently verified is the reason; it is a smaller claim than ``what the
-language can express'', and Section~\ref{sec:wide} measures the difference.
-
-\paragraph{Four families}, in increasing structural demand: category only
-(``are there any cars''), category with an attribute (``how many parked
-cars''), category in an ego-relative region, and category anchored on another
-object (``behind the truck''). The reference answer is available to the
-evaluator and not to either inference function.
-
-\paragraph{An oracle perception condition.} Object lists are ground-truth
-annotations, not detections. This is deliberate: it fixes perception so the
-comparison is about what each system does with a scene rather than who sees it
-better. It also bounds the claim --- nothing in Section~\ref{sec:results}
-speaks to detection quality.
-
-\subsection{The executor, checked before any model ran}
-\label{sec:verify}
-
-Attributing a wrong answer to the model requires knowing the executor is
-right. On the development split, reference programs produced by the rule
-grammar and read by hand were executed on the frozen object lists with no
-model involved: \textbf{$91/100$}, with the category-only and attribute
-families at $25/25$. All nine disagreements were read and categorised:
-\emph{eight} are the diagonal-sector residual of Section~\ref{sec:sectors},
-and \emph{one} is a question whose definite reference (``the not standing
-pedestrian'') matches $22$ objects --- nuScenes-QA answers it anyway, so its
-one-hop templates appear to read the reference existentially rather than as a
-definite description. That disagreement is left as a refusal and charged
-against the executed system, not excused.
-
-\subsection{Matched conditions}
-
-Both modes use the same checkpoint (Qwen2.5-1.5B-Instruct) loaded through one
-shared runtime, the same dtype, greedy decoding, and the same $256$-token
-budget. Both receive the same object rows at the same rounding, in an order
-that does not depend on the question --- no list pre-filtered by what is being
-asked, no precomputed counts. Both are told the same conventions: the ego
-frame, the six sectors with their numeric bounds, and the treatment of unknown
-status.
-
-Two safeguards are worth naming. Prompts longer than the context budget are
-\emph{refused} rather than trimmed, because trimming deletes objects and the
-loss would be scored as a reasoning error; and every generation records
-whether it stopped on its own or ran out of budget, after an earlier run lost
-$26\%$ of its programs to a $96$-token budget, $97\%$ of them to truncation ---
-a configuration choice that had been read as a model failure. In the runs
-reported here no generation was truncated.
-
-The caches are separate and keyed differently. A program depends on the
-question; a direct answer depends on the question \emph{and} the scene.
-Sharing a key would serve one scene's answer for another's, destroying the
-control of Section~\ref{sec:scene}.
+\paragraph{Oracle perception.} Object lists are ground-truth annotations, not
+detections. This fixes perception so that the comparison is about what each
+mode does with a scene. Nothing here speaks to detection quality.
 
 % =====================================================================
-\section{Results: one model, two ways of using it}
-\label{sec:results}
+\section{An audit of the nuScenes-QA answers}
+\label{sec:audit}
 % =====================================================================
 
-Nothing was changed between the two splits. The development result was
-measured twice, before and after a fix to cost accounting and batching, and
-every accuracy figure was identical.
+Each convention below was found while explaining disagreements between the
+executor and the reference answers, then tested on data that played no part
+in finding it. They are descriptions of the released labels.
 
-\begin{table}[h]
+\subsection{The spatial relations do not distinguish left from right}
+\label{sec:leftright}
+
+Let $a \in [0^{\circ}, 180^{\circ}]$ be the unsigned angle between the ego
+heading and the direction to the object. In the released answers, an object
+is to the \emph{front} when $a \le 30^{\circ}$; to the \emph{front left} when
+$30^{\circ} < a \le 90^{\circ}$, on either side of the vehicle; to the
+\emph{back right} when $90^{\circ} < a \le 150^{\circ}$, on either side; to
+the \emph{back} when $a > 150^{\circ}$. No object is ever to the \emph{front
+right} or to the \emph{back left}. This is what the arccosine of a normalised
+dot product, the form of Equation~2 of the benchmark paper, gives when the
+sign of the angle is never recovered.
+
+\paragraph{Evidence without geometry.} Take every counting or existence
+question of the official release that names exactly one relation, and count
+how often the answer is $0$ or \emph{no} (Table~\ref{tab:nogeom}). For four
+relations the rate is between $20\%$ and $24\%$. For ``front right'' and
+``back left'' it is $100\%$: $12{,}392$ questions across $34{,}117$
+keyframes, and not one has an object there. The same holds on v1.0-mini
+($37/37$ and $41/41$). 
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrrr}
+\toprule
+ & & \multicolumn{2}{c}{official train} & \multicolumn{2}{c}{official val} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Relation in the question & True in the labels when & questions & $0$/no & questions & $0$/no \\
+\midrule
+front                & $a \le 30^{\circ}$                       & 19,345 & 20.8\% & 4,427 & 20.2\% \\
+front left           & $30^{\circ} < a \le 90^{\circ}$, either side  & 19,243 & 22.8\% & 4,156 & 22.0\% \\
+\textbf{front right} & never                                    & 5,070  & \textbf{100\%} & 1,134 & \textbf{100\%} \\
+\textbf{back left}   & never                                    & 5,137  & \textbf{100\%} & 1,051 & \textbf{100\%} \\
+back right           & $90^{\circ} < a \le 150^{\circ}$, either side & 19,373 & 23.4\% & 4,103 & 23.9\% \\
+back                 & $a > 150^{\circ}$                        & 19,778 & 20.3\% & 4,284 & 21.2\% \\
+\bottomrule
+\end{tabular}
+\caption{The as-labelled rule, and the share of counting or existence
+questions naming exactly one relation whose answer is $0$ or \emph{no}. No
+scene geometry is used.}
+\label{tab:nogeom}
+\end{table}
+
+\paragraph{Evidence with geometry, on data not used to find the rule.} The
+rule was read off evaluation failures of the first comparison, so it is
+checked elsewhere (Table~\ref{tab:geom}). On the development split, the
+hand-verified reference programs agree with the answers on $91$ of $100$
+questions under signed sectors and on $99$ under the rule. The one
+disagreement left is a question whose definite reference (``the not standing
+pedestrian'') matches $22$ objects; the dataset answers it anyway and the
+executor refuses. On the official validation set, executing every program the
+rule grammar produces gives $82.8\%$ agreement under signed sectors and
+$91.9\%$ as labelled. The gain is where the rule predicts: ``front right''
+and ``back left'' go to $100\%$, ``front left'' from $53.4\%$ to $91.4\%$,
+``back right'' from $57.2\%$ to $90.3\%$, and the axial relations, which the
+rule leaves unchanged, do not move. An earlier pass over the directional
+evaluation questions found that no rotation or mirror of the frame explains
+the disagreements: the best reached $71$ of $97$, the unsigned rule $94$.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Check & $n$ & signed sectors & as labelled \\
+\midrule
+Mini development split, hand-verified reference programs & 100 & 91 & 99 \\
+Mini evaluation split, same procedure (rule found here)  & 200 & 168 & 195 \\
+\midrule
+Official validation set, rule grammar, all it answers    & 25,973 & 82.8\% & 91.9\% \\
+\quad of which front left                                & 2,638  & 53.4\% & 91.4\% \\
+\quad front right                                        & 1,092  & 73.7\% & 100\% \\
+\quad back left                                          & 1,018  & 75.0\% & 100\% \\
+\quad back right                                         & 2,535  & 57.2\% & 90.3\% \\
+\quad front, back                                        & 5,804  & 87.7\% & 87.7\% \\
+\bottomrule
+\end{tabular}
+\caption{Agreement between executed reference programs and the released
+answers under each layout. The validation-set rows use rule-grammar programs
+that were not read by hand, so $91.9\%$ is a floor on agreement with the
+labels, not a measurement of label noise.}
+\label{tab:geom}
+\end{table}
+
+\paragraph{What the first version of this report said instead.} On the
+development split the executor under signed sectors agreed on $50/50$
+non-directional questions, $17/18$ axial ones and $24/32$ diagonal ones, with
+``front left'' alone at $5/10$. We described this as a residual at the
+boundaries of the diagonal sectors and categorised eight of the nine
+development disagreements that way. That categorisation is superseded: those
+eight are the left/right convention, and the ninth is the non-unique
+reference above. An archived diagnostic on $68$ ego-anchored evaluation
+questions had compared signed candidates only (uniform $60^{\circ}$ sectors
+$76.5\%$, mirrored $72.1\%$, camera frusta $67.6\%$, octants $61.8\%$); it
+could not find a rule outside the family it searched.
+
+\subsection{``Things'' are every annotation, and the ego vehicle is one}
+\label{sec:things}
+
+For ``How many things are there?'' the answer equals the number of
+annotations of the keyframe, of every category, plus one. This holds for all
+$2{,}080$ such questions of the official train set and all $648$ of the
+validation set. The alternatives fail: every annotation without the extra one
+matches no question in either set, the ten named classes plus one match
+$1{,}610$ and $495$, and annotations with a LiDAR return plus one match $973$
+and $304$. A ``thing'' therefore includes classes that no question names
+(pushable objects, debris, bicycle racks, animals), includes boxes with no
+LiDAR return, and includes the ego vehicle. The ego vehicle also counts in
+relations between objects (``how many things are to the back of the bus''),
+though never to the front or back \emph{of me}. This was found on the
+validation drives of Section~\ref{sec:protocol} and confirmed on the train
+set, which had not been looked at before.
+
+The object-list option \code{things="all"} implements it: unnamed classes are
+kept as \code{other}, the ego vehicle is appended at the origin, and both
+match only ``thing'' or ``object''. Every archived run used the ten named
+classes; on v1.0-mini the difference is one question in $300$.
+Table~\ref{tab:valexec} gives the executor's agreement with rule-grammar
+reference programs on the $1{,}460$ validation-drive questions under the four
+combinations.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Object list & signed sectors & as labelled \\
+\midrule
+Ten named classes              & 85.1\% & 92.8\% \\
+Every annotation and the ego vehicle & 89.6\% & \textbf{97.5\%} \\
+\bottomrule
+\end{tabular}
+\caption{Executor agreement with the released answers on the $1{,}460$
+questions of the $146$ validation drives, reference programs from the rule
+grammar, no model involved.}
+\label{tab:valexec}
+\end{table}
+
+\subsection{Objects with no LiDAR return are counted}
+\label{sec:lidar}
+
+nuScenes records how many LiDAR points fall inside each annotated box. On
+v1.0-mini, $4{,}278$ of $18{,}538$ annotations ($23\%$) have none, and the
+answers count them. Holding the programs fixed and changing only the object
+list gives Table~\ref{tab:lidar}. The first block is the table of the first
+version of this report. It was produced by an earlier version of the rule
+parser and cannot be regenerated exactly from the current code; the other
+rows are the current code, under each layout. The conclusion is the same in
+every row: keeping only objects the sensor returned roughly halves accuracy
+on counting questions. This is a mismatch between the labels and a
+LiDAR-only input, not a measured detector error. Every experiment below uses
+the unfiltered list.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrr}
+\toprule
+Counting questions both conditions answer & Layout & $\ge 1$ return only & every annotation \\
+\midrule
+v1.0-mini, $125$ (earlier parser, archived) & signed      & 0.336 & 0.824 \\
+\midrule
+v1.0-mini, $249$                            & signed      & 0.373 & 0.799 \\
+v1.0-mini, $249$                            & as labelled & 0.442 & 0.940 \\
+Official val, $10{,}087$                    & signed      & 0.370 & 0.725 \\
+Official val, $10{,}087$                    & as labelled & 0.420 & 0.827 \\
+\bottomrule
+\end{tabular}
+\caption{Accuracy with the same programs and geometry, changing only whether
+annotations with zero LiDAR points are kept.}
+\label{tab:lidar}
+\end{table}
+
+\subsection{What this means for a user of the benchmark, and limits}
+\label{sec:meaning}
+
+A system can score well on the directional questions with no notion of left
+and right, and a system that has one is penalised: a correct count of the
+cars to the front right is marked wrong whenever there is one. A LiDAR-only
+system is asked to count objects its sensor did not return and objects of
+classes a ten-class detector does not have. Results reported on nuScenes-QA
+remain comparable with each other, since every system faces the same labels.
+What changes is what a number means: it measures agreement with these
+conventions, not left/right spatial reasoning. A method that encodes the
+published geometry, as our executor did, is capped well below $100\%$ for a
+reason unrelated to its quality.
+
+The limits are these. The rules are inferred from answers; reading the
+generation code could confirm or refine them. The validation-set check with
+geometry uses unverified rule-grammar programs. Some questions still disagree
+under all three conventions: $4$ of $200$ on the mini evaluation split and
+$36$ of $1{,}460$ on the validation drives. On the validation drives these
+are $19$ directional questions, mostly counts off by one or two, $8$
+questions whose reference object is not unique or not found, $7$ status
+questions and $2$ plain counts. They were not investigated further.
+
+% =====================================================================
+\section{Direct against program under the published reading (archived)}
+\label{sec:published}
+% =====================================================================
+
+This section keeps the results of the first version of the report. Both
+modes were told the published signed sectors (prompt \code{direct-1} and the
+\code{nuscenes\_qa} layout), and both were scored against labels that follow
+the rule of Section~\ref{sec:leftright}. The numbers are correct as
+measurements under that reading. Their interpretation changes in
+Section~\ref{sec:aslabelled}.
+
+\begin{table}[ht]
 \centering
 \small
 \begin{tabular}{lrrrr}
 \toprule
  & \multicolumn{2}{c}{development ($n{=}100$)} & \multicolumn{2}{c}{evaluation ($n{=}200$)} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
- & A, direct & B, executed & A, direct & B, executed \\
+ & direct & program & direct & program \\
 \midrule
 Accuracy (all)            & 0.510 & \textbf{0.740} & 0.505 & \textbf{0.685} \\
 Answers                   & 1.000 & 0.860 & 1.000 & 0.910 \\
 Accuracy when answering   & 0.510 & 0.860 & 0.505 & 0.753 \\
-\midrule
-Numeric coverage          & 1.000 & 0.946 & 1.000 & 0.988 \\
-Under-counting            & 2.08  & 0.54  & 1.84  & 0.34 \\
-Over-counting             & 0.35  & 0.00  & 0.31  & 0.34 \\
-Mean absolute error       & 2.43  & \textbf{0.54} & 2.16 & \textbf{0.68} \\
-\midrule
-Input / output tokens     & 124\,311 / 200 & 112\,095 / 5\,756
-                          & 217\,272 / 400 & 178\,402 / 9\,731 \\
-Generation time (T4)      & 47.3\,s & 59.3\,s & 58.8\,s & 101.0\,s \\
+Counting: numeric coverage & 1.000 & 0.946 & 1.000 & 0.988 \\
+Counting: mean absolute error & 2.43  & \textbf{0.54} & 2.16 & \textbf{0.68} \\
 \bottomrule
 \end{tabular}
-\caption{Both modes of Qwen2.5-1.5B-Instruct. Refusals and invalid programs
-count as wrong answers in the accuracy row. The evaluation split shares no
-scene with development.}
+\caption{Qwen2.5-1.5B-Instruct, published reading. The evaluation split
+shares no drive with development.}
 \label{tab:ab}
 \end{table}
 
-The aggregate hides the measurement that matters. Paired question by question:
+For Qwen2.5-1.5B (Table~\ref{tab:ab}) the program mode is ahead on both
+splits. Paired by question on the evaluation split it is alone correct on
+$67$ questions and alone wrong on $31$ (sign test $p = 3.5\times10^{-4}$);
+on development, $38$ against $15$. The sign test assumes independent
+questions, and two hundred questions over three drives are not independent.
+Per drive the margin is $+0.212$, $+0.188$ and $+0.138$. A bootstrap over
+three drives can draw only ten distinct resamples, so no interval was
+reported; Section~\ref{sec:val} replaces this argument. The direct model
+under-counts: where the reference is $7$, $9$ or $10$ it answers $1$, $3$ and
+$2$, and its mean under-count on evaluation is $1.84$ against an over-count
+of $0.31$. Its answer format was not the obstacle: all three hundred direct
+outputs parsed. On evaluation the program mode reads $178{,}402$ input
+tokens against $217{,}272$, because it never sees the objects, and writes
+$9{,}731$ against $400$.
 
-\begin{center}
-\small
-\begin{tabular}{lrrrrr}
-\toprule
- & A only & B only & both & neither & sign test \\
-\midrule
-development & 15 & \textbf{38} & 36 & 11 & $p = 2.2\times10^{-3}$ \\
-evaluation  & 31 & \textbf{67} & 70 & 32 & $p = 3.5\times10^{-4}$ \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\noindent The advantage survives the move to unseen scenes, and the counting
-improvement is not an artefact of abstention: the two modes produce an integer
-on practically the same questions ($1.000$ against $0.988$).
-
-\paragraph{The sign test is optimistic, and here is by how much.} It assumes
-independent questions. Two hundred questions over three drives are not
-independent --- answers within a drive share a scene --- so the effective
-sample is nearer three than two hundred. Per drive the margin is $+0.212$,
-$+0.188$ and $+0.138$ (B at $0.758$, $0.725$, $0.569$ against A at $0.545$,
-$0.536$, $0.431$): same sign, same order of magnitude, on all three. That
-consistency is the honest claim. A cluster bootstrap over three clusters can
-only draw ten distinct resamples and returns a spuriously tight interval; we
-do not report one.
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lrrrr}
+\begin{tabular}{llrrrr}
 \toprule
- & \multicolumn{2}{c}{development} & \multicolumn{2}{c}{evaluation} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-Family & A & B & A & B \\
+ & & & \multicolumn{2}{c}{program, executed under} & \\
+\cmidrule(lr){4-5}
+Model & run & direct-1 & published & as labelled & invalid \\
 \midrule
-Attribute (``how many parked cars'')   & 0.640 & \textbf{1.000} & 0.547 & \textbf{0.962} \\
-Category only (``are there any cars'') & 0.760 & 0.720 & 0.680 & 0.840 \\
-Anchored on another object             & 0.320 & 0.440 & 0.352 & 0.444 \\
-Ego-relative region                    & 0.320 & 0.800 & 0.442 & 0.465 \\
+Qwen2.5-1.5B           & local, fp16  & 0.505 & 0.685 & 0.765 & 8 \\
+Qwen2.5-7B             & local, fp16  & 0.505 & 0.825 & 0.950 & 1 \\
+Qwen2.5-32B            & local, int4  & 0.580 & 0.845 & 0.980 & 0 \\
+\code{qwen-3-32b}      & hosted       & 0.560 & 0.840 & 0.975 & 0 \\
+\code{qwen3-next-80b}  & hosted       & 0.610 & 0.845 & 0.980 & 0 \\
+\code{qwen3.8-27b}     & hosted, reasons & 0.840 & 0.845 & 0.980 & 0 \\
 \bottomrule
 \end{tabular}
-\caption{Per family. Only the first row is stable across the two splits.}
-\label{tab:family}
+\caption{The $200$ evaluation questions of the first comparison, six models.
+The \emph{direct-1} and \emph{published} columns are the archived results.
+The \emph{as labelled} column executes the same archived programs under the
+convention of the labels (Section~\ref{sec:reexec}). ``Invalid'' counts
+outputs that are not programs. The $32$B checkpoint is quantised to $4$ bits;
+without a matched full-precision run the effect of quantisation is unknown.}
+\label{tab:six}
 \end{table}
 
-\paragraph{Only one family generalises cleanly.} The attribute family is a
-large, consistent win ($+0.36$ then $+0.42$): applying ``parked'' as a filter
-is exactly what an executor does and a $1.5$B model does not. The other three
-move substantially between the splits --- the ego-relative gain falls from
-$+0.48$ to $+0.02$, and the category-only comparison changes sign. At $25$ to
-$54$ questions per family these are too noisy to carry an argument, and we do
-not build one on them. Had only the development split been run, the
-ego-relative row would have looked like the headline finding; it is the
-clearest argument in this report for holding scenes back.
+Table~\ref{tab:six} adds two larger checkpoints of the same family and three
+models reached through a hosted gateway. For the hosted rows,
+\code{temperature=0} is requested of the endpoint, token counts are the
+provider's, the names are provider aliases and not immutable checkpoints, and
+Qwen3-Next-80B-A3B activates $3$B of its $80$B parameters \cite{qwen3next}.
+Under the published reading we drew three conclusions. Two of them do not
+survive.
 
-\paragraph{The direct model systematically under-counts.}
-Where the reference is $7$, $9$ or $10$ it answers $1$, $3$ and $2$;
-on preamble questions it answers $1$ almost regardless of the scene. With
-forty-odd object rows in the prompt, a $1.5$B model emits a small number rather
-than enumerating. Its under-counting ($1.84$--$2.08$) dwarfs its over-counting
-($0.31$--$0.35$). These outputs demonstrate under-counting, but do not reveal
-the model's internal attention or computation.
-Its answer \emph{format} was never the obstacle: all three hundred direct
-outputs parsed.
+\emph{The direct mode gains little with size.} It goes from $0.505$ to
+$0.580$ across a twenty-one-fold increase in parameters, and the $7$B model,
+at the same $0.505$ as the $1.5$B, answers differently on $89$ of the $200$
+questions. This observation stands, and Section~\ref{sec:direct2} repeats it
+with the corrected prompt.
 
-\paragraph{Cost.} The two modes are closer than the accuracy gap suggests. On
-evaluation A consumes $217{,}272$ input and $400$ output tokens, B $178{,}402$
-input and $9{,}731$ output: B reads less, because it never sees the objects,
-and writes twenty-four times more, because it writes a program. Wall-clock
-generation is $59$\,s against $101$\,s on one T4, both batched identically.
+\emph{The program mode plateaus near $0.845$.} The five other models
+land between $0.825$ and $0.845$, and we wrote that the remaining errors
+were no longer about writing a well-formed program and pointed to the
+executor and the data. The plateau is real under this reading: $28$ of the
+$200$ questions are wrong in program mode for all six models, so no model
+could pass $0.860$. It is not a property of the task or of program writing.
+It is the convention mismatch (Section~\ref{sec:reexec}).
 
-\subsection{Does the gap close with a larger model?}
-\label{sec:size}
+\emph{One hosted model reaches parity.} \code{qwen3.8-27b} answered directly
+at $0.840$ against $0.845$ with programs, while reporting $523.9$ output
+tokens per direct question against $2.0$ for the other hosted models; it
+reasons before answering, and it exceeded the requested $256$ tokens freely.
+We read this as a boundary of the program advantage. Section~\ref{sec:hosted}
+re-reads it.
 
-The result above leaves two explanations entangled. The direct mode may be
-losing because a $1.5$B model cannot write the program it would need
-internally, or simply because it cannot count rows in a forty-line table of
-floats --- a weakness a larger model might not share. Repeating the comparison
-at two more sizes measures whether the pattern persists. The $32$B run also
-changes weight precision, so it cannot isolate a pure parameter-count effect.
+% =====================================================================
+\section{Direct against program once the conventions are right}
+\label{sec:aslabelled}
+% =====================================================================
 
-\begin{table}[h]
+\subsection{The same programs, executed as labelled}
+\label{sec:reexec}
+
+A program names relations, so the archived generations can be executed again
+under the as-labelled layout on a CPU. The script first replays each run
+under the layout it was archived with and stops if anything differs from the
+archive. As a second check, new GPU runs of the three local models under the
+as-labelled layout produced programs identical to the archive on $200$ of
+$200$ questions each, and the same accuracies. The result is the \emph{as
+labelled} column of Table~\ref{tab:six}: every model gains between $0.080$
+and $0.135$, and the five models other than the smallest land between $0.950$ and
+$0.980$.
+
+The gain is where the audit predicts (Table~\ref{tab:byrel}). For the five
+other models the two relations that are never true go from $5/11$ and
+$10/16$ or $12/16$ to all correct, and the axial relations do not change.
+
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lcrrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
- & & \multicolumn{2}{c}{accuracy} & \multicolumn{2}{c}{counting MAE} & & \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
-Model & precision & A & B & A & B & B answers & invalid \\
+ & & \multicolumn{2}{c}{Qwen2.5-1.5B} & \multicolumn{2}{c}{Qwen2.5-7B} & 32B and hosted \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-7}
+Relation named & $n$ & published & as labelled & published & as labelled & as labelled \\
 \midrule
-Qwen2.5-1.5B  & fp16 & 0.505 & 0.685 & 2.16 & 0.68 & 0.910 & 8 \\
-Qwen2.5-7B    & fp16 & 0.505 & 0.825 & 1.84 & 0.44 & 0.985 & 1 \\
-Qwen2.5-32B   & int4 & 0.580 & \textbf{0.845} & 1.65 & 0.60 & 0.995 & \textbf{0} \\
+front left  & 27 & 6  & 12 & 13 & 23 & 25 \\
+front right & 11 & 2  & 7  & 5  & 11 & 11 \\
+back left   & 16 & 9  & 11 & 12 & 16 & 16 \\
+back right  & 18 & 8  & 11 & 11 & 16 & 17 \\
+front       & 10 & 8  & 8  & 10 & 10 & 10 \\
+back        & 15 & 11 & 11 & 14 & 14 & 14 or 15 \\
 \bottomrule
 \end{tabular}
-\caption{The same $200$ held-out questions, the same three drives, the same
-prompts and decoding. ``Invalid'' counts programs the model emitted that are
-not programs. The $32$B point is quantised to $4$ bits because the checkpoint
-is $65$\,GB in bfloat16 and the card holds $40$. Without a matched full-precision
-run, the direction and magnitude of the quantisation effect are unknown.}
-\label{tab:size}
+\caption{Questions answered correctly in program mode, by the relation the
+question names, evaluation split. The last column is common to Qwen2.5-32B
+and the three hosted models, which differ in this table only in the ``back''
+row (\code{qwen-3-32b} has $14$, the others $15$).}
+\label{tab:byrel}
 \end{table}
 
-\paragraph{The direct-mode gap remains at the tested sizes.} It gains $0.075$ across a
-twenty-one-fold increase in parameters, and $0$ of that between $1.5$B and
-$7$B. The identical $0.505$ at the first two sizes is not a cached result: the
-$7$B changes its answer on $89$ of the $200$ questions and flips correctness on
-$52$ of them, $26$ in each direction. It answers differently and is wrong just
-as often. This is an observation about these checkpoints and prompts,
-not a universal scaling law.
+\paragraph{The ceiling moves from $0.86$ to $0.98$.} Under the published
+layout, $28$ questions are wrong in program mode for all six models: $14$
+anchored on another object, $13$ in an ego-relative region, one status
+question. As labelled, four remain, so the best reachable accuracy goes from
+$0.860$ to $0.980$. The four are a count of parked cars to the back right
+(reference $9$, executed $10$), a question anchored on ``the not standing
+pedestrian'' that the executor refuses, a count of things to the front left
+of a bus (reference $2$, executed $1$), and ``are there any not standing
+pedestrians?'' (reference \emph{no}, executed \emph{yes}).
 
-\paragraph{Program validity improves across these checkpoints.} Programs the executor
-cannot parse fall from $8$ to $1$ to $0$, and the answered fraction rises from
-$0.910$ to $0.995$. The executed mode gains $0.160$ from $1.5$B to $7$B and
-then only $0.020$ more at $32$B: the remaining errors are no longer about
-writing a well-formed program.
+\subsection{The direct mode, told the convention of the labels}
+\label{sec:direct2}
 
-\paragraph{The gap widens before it stabilises} --- $+0.180$, $+0.320$,
-$+0.265$ --- with question-level paired tests ($p =
-3.5\times10^{-4}$, $1.2\times10^{-11}$, $1.1\times10^{-9}$). The honest
-reading is not that language models cannot do this. As for the core result,
-these $p$-values assume independent questions and do not account for the
-three-drive clustering. Program accuracy improved more than direct accuracy
-over the tested configurations.
+Re-executing programs corrects one mode only. The archived direct answers
+were given under \code{direct-1}, which describes sectors the labels do not
+follow, so the direct mode was rerun with \code{direct-2}. This prompt states
+the unsigned angle, says that left and right are not distinguished whatever
+the name of the relation suggests, gives the four intervals, and says that
+``front right'' and ``back left'' never contain an object.
+Table~\ref{tab:direct} gives the result for the three local models.
 
-\subsection{Another family, and the condition under which the gap closes}
-\label{sec:gateway}
-
-The curve above is one family of open weights. Repeating the comparison
-through a hosted gateway tests whether the conclusion is a property of Qwen2.5
-or of the task. It also reaches models we cannot host. Two cautions apply to
-every row below: \code{temperature=0} is \emph{requested} of a hosted
-endpoint, not the exact greedy loop the local runtime performs, and the token
-counts are the provider's, not ours.
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
-\begin{tabular}{llrrrrrr}
+\begin{tabular}{lrrrrrr}
 \toprule
- & & \multicolumn{2}{c}{accuracy} & \multicolumn{2}{c}{output tokens / question}
- & \multicolumn{2}{c}{right on every scene} \\
+ & \multicolumn{2}{c}{bare answer} & \multicolumn{2}{c}{working, then answer}
+ & \multicolumn{2}{c}{program, as labelled} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Model & direct-1 & direct-2 & direct-1r & direct-2r & free & constrained \\
+\midrule
+Qwen2.5-1.5B       & 0.505 & 0.540 & 0.445 & 0.345 & 0.765 & 0.805 \\
+Qwen2.5-7B         & 0.505 & 0.545 & 0.610 & 0.625 & 0.950 & 0.955 \\
+Qwen2.5-32B (int4) & 0.580 & 0.640 & \nr   & \nr   & 0.980 & \nr \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation split of the first comparison ($200$ questions, three
+drives), ten named classes. \code{direct-1} states the published sectors,
+\code{direct-2} the as-labelled rule; the \code{r} variants ask for the
+working. A dash marks a run that was not available when this was written.}
+\label{tab:direct}
+\end{table}
+
+Stating the right convention helps the direct mode by $0.035$ to $0.060$. It
+helps the program mode by $0.080$ to $0.135$. The gap between the two modes
+is therefore larger once both are scored fairly: $0.225$, $0.405$ and $0.340$
+for the three sizes, against $0.180$, $0.320$ and $0.265$ under the published
+reading. With three drives these differences carry no interval;
+Section~\ref{sec:val} gives one.
+
+\paragraph{Reasoned direct mode.} The bare prompts forbid working, which may
+handicap the direct mode. The \code{r} variants ask the model to go through
+the object list, write down the id of every object the question is about
+while checking each condition, then count, and to finish with one line
+``\code{Answer:}''; only that line is read. The wording (three versions; the
+first two left the $1.5$B model answering in four tokens), the reader's
+acceptance of a bare one-line answer, and the budget of $2{,}048$ tokens (at
+$1{,}536$ the $7$B model was cut off on $4$ to $5$ of $100$ development
+questions) were chosen on the development split and only there.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lllrrr}
+\toprule
+Model & Prompt & Split & accuracy & mean output tokens & no readable answer \\
+\midrule
+Qwen2.5-1.5B & direct-1r & dev  & 0.360 & 287 & 16 \\
+Qwen2.5-1.5B & direct-2r & dev  & 0.370 & 306 & 25 \\
+Qwen2.5-1.5B & direct-1r & eval & 0.445 & 392 & 35 \\
+Qwen2.5-1.5B & direct-2r & eval & 0.345 & 423 & 56 \\
+Qwen2.5-7B   & direct-1r & dev  & 0.570 & 382 & 4 \\
+Qwen2.5-7B   & direct-2r & dev  & 0.460 & 380 & 4 \\
+Qwen2.5-7B   & direct-1r & eval & 0.610 & 354 & 3 \\
+Qwen2.5-7B   & direct-2r & eval & 0.625 & 427 & 7 \\
+\bottomrule
+\end{tabular}
+\caption{Reasoned direct mode in detail, for the runs available. Development
+has $100$ questions and evaluation $200$. An answer with no readable final
+line counts as wrong.}
+\label{tab:reasoned}
+\end{table}
+
+For the $1.5$B model, the reasoned mode is below the bare one under both
+prompts and on both splits: on evaluation $0.445$ against $0.505$
+(\code{direct-1}) and $0.345$ against $0.540$ (\code{direct-2}), with $35$
+and $56$ of $200$ responses that never reach a readable answer
+(Table~\ref{tab:reasoned}); on development $0.360$ against $0.510$ and
+$0.370$ against $0.550$. For the $7$B model the reasoned mode is above the
+bare one on evaluation under both prompts, $0.610$ against $0.505$ and
+$0.625$ against $0.545$. On development its \code{direct-2r} score, $0.460$,
+is below its bare \code{direct-2} score, $0.590$ (there is no bare
+\code{direct-1} run of the $7$B model on development). Under
+\code{direct-2} the direction of the effect for the $7$B model thus differs
+between the two splits, and we do not interpret it. Its best reasoned score
+on evaluation, $0.625$, is $0.325$ below its program mode at $0.950$. For
+these two models, with this prompt and budget, asking for the working did
+not close the gap.
+
+\subsection{Constrained decoding, a separate condition}
+\label{sec:constrained}
+
+All eight invalid programs of the $1.5$B model on evaluation emit
+\code{"category": "*"} for ``things'', a token outside the vocabulary, although the
+prompt lists the ten classes and maps ``thing'' to \code{object}. To test
+the obvious remedy, programs are decoded under a JSON Schema in
+which categories, statuses, relations and operation names are closed sets,
+with the explicit refusal still expressible. This changes what the model can
+emit, so it is reported as its own condition and not folded into the
+comparison.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrrl}
+\toprule
+Run, as-labelled layout & $n$ & free & constrained & invalid or ill-typed \\
+\midrule
+Qwen2.5-1.5B, development & 100 & 0.800 & 0.880 & $12 \to 0$ \\
+Qwen2.5-1.5B, evaluation  & 200 & 0.765 & 0.805 & $8 \to 0$ \\
+Qwen2.5-7B, evaluation    & 200 & 0.950 & 0.955 & $1 \to 0$ \\
+\midrule
+Qwen2.5-1.5B, wide scope, flat  & 280 & 0.521 & 0.550 & $35 \to 10$ \\
+Qwen2.5-1.5B, wide scope, typed & 280 & 0.314 & 0.354 & $170 \to 148$ \\
+\bottomrule
+\end{tabular}
+\caption{Program accuracy with free and schema-constrained decoding, for the
+runs available. The last column counts invalid or ill-typed programs, free
+$\to$ constrained.}
+\label{tab:constrained}
+\end{table}
+
+On the first comparison, constrained decoding removes every invalid program
+(Table~\ref{tab:constrained}) and is worth $0.040$ to the $1.5$B model on
+evaluation and $0.005$ to the $7$B model, which had one invalid program to
+lose. On the wide scope of Section~\ref{sec:wide} it is worth $0.029$ to the
+flat language and $0.040$ to the typed one, and it does not remove every
+invalid or ill-typed program ($10$ and $148$ remain): the schema closes the
+vocabulary, not the wiring of types between nodes. It does not make the
+program say what the question asks.
+
+\subsection{Falling back to the direct answer}
+\label{sec:fallback}
+
+A deployed system need not choose one mode: it can use the program when it
+executes and the direct answer otherwise. Computed from the archived rows,
+with the archived \code{direct-1} answers as the fallback, this gives $0.835$
+for Qwen2.5-1.5B as labelled ($182$ questions answered by the executor, $18$
+by the direct mode), against $0.765$ for the program alone. For the larger
+models there is almost nothing to fall back on: $0.955$ at $7$B with three
+questions passed to the direct mode, and $0.980$ to $0.985$ for the other
+four with one or two. Under the published layout the same chain gives $0.755$
+for the $1.5$B model and $0.830$ to $0.850$ for the others.
+
+\subsection{Validation drives, with drive-level intervals}
+\label{sec:val}
+
+The first comparison has three evaluation drives, and its questions are the
+ones whose failures revealed the left/right rule. The $1{,}460$ questions of
+the $146$ validation drives are free of both problems, with one reservation:
+the ``things'' convention was found on these drives, in the executor check of
+Table~\ref{tab:valexec}, before any model ran on them. Each model was run in
+both modes under two settings. \emph{Published}: signed sectors, the ten
+named classes, prompt \code{direct-1}. \emph{As labelled}: the unsigned rule,
+every annotation and the ego vehicle as things, prompt \code{direct-2}.
+Uncertainty is computed with the drive as the unit: drives are drawn with
+replacement $10{,}000$ times, every question of a drawn drive is kept, and
+the statistic is recomputed (Table~\ref{tab:val}).
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llcccr}
+\toprule
+Model & Conventions & direct & program & program $-$ direct & drives $+$ / $-$ / $=$ \\
+\midrule
+1.5B & published   & 0.536 [0.508, 0.566] & 0.694 [0.670, 0.718] & $+0.158$ [$+0.122$, $+0.192$] & 106 / 25 / 15 \\
+1.5B & as labelled & 0.582 [0.552, 0.612] & 0.747 [0.725, 0.769] & $+0.166$ [$+0.125$, $+0.205$] & 108 / 29 / 9 \\
+7B   & published   & 0.571 [0.543, 0.599] & 0.842 [0.821, 0.863] & $+0.271$ [$+0.244$, $+0.298$] & 135 / 3 / 8 \\
+7B   & as labelled & 0.595 [0.566, 0.623] & 0.961 [0.950, 0.971] & $+0.366$ [$+0.337$, $+0.395$] & 143 / 0 / 3 \\
+32B  & published   & 0.628 [0.601, 0.654] & 0.853 [0.832, 0.874] & $+0.225$ [$+0.197$, $+0.253$] & 122 / 7 / 17 \\
+32B  & as labelled & 0.679 [0.654, 0.704] & 0.978 [0.969, 0.986] & $+0.299$ [$+0.274$, $+0.323$] & 142 / 0 / 4 \\
+\bottomrule
+\end{tabular}
+\caption{Qwen2.5 models on $1{,}460$ questions from $146$ validation drives
+never used before; the $32$B model is quantised to $4$ bits. Brackets are $95\%$ intervals from $10{,}000$ resamples of
+drives. The last column counts drives where the program mode is ahead,
+behind, or tied.}
+\label{tab:val}
+\end{table}
+
+The program mode is ahead for all three models under both settings, and no
+interval on the difference comes near zero. As labelled, the program mode is
+behind on no drive for the $7$B model (ahead on $143$) and for the $32$B
+model (ahead on $142$). The published rows reproduce the archived picture on
+new drives ($0.694$, $0.842$ and $0.853$, against $0.685$, $0.825$ and
+$0.845$ on the three mini drives), which indicates that the first comparison
+was not an accident of its three drives. On the same questions, moving from
+the published to the as-labelled conventions is worth $+0.053$ $[+0.042,
++0.065]$, $+0.119$ $[+0.099, +0.139]$ and $+0.125$ $[+0.105, +0.145]$ to the
+program mode of the three models in order of size, and $+0.045$ $[+0.027,
++0.064]$, $+0.024$ $[+0.005, +0.045]$ and $+0.051$ $[+0.035, +0.068]$ to
+their direct mode.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & & \multicolumn{2}{c}{Qwen2.5-1.5B} & \multicolumn{2}{c}{Qwen2.5-7B} & \multicolumn{2}{c}{Qwen2.5-32B (int4)} \\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-Model & answers & A & B & A & B & A & B \\
+Family & $n$ & direct & program & direct & program & direct & program \\
 \midrule
-\code{qwen-3-32b}         & one step  & 0.560 & \textbf{0.840} & 2.0 & 57.9 & 3/13 & 13/13 \\
-\code{qwen3-next-80b}     & one step  & 0.610 & \textbf{0.845} & 2.0 & 57.6 & 3/13 & 13/13 \\
-\code{qwen3.8-27b}        & reasoning & \textbf{0.840} & 0.845 & 523.9 & 156.5 & 13/13 & 13/13 \\
+Category only               & 440 & 0.695 & 0.755 & 0.761 & 0.995 & 0.861 & 0.995 \\
+Category with a status      & 438 & 0.598 & 0.970 & 0.678 & 0.968 & 0.751 & 0.984 \\
+Ego-relative region         & 292 & 0.486 & 0.815 & 0.418 & 0.938 & 0.534 & 0.942 \\
+Anchored on another object  & 290 & 0.479 & 0.331 & 0.393 & 0.921 & 0.441 & 0.979 \\
 \bottomrule
 \end{tabular}
-\caption{The same $200$ held-out questions, through a hosted gateway. All
-three produce $200/200$ valid programs. Paired $p$: $2.3\times10^{-10}$,
-$2.3\times10^{-8}$ and $1.0$ respectively.}
-\label{tab:gateway}
+\caption{Validation drives, as labelled, by family.}
+\label{tab:valfamily}
 \end{table}
 
-\paragraph{The observed advantage has a boundary.}
-The gateway rows broaden the observations but do not isolate a cause.
-The archived \code{qwen3.8-27b} endpoint reaches near parity between direct
-and executed modes, so an execution advantage is not universal across these
-configurations. Its larger reported output count is consistent with spending
-more tokens before answering, but different training, architecture and
-provider behavior prevent a causal claim about reasoning.
+By family (Table~\ref{tab:valfamily}) the picture is not uniform. For the
+$1.5$B model the program mode is \emph{behind} on questions anchored on
+another object, $0.331$ against $0.479$: this is the family where a definite
+reference must be resolved and where the small model's programs fail most.
+The $7$B and $32$B models are ahead in every family, and their direct mode
+is weakest in the two families that involve a spatial test ($0.418$ and
+$0.393$ at $7$B, $0.534$ and $0.441$ at $32$B).
 
-Qwen3-Next-80B-A3B has 80B total parameters and 3B activated parameters
-\cite{qwen3next}. It is not a dense model with 80B active parameters, and
-nominal parameter counts do not hold computation fixed. Likewise, the
-observed 523.9 versus 57.9 generated-token averages are not a nine-fold
-measurement of compute, latency, energy or monetary cost. These are provider
-usage counters for different models. The archive identifies provider model
-aliases, not immutable underlying checkpoints.
+\subsection{The hosted model that appeared to reach parity}
+\label{sec:hosted}
 
-\paragraph{The output budget is not held equal here.} Across the local runs
-every model is given the same cap and the runtime enforces it. A hosted
-endpoint does not: \code{qwen3.8-27b} exceeded the requested $256$ tokens
-freely, to $8982$ on one question. The gateway rows are therefore comparable in
-accuracy but not in budget, and the token columns are reported precisely so
-that the difference is visible rather than assumed away.
+Under the as-labelled layout the programs of \code{qwen3.8-27b} score
+$0.980$, and its archived direct answers stay at $0.840$
+(Table~\ref{tab:six}). The parity of the first version, $0.840$ against
+$0.845$, came from scoring its programs under the mismatched layout. The new
+gap of $0.140$ is not a clean measurement either. Its direct answers were
+given under \code{direct-1}, which told it the published sectors, and it
+reasoned at length before answering (about $524$ output tokens per
+question). Its direct mode was not rerun under \code{direct-2}, because it is
+a hosted endpoint whose alias we cannot pin. Its direct score of $0.840$ sits
+close to the $0.860$ that no program could pass under the published layout,
+which is what a model that applies the stated convention accurately would
+produce; whether it would approach $0.980$ when told the convention of the
+labels is not known. For this model, neither parity nor a gap is established.
+
+\paragraph{A thinking switch within one checkpoint.} The controlled version
+of that question holds the weights fixed and changes only whether the model
+may think before answering. Qwen3-8B allows this through its chat template.
+The design was fixed in advance: prompt \code{direct-2}, bare answer format,
+as-labelled layout, and with thinking on a budget of $4{,}096$ tokens for
+every mode, not tuned. Table~\ref{tab:qwen3} lists the configurations
+completed when this was written.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+Thinking & Split & direct & direct tokens & no answer & program & invalid programs \\
+\midrule
+off & dev  & 0.610 & 2 & 0 & 0.990 & 1 \\
+on  & dev  & 0.630 & 2{,}124 & 37 & 0.970 & 2 \\
+off & eval & 0.580 & 2 & 0 & 0.980 & 1 \\
+\bottomrule
+\end{tabular}
+\caption{Qwen3-8B on the first comparison, as labelled. ``Direct tokens'' is
+the mean number of output tokens per direct answer, thinking included; ``no
+answer'' counts responses cut off by the budget.}
+\label{tab:qwen3}
+\end{table}
+
+Without thinking, this fourth local checkpoint behaves like the Qwen2.5
+models: $0.580$ directly and $0.980$ with programs on evaluation. With
+thinking, on development, the direct mode is right on all $63$ questions it
+finishes and runs out of its $4{,}096$ tokens on the other $37$, which count
+as wrong; $31$ of those $37$ are directional questions. So for this
+checkpoint the direct mode's errors with thinking are a matter of budget, at
+about $2{,}100$ output tokens per question against a few dozen for a program,
+and a larger budget might close the gap. The evaluation run with thinking on
+was interrupted before completing and is not reported.
 
 \subsection{The scene-dependence control}
 \label{sec:scene}
 
-Thirteen evaluation questions appear verbatim on two scenes with different
-reference answers. A system that does not read the objects gives the same
-answer to both and scores on whichever scene matches its prior.
-
-\begin{center}
-\small
-\begin{tabular}{lrrrrr}
-\toprule
- & groups & \multicolumn{2}{c}{A, direct} & \multicolumn{2}{c}{B, executed} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
- & & same answer & all correct & same answer & all correct \\
-\midrule
-development & 5  & 2 & 0 & 1 & 4 \\
-evaluation  & 13 & 4 & \textbf{1} & \textbf{0} & \textbf{13} \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\noindent On the evaluation split the executed system never gives one answer to
-a whole group and is correct across all thirteen; the direct model is correct
-across a group once. No aggregate accuracy reveals that, and this is the
-instrument Real-3DQA \cite{real3dqa} argues for.
+Thirteen evaluation questions of the first comparison appear verbatim on two
+scenes with different reference answers. A system that does not read the
+objects gives the same answer to both. Under the published reading, the
+direct mode of Qwen2.5-1.5B gave one answer to a whole group in $4$ of $13$
+groups and was correct across a group once; its program mode never gave one
+answer to a whole group and was correct across all $13$ (on development,
+$5$ groups: direct correct across none, program across $4$). The two hosted
+single-step models were correct across $3$ of $13$ groups directly and $13$
+with programs, and \code{qwen3.8-27b} across $13$ in both modes. The
+re-execution as labelled leaves the $1.5$B program mode at $13$ of $13$. No
+aggregate accuracy shows this, and it is the kind of control Real-3DQA
+\cite{real3dqa} argues for.
 
 % =====================================================================
-\section{Where the executed system fails}
+\section{Where the program mode fails}
 \label{sec:failures}
 % =====================================================================
 
-An accuracy of $0.685$ says nothing about what to do next. The $31.5\%$ that is
-wrong contains four problems with four different remedies, and they are
-separable without a model: where the model's program matches the deterministic
+The first version triaged the $63$ evaluation failures of the $1.5$B program
+mode under the published layout (Table~\ref{tab:triage}). The triage is
+separable without a model: where the model's program matches the rule
 grammar's and the answer is still wrong, the program is not at fault.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
 \begin{tabular}{lrrl}
 \toprule
-Failure & $n$ & share & what it asks for \\
+Failure (published layout) & $n$ & share & cause \\
 \midrule
-Program says something else   & 27 & 43\% & better prompt, examples, bigger model \\
+Program says something else   & 27 & 43\% & the model \\
 \quad wrong operation         & 22 &      & \code{count} written for an existence question \\
 \quad wrong or dropped status & 2  &      & \code{not with rider} for \code{without rider} \\
 \quad other                   & 3  &      & \\
-Program right, answer wrong   & 18 & 29\% & the executor and the data \\
+Program right, answer wrong   & 18 & 29\% & the left/right convention (corrected reading) \\
 Refused at execution          & 10 & 16\% & ambiguous (8) or missing (2) reference \\
-Malformed output              & 8  & 13\% & a budget, or constrained decoding \\
+Malformed output              & 8  & 13\% & \code{"*"} as a category \\
 \midrule
 Total                         & 63 & 100\% & \\
 \bottomrule
 \end{tabular}
-\caption{The executed system's $63$ evaluation failures, triaged.}
+\caption{The $63$ evaluation failures of the Qwen2.5-1.5B program mode under
+the published layout.}
 \label{tab:triage}
 \end{table}
 
-Three conclusions follow, and they decide where effort should go.
+\paragraph{Correction.} The first version said that the $18$ failures with a
+correct program were the residual of the diagonal sector boundaries. They are
+not boundary effects. Executed as labelled, $17$ of the $18$ become correct;
+the convention explains them. What is left is almost entirely the small
+model's own: of its $47$ evaluation failures as labelled ($0.765$), $45$ are
+the three other buckets, which the layout does not change ($27$ programs
+that say something else, $10$ refusals, $8$ malformed outputs).
 
-\paragraph{The bottleneck is writing the program, not executing it.} Forty-five
-of $63$ failures ($71\%$) are the model producing a program that does not match
-the question, or no program at all. Only $18$ ($29\%$) survive to the executor
-and disagree there, and those are the diagonal-sector residual of
-Section~\ref{sec:sectors}. Widening the target language --- the obvious next
-engineering move, and one we deliberately did not make --- would address almost
-none of this.
-
-\paragraph{The largest single failure is a format mismatch, not a
-misunderstanding.} In $22$ cases the model writes \code{count} for a question
-asking \code{exists}: ``are there any moving cars to the front left of me?''
-becomes a counting program. The selector is usually right; the answer is then
-an integer, which can never match a yes/no reference. One third of all failures
-is a model that understood the scene query and chose the wrong return type.
-
-\paragraph{The malformed outputs have one cause.} All eight emit
-\code{"category": "*"} for ``things'', a token outside the vocabulary, although
-the prompt lists the ten classes \emph{and} states the rule mapping ``thing''
-to \code{object}. The instructions are not at fault; a $1.5$B model is. This is
-the clearest single thing to re-test with a larger model, and the one category
-of failure that grammar-constrained decoding would eliminate by construction.
+\paragraph{The largest single failure is a return type.} In $22$ cases the
+model writes \code{count} for a question asking \code{exists}: ``are there
+any moving cars to the front left of me?'' becomes a counting program. The
+selector is usually right, and the integer it returns can never match a
+yes/no reference. The eight malformed outputs are the \code{"*"} category of
+Section~\ref{sec:constrained}, which constrained decoding removes.
 
 % =====================================================================
-\section{Does a wider language help?}
+\section{A wider target language}
 \label{sec:wide}
+% =====================================================================
 
-Everything above is measured inside one target language: an operation over one
-or two selectors, each carrying a category, an attribute, a region and at most
-one anchor. That shape covers the counting and existence templates and refuses
-the rest. The obvious next move --- and the one the error analysis of
-Section~\ref{sec:failures} argues against --- is to widen it.
+The flat language covers the counting and existence templates. We also built
+CLEVR's representation \cite{clevr} adapted to nuScenes: a program is a list
+of typed nodes in topological order over nineteen functions (\code{scene},
+\code{filter\_category}, \code{filter\_status}, \code{unique},
+\code{relate}, \code{relate\_ego}, set operations, \code{count},
+\code{exist}, the queries and comparisons), with types checked before
+execution. A second manifest built by the
+same rules covers nine families and $5{,}830$ of the $5{,}916$ mini questions
+($98.5\%$, against $27.5\%$ for the flat scope).
 
-We built the wider language anyway, and measured it, because ``obvious next
-move'' is not a result.
-
-\subsection{The second target language}
-
-It is CLEVR's representation \cite{clevr}, adapted to nuScenes: a program is a
-list of typed nodes, each naming a function, its constant argument and the
-indices of earlier nodes it consumes, in topological order. The catalogue has
-nineteen functions --- \code{scene}, \code{filter\_category},
-\code{filter\_status}, \code{unique}, \code{relate}, \code{relate\_ego},
-\code{and\_}, \code{or\_}, \code{same\_status}, \code{count}, \code{exist},
-\code{query\_category}, \code{query\_status}, \code{equal\_value}, the integer
-comparisons --- with input and output types checked before execution, so an
-ill-typed program is a reported error and never a plausible answer.
-
-Three adaptations are claims about the data rather than conveniences. The
-attributes are nuScenes' ten classes and seven statuses, not CLEVR's size,
-colour, material and shape; there is no colour, which is why colour questions
-are unanswerable here and not merely unimplemented. There is an ego vehicle,
-so \code{relate} (anchored on a resolved object) and \code{relate\_ego}
-(anchored on the sensor platform) are separate functions. And \code{unique}
-can fail: CLEVR prunes ill-posed questions when it generates them, but we did
-not generate ours, so well-posedness is detected at run time and reported.
-
-The wider language admits a wider question set. A second manifest, built by
-the same rules on the same drives, covers nine families instead of four and
-$5{,}830$ of the $5{,}916$ mini questions --- $98.5\%$, against $27.5\%$ for
-the flat scope. The $86$ it still excludes name no class the adapter knows.
-
-\subsection{Result}
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
 \begin{tabular}{lrrr}
 \toprule
-Qwen2.5-1.5B, wide scope ($n = 280$) & A, direct & B, flat & C, typed \\
+Qwen2.5-1.5B, wide scope ($n = 280$) & direct-1 & flat program & typed program \\
 \midrule
-Accuracy (all)          & \textbf{0.521} & 0.457 & 0.296 \\
-Answers                 & 1.000 & 0.571 & 0.346 \\
-Accuracy when answering & 0.521 & 0.800 & \textbf{0.856} \\
+Accuracy, published layout (archived)    & 0.521 & 0.457 & 0.296 \\
+Accuracy, programs executed as labelled  & 0.521 & 0.521 & 0.314 \\
+\midrule
+Answers, published layout                & 1.000 & 0.571 & 0.346 \\
+Accuracy when answering, published layout & 0.521 & 0.800 & 0.856 \\
 \bottomrule
 \end{tabular}
-\caption{A wider language made things worse. Paired, the direct mode beats the
-typed one $102$ to $39$ ($p = 1.1\times10^{-7}$) and the flat one beats it $65$
-to $20$ ($p = 1.0\times10^{-6}$).}
+\caption{Wide scope. The direct column is the archived \code{direct-1}
+answers in both accuracy rows.}
 \label{tab:wide}
 \end{table}
 
-The typed language is the most accurate of the three \emph{when it produces a
-program at all}, and it produces one for barely a third of the questions. That
-is the whole of the result: expressiveness bought nothing because the model
-could not use it.
+The typed language is the most accurate of the three when it produces a
+program, and it produces one for about a third of the questions
+(Table~\ref{tab:wide}). Of $280$ typed programs, $165$ do not type-check:
+$70$ use a constant outside the vocabulary and $85$ wire the wrong type into
+a function, $51$ of those being a missing \code{unique}. The flat language
+produces $240$ valid programs on the same questions and, under the published
+layout, loses $80$ at execution, $42$ to ambiguous references and $38$ to
+missing ones. Both languages fail at the same step, resolving a definite
+reference in a real scene; the flat one fails inside the executor and the
+typed one at the type check.
 
-\paragraph{Where it fails is specific.} Of $280$ typed programs, $165$ do not
-type-check. Seventy use a constant outside the vocabulary. Eighty-five wire
-the wrong type into a function, and \emph{fifty-one of those eighty-five are a
-missing \code{unique}} --- the model passes a set where \code{relate},
-\code{query\_status} or \code{same\_status} requires one object.
+The as-labelled layout changes the level and not the conclusion. The flat
+program mode rises to $0.521$, level with the archived direct answers, and
+the typed one to $0.314$. At $1.5$B, on the wide scope, the program mode is
+not ahead of the direct mode, and a more expressive language is harder for
+the model to write. Chaining the modes (typed program if it executes, else
+flat program, else direct answer) gives $0.739$ as labelled and $0.700$
+under the published layout, above any single mode. Constrained decoding
+(Table~\ref{tab:constrained}) raises the flat language to $0.550$ and the
+typed one to $0.354$.
 
-\paragraph{The same difficulty, moved.} On the same questions the flat
-language produces $240$ valid programs and then loses $80$ of them at
-execution: $42$ ambiguous references and $38$ missing ones. Both languages are
-defeated by the same thing --- resolving a definite reference in a real scene
---- and they differ only in where it surfaces. The flat language performs
-uniqueness implicitly inside the executor and fails there; the typed language
-makes it an explicit node and fails at the type check. Making the step visible
-did not make the model take it.
-
-\paragraph{Checked before claiming it.} The obvious suspicion is that the
-typed language is merely stricter about spelling, since many of its vocabulary
-errors are plurals. It is not: the flat language rejects \code{"trailers"}
-exactly as the typed one does. The comparison is not an artefact of
-normalisation.
-
-\paragraph{What this changes about the recommendation.} The failure triage of
-Section~\ref{sec:failures} found that $71\%$ of the flat language's errors
-happen before the executor. Widening the target language addresses none of
-those, and this experiment shows it adds a harder generation task on top. The
-language was not the binding constraint. That is a negative result, it cost
-one afternoon, and it is the reason the typed catalogue ships in the
-repository without being wired into the headline comparison.
-
+% =====================================================================
 \section{A preliminary study on synthetic scenes}
 \label{sec:synthetic}
 % =====================================================================
 
-Before the nuScenes protocol existed, the same executor was compared against
-\emph{trained} baselines on a synthetic corpus, under the earlier
-$45^{\circ}$ octant convention. Those numbers are reported here as a
-preliminary study, not as results on nuScenes-QA, and the convention alone
-makes them non-comparable with Section~\ref{sec:results}.
+Before the nuScenes protocol existed, the same executor was compared with
+\emph{trained} baselines on a synthetic corpus under an earlier $45^{\circ}$
+octant convention, with questions generated from programs. These numbers are
+not comparable with the sections above.
 
-Scenes are sampled with nuScenes-like class frequencies, questions are
-generated \emph{from} programs so every gold program is known, and a
-detector-failure model (12\% drops, 5\% duplicates, $0.6$\,m jitter) produces
-a ``detected'' list. \textbf{This simulates detector behaviour; it does not
-measure a detector.} No 3D detector was run anywhere in this project, and no
-claim about detection quality is made from it.
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
 \small
 \begin{tabular}{lrrrr}
 \toprule
 System & Accuracy & Count MAE & Pair acc. & Params \\
 \midrule
-Majority answer          & 0.296 & --- & --- & 0 \\
+Majority answer          & 0.296 & \nr & \nr & 0 \\
 Question only (blind)    & $0.656 \pm 0.012$ & $0.722$ & 0.000 & 35\,863 \\
 Deep sets                & $0.655 \pm 0.020$ & $0.654$ & 0.022 & 120\,855 \\
 Deep sets $+$ counter    & $0.644 \pm 0.018$ & $0.534$ & 0.076 & 129\,176 \\
@@ -857,130 +1060,102 @@ Deep sets $+$ counter    & $0.644 \pm 0.018$ & $0.534$ & 0.076 & 129\,176 \\
 \bottomrule
 \end{tabular}
 \caption{Synthetic corpus, $45^{\circ}$ octants, means over seeds $0,1,2$.
-Pair accuracy requires both members of a contrast pair --- one question text,
-two scenes with different answers --- to be correct.}
+Pair accuracy requires both members of a contrast pair (one question text,
+two scenes with different answers) to be correct.}
 \label{tab:synthetic}
 \end{table}
 
-Neither learned model beats the question-only control. On contrast pairs the
-gap is starker: a blind model must score zero, deep sets reaches $0.022$ and
-the counter $0.076$, against $0.643$. On the accuracy column one could argue
-the learned models use the scene a little; on contrast pairs they essentially
-do not.
-
-Two cautions that the nuScenes work later confirmed. First, benchmark design
-changes the conclusion: on an unbalanced version of the same corpus, where
-$75\%$ of answers mean ``nothing there'', the learned models appear to beat the
-blind baseline while their contrast-pair accuracy stays near zero. Second,
-these learned baselines were also run on real nuScenes-QA questions, where
-deep sets does \emph{not} reliably beat the blind prior --- paired by seed the
-margins are $-0.021$, $+0.032$, $+0.025$ --- and where replacing ground-truth
-objects with simulated detections moves it by $+0.019$, $-0.030$, $+0.010$. A
-model whose score is unchanged when the 3D input is corrupted has not been
+Neither learned model beats the question-only control
+(Table~\ref{tab:synthetic}), and on contrast pairs they score $0.022$ and
+$0.076$ against $0.643$ for the executor. On real
+nuScenes-QA questions deep sets does not reliably beat the blind prior
+(margins by seed $-0.021$, $+0.032$, $+0.025$), and replacing ground-truth
+objects with simulated detections moves it by $+0.019$, $-0.030$, $+0.010$.
+A model whose score is unchanged when the 3D input is corrupted has not been
 shown to use it.
 
 % =====================================================================
 \section{Discussion}
+\label{sec:discussion}
 % =====================================================================
 
-\paragraph{What this establishes.} At a fixed language model, fixed scene data
-and fixed conventions, emitting an executable program was substantially more
-reliable than emitting the answer: $0.685$ against $0.505$ on held-out drives,
-with a paired advantage of $67$ to $31$ and a counting error three times
-smaller at near-equal numeric coverage. The scene-dependence control separates the two
-modes more sharply than any aggregate. The study is also cheap enough to
-repeat: nothing is trained, and the core $1.5$B comparison ran on a T4.
-Larger-model extensions required other resources.
+\paragraph{What the audit establishes.} The released nuScenes-QA answers
+follow three conventions that the question wording does not suggest. The
+left/right finding needs no geometry and no executor to verify: $12{,}392$
+of $12{,}392$ questions is a property of the question files. Anyone reporting
+numbers on the benchmark is measuring agreement with these conventions. A
+system built on the published definition, or on a correct notion of left and
+right, loses points for it, and a comparison between such a system and one
+trained on the answers is biased against the first. We make no claim about the generation code.
 
-\paragraph{What it does not establish.} Branch B brings hand-written code that
-implements the published geometry, with $91/100$ agreement in a development
-reference-program check. This is not a formal evaluation ceiling. The question is whether the \emph{model} can write
-the program --- which it does validly $92$--$96\%$ of the time. The executed
-system reaches $0.753$ accuracy when it answers. The result is not evidence that language models cannot
-reason about space. The baseline is also weak in a specific way: a $1.5$B model
-asked to count rows in a $44$-line table of floats is being tested on something
-it is known to be poor at, and part of A's disadvantage may be context length
-rather than reasoning. Objects are ground truth, so nothing here speaks to
-perception. And the evaluation rests on three drives.
+\paragraph{What the comparison establishes.} For these question families, at
+fixed oracle perception and a fixed frozen model, executing a program the
+model writes is far more reliable than having the model answer from the
+object list. On $146$ held-out drives the difference is $+0.166$ $[+0.125,
++0.205]$ at $1.5$B, $+0.366$ $[+0.337, +0.395]$ at $7$B and $+0.299$
+$[+0.274, +0.323]$ at $32$B. Telling the
+direct mode the right convention moved it by a few points, and asking it to
+write out its working did not close the gap for the $1.5$B and $7$B models.
+Once the convention is right, the program mode of every model but the
+smallest is between $0.950$ and $0.980$ on the first comparison, against a
+ceiling of $0.980$.
 
-\paragraph{Where the boundary of the result lies.} Two experiments were run to
-find it, and both came back negative for the obvious extensions.
+\paragraph{What our first version got wrong, and why it matters beyond this
+report.} We implemented the published geometry, measured $91$ of $100$
+agreement, read the nine disagreements, and filed eight of them as sector
+boundary effects. The explanation was plausible and wrong, and it produced a
+second wrong statement: that the program mode saturates near $0.845$. The
+as-labelled rule was then found by looking at evaluation failures, which is
+why every check of it reported here uses other data.
 
-The tested larger checkpoints do not close the gap. Across a twenty-one-fold increase in
-parameters within one family the direct mode gains $0.075$, and nothing at all
-between $1.5$B and $7$B; what scale fixes is program validity, from $8$ invalid
-to $1$ to $0$ (Section~\ref{sec:size}). The result reproduces in a second
-family through a hosted gateway, to within $0.005$ (Section~\ref{sec:gateway}).
-
-Widening the target language did not help at the tested $1.5$B configuration. A CLEVR-style typed
-catalogue \cite{clevr} covers $98.5\%$ of the benchmark instead of $27.5\%$,
-is the most accurate of the three modes when it produces a program, and
-produces one for a third of the questions (Section~\ref{sec:wide}). The
-failure triage had predicted this: $71\%$ of the flat language's errors happen
-before the executor, where expressiveness cannot reach.
-
-\paragraph{A boundary, not a causal attribution.}
-The archived \code{qwen3.8-27b} endpoint answers directly at $0.840$ and
-through programs at $0.845$, and is correct on all thirteen scene-dependence
-groups in both modes. Thus execution need not improve every model. The
-cross-model comparison cannot establish that reasoning rather than size
-caused this change: training, architecture, active parameter counts and
-actual token budgets are uncontrolled. A follow-up should compare reasoning
-budgets within one fixed checkpoint, selected on development data, with
-latency and more unseen drives. The available token counts alone do not
-establish a compute or price advantage.
-
-\paragraph{Why the distillation line was dropped.} The previous report proposed
-distilling the fine-tuned LLM into a smaller student. Distillation reduces the
-cost of a demonstrated capability; it cannot create one, and no spatial
-competence was established in the teacher.
+\paragraph{What is not established.} Nothing here shows that language models
+cannot reason about space. The direct mode is asked to count rows in a table
+of several dozen objects, a task small models are known to be poor at, and
+part of its disadvantage may be context handling and not spatial reasoning.
+The reasoned-direct ablation covers two models, one prompt and one budget.
+The one model that reasons at length by default was not rerun under the
+corrected prompt, and the thinking-switch experiment has its development
+split only, with $37$ of $100$ answers cut off by the budget. Perception is an oracle, so the result says nothing about a system
+that must detect objects first; given Section~\ref{sec:lidar}, such a system
+would also be asked to count objects it cannot see. The first comparison has
+three evaluation drives, and the prompts and layout were developed on
+v1.0-mini. The $32$B model is quantised to $4$ bits. On the wide question
+scope, at $1.5$B, the program mode is not ahead.
 
 % =====================================================================
 \section{Conclusion}
 % =====================================================================
 
-The original project established that the LiDAR-LLM architecture can be wired
-up on a laptop, and nothing more. This revision asks a narrower question that
-can be tested at modest cost: given one frozen model and one object list, is it
-better to produce the answer or to produce a program? On held-out nuScenes
-drives, the program --- by $0.180$ at $1.5$B, $0.320$ at $7$B and $0.265$ at
-$32$B, with a positive paired margin at every tested size, with the scene-dependence control
-showing the direct mode largely reciting template answers while the executed
-mode tracks the scene.
+The released nuScenes-QA answers do not distinguish left from right, count
+the ego vehicle and unnamed classes as things, and count objects without a
+LiDAR return. We give the rules, evidence on the official train and
+validation sets, and their limits: they are inferred from answers.
 
-Two attempts to extend that result failed, and the failures are the more useful
-half. Scale does not close the gap: twenty-one times the parameters buys the
-direct mode $0.075$, while what it buys the executed mode is valid programs,
-$8$ invalid down to $0$. A wider target language does not help either: CLEVR's
-typed catalogue reaches $98.5\%$ of the benchmark instead of $27.5\%$, is the
-most accurate mode when it produces a program, and produces one a third of the
-time --- defeated, like the flat language, by resolving a definite reference in
-a real scene.
+These conventions changed the reading of our own experiment. Under the
+published definition the program mode appeared to saturate near $0.845$ and
+one reasoning model appeared to match it by answering directly. Under the
+convention the labels follow, the same programs reach $0.950$ to $0.980$ for
+five of six models, the questions no model gets right fall from $28$ to $4$
+of $200$, and on $146$ held-out drives the $7$B and $32$B models answer $0.961$ and
+$0.978$ of the questions through programs against $0.595$ and $0.679$
+directly. The practical consequence
+for these question families is to let the language model write the query and
+let code compute the answer, and to check what a benchmark's labels encode
+before interpreting a ceiling.
 
-One hosted endpoint nearly closes the direct/executed accuracy gap while
-reporting more output tokens. This bounds the observed advantage but is not
-a controlled reasoning ablation or a measurement of inference-cost savings.
-
-Two practical checks matter alongside the comparison. Implementing the
-published six-sector convention avoids silently answering a different spatial
-question. Keeping objects with zero LiDAR returns avoids a label/input mismatch:
-filtering those objects costs $49$ accuracy points on the paired answerable
-counting subset, not on the full benchmark. These checks and the saved failure
-traces make a useful course-project contribution without claiming new
-geometric rules or state-of-the-art perception.
-
-\paragraph{Artifact status.}
-Eight complete comparisons, containing $1{,}580$ per-question records, are
-archived. The offline \code{audit\_results} command recomputes correctness and
-all saved summary fields, checks the frozen manifests and split separation,
-and records file hashes. It does not rerun a model or certify historical
-provider identity. Two optional jobs mentioned at interruption---a hosted
-14B rerun and a wide-scope 32B run---have no completed archive in this checkout
-and contribute no result here. The reproduction guide records their restart
-commands separately from the completed study.
+\paragraph{Artifact status.} Eight complete archived comparisons, containing
+$1{,}580$ per-question records, are kept unchanged; the offline
+\code{audit\_results} command verifies them and their eight re-executed
+counterparts. The runs of November 2026 are in
+\code{results/runs\_2026\_11}, each with its commit, command, GPU and package
+versions. Nothing is trained; the $1.5$B comparison runs on a T4. Tables
+\ref{tab:direct}, \ref{tab:reasoned}, \ref{tab:constrained} and
+\ref{tab:qwen3} contain the runs complete at the time of writing.
 
 \begin{thebibliography}{99}
 \small
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
 
 \bibitem{lidarllm} S. Yang et al.
   \emph{LiDAR-LLM: Exploring the Potential of Large Language Models for 3D
@@ -1003,19 +1178,6 @@ commands separately from the completed study.
 \bibitem{nsvqa} K. Yi, J. Wu, C. Gan, A. Torralba, P. Kohli, J. B. Tenenbaum.
   \emph{Neural-Symbolic VQA: Disentangling Reasoning from Vision and Language
   Understanding}. NeurIPS, 2018. arXiv:1810.02338.
-
-\bibitem{centerpoint} T. Yin, X. Zhou, P. Kr\"ahenb\"uhl.
-  \emph{Center-Based 3D Object Detection and Tracking}.
-  CVPR, pp.\ 11784--11793, 2021.
-
-\bibitem{gpt2} A. Radford, K. Narasimhan, T. Salimans, I. Sutskever.
-  \emph{Language Models are Unsupervised Multitask Learners}. OpenAI, 2019.
-
-\bibitem{gpt4} OpenAI. \emph{GPT-4 Technical Report}, 2023.
-
-\bibitem{lora} E. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang,
-  W. Chen. \emph{LoRA: Low-Rank Adaptation of Large Language Models}.
-  arXiv:2106.09685, 2021.
 
 \bibitem{zsvg3d} Z. Yuan, J. Ren, C.-M. Feng, H. Zhao, S. Cui, Z. Li.
   \emph{Visual Programming for Zero-shot Open-Vocabulary 3D Visual Grounding}.
