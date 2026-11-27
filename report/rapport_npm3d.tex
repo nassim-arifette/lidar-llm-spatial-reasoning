@@ -45,8 +45,9 @@
 \renewcommand{\floatpagefraction}{0.8}
 \setcounter{topnumber}{3}
 \setcounter{totalnumber}{5}
-\setlength{\textfloatsep}{12pt plus 2pt minus 2pt}
-\setlength{\intextsep}{10pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{6pt}
 
 \title{\textbf{What the nuScenes-QA answers encode:\\
 a label audit, and direct answers\\
@@ -71,9 +72,11 @@ or existence questions of the official train and validation sets that name
 one of the last two relations are answered $0$ or \emph{no}. ``Things''
 include every annotation, the classes no question names among them, and the
 ego vehicle; boxes with no LiDAR return are counted. On $1{,}460$ questions
-from $146$ validation drives that played no part in finding these rules, a
-deterministic executor agrees with the released answers on $85.1\%$ under the
-published reading and on $97.5\%$ under these three conventions. The second
+from $146$ validation drives, a deterministic executor agrees with the
+released answers on $85.1\%$ under the published reading and on $97.5\%$
+under these three conventions. The left/right rule was found on other
+drives; the ``things'' rule was found on these and confirmed on the train
+set. The second
 contribution is a comparison of two uses of one frozen language model on
 ground-truth object lists: answering directly, or writing a JSON program that
 a deterministic executor runs. Our earlier comparison stated the published
@@ -84,9 +87,9 @@ three drives; the plateau near $0.845$ was the mismatch. On the $146$
 validation drives, with both modes told the conventions of the labels,
 Qwen2.5-7B reaches $0.961$ with programs against $0.595$ directly, a
 difference of $+0.366$ with a $95\%$ drive-level bootstrap interval of
-$[+0.337, +0.395]$, and Qwen2.5-1.5B $0.747$ against $0.582$. Asking the
-direct mode to write out its working did not close the gap for these two
-models. The rules are inferred from the answers, not read from the generation
+$[+0.337, +0.395]$; Qwen2.5-1.5B reaches $0.747$ against $0.582$ and
+Qwen2.5-32B ($4$-bit) $0.978$ against $0.679$. Asking the direct mode to
+write out its working did not close the gap for the $1.5$B and $7$B models. The rules are inferred from the answers, not read from the generation
 code, and perception is an oracle throughout. The result concerns these
 question families; it does not show that language models cannot reason about
 space.
@@ -301,7 +304,7 @@ how often the answer is $0$ or \emph{no} (Table~\ref{tab:nogeom}). For four
 relations the rate is between $20\%$ and $24\%$. For ``front right'' and
 ``back left'' it is $100\%$: $12{,}392$ questions across $34{,}117$
 keyframes, and not one has an object there. The same holds on v1.0-mini
-($37/37$ and $41/41$). This check uses the question files alone.
+($37/37$ and $41/41$). 
 
 \begin{table}[ht]
 \centering
@@ -660,7 +663,7 @@ Table~\ref{tab:direct} gives the result for the three local models.
 Model & direct-1 & direct-2 & direct-1r & direct-2r & free & constrained \\
 \midrule
 Qwen2.5-1.5B       & 0.505 & 0.540 & 0.445 & 0.345 & 0.765 & 0.805 \\
-Qwen2.5-7B         & 0.505 & 0.545 & \nr   & 0.625 & 0.950 & 0.955 \\
+Qwen2.5-7B         & 0.505 & 0.545 & 0.610 & 0.625 & 0.950 & 0.955 \\
 Qwen2.5-32B (int4) & 0.580 & 0.640 & \nr   & \nr   & 0.980 & \nr \\
 \bottomrule
 \end{tabular}
@@ -701,6 +704,7 @@ Qwen2.5-1.5B & direct-1r & eval & 0.445 & 392 & 35 \\
 Qwen2.5-1.5B & direct-2r & eval & 0.345 & 423 & 56 \\
 Qwen2.5-7B   & direct-1r & dev  & 0.570 & 382 & 4 \\
 Qwen2.5-7B   & direct-2r & dev  & 0.460 & 380 & 4 \\
+Qwen2.5-7B   & direct-1r & eval & 0.610 & 354 & 3 \\
 Qwen2.5-7B   & direct-2r & eval & 0.625 & 427 & 7 \\
 \bottomrule
 \end{tabular}
@@ -710,15 +714,21 @@ line counts as wrong.}
 \label{tab:reasoned}
 \end{table}
 
-For the $1.5$B model, working makes the direct mode worse: $0.345$ against
-$0.540$ under the as-labelled prompt on evaluation, with $56$ of $200$
-responses that never reach a readable answer (Table~\ref{tab:reasoned}). For
-the $7$B model it helps on evaluation, $0.625$ against $0.545$, and leaves a
-gap of $0.325$ to the program mode at $0.950$. The development and
-evaluation figures of one prompt differ by up to $0.165$, so these numbers
-are noisy at this sample size. What they support is limited: for these two
-models, with this prompt and budget, asking for the working did not close the
-gap.
+For the $1.5$B model, the reasoned mode is below the bare one under both
+prompts and on both splits: on evaluation $0.445$ against $0.505$
+(\code{direct-1}) and $0.345$ against $0.540$ (\code{direct-2}), with $35$
+and $56$ of $200$ responses that never reach a readable answer
+(Table~\ref{tab:reasoned}); on development $0.360$ against $0.510$ and
+$0.370$ against $0.550$. For the $7$B model the reasoned mode is above the
+bare one on evaluation under both prompts, $0.610$ against $0.505$ and
+$0.625$ against $0.545$. On development its \code{direct-2r} score, $0.460$,
+is below its bare \code{direct-2} score, $0.590$ (there is no bare
+\code{direct-1} run of the $7$B model on development). Under
+\code{direct-2} the direction of the effect for the $7$B model thus differs
+between the two splits, and we do not interpret it. Its best reasoned score
+on evaluation, $0.625$, is $0.325$ below its program mode at $0.950$. For
+these two models, with this prompt and budget, asking for the working did
+not close the gap.
 
 \subsection{Constrained decoding, a separate condition}
 \label{sec:constrained}
@@ -737,22 +747,30 @@ comparison.
 \small
 \begin{tabular}{lrrrl}
 \toprule
-Run, as-labelled layout & $n$ & free & constrained & invalid, free $\to$ constrained \\
+Run, as-labelled layout & $n$ & free & constrained & invalid or ill-typed \\
 \midrule
 Qwen2.5-1.5B, development & 100 & 0.800 & 0.880 & $12 \to 0$ \\
 Qwen2.5-1.5B, evaluation  & 200 & 0.765 & 0.805 & $8 \to 0$ \\
 Qwen2.5-7B, evaluation    & 200 & 0.950 & 0.955 & $1 \to 0$ \\
+\midrule
+Qwen2.5-1.5B, wide scope, flat  & 280 & 0.521 & 0.550 & $35 \to 10$ \\
+Qwen2.5-1.5B, wide scope, typed & 280 & 0.314 & 0.354 & $170 \to 148$ \\
 \bottomrule
 \end{tabular}
 \caption{Program accuracy with free and schema-constrained decoding, for the
-runs available.}
+runs available. The last column counts invalid or ill-typed programs, free
+$\to$ constrained.}
 \label{tab:constrained}
 \end{table}
 
-Constrained decoding removes every invalid program
+On the first comparison, constrained decoding removes every invalid program
 (Table~\ref{tab:constrained}) and is worth $0.040$ to the $1.5$B model on
 evaluation and $0.005$ to the $7$B model, which had one invalid program to
-lose. It does not make the program say what the question asks.
+lose. On the wide scope of Section~\ref{sec:wide} it is worth $0.029$ to the
+flat language and $0.040$ to the typed one, and it does not remove every
+invalid or ill-typed program ($10$ and $148$ remain): the schema closes the
+vocabulary, not the wiring of types between nodes. It does not make the
+program say what the question asks.
 
 \subsection{Falling back to the direct answer}
 \label{sec:fallback}
@@ -765,8 +783,7 @@ by the direct mode), against $0.765$ for the program alone. For the larger
 models there is almost nothing to fall back on: $0.955$ at $7$B with three
 questions passed to the direct mode, and $0.980$ to $0.985$ for the other
 four with one or two. Under the published layout the same chain gives $0.755$
-for the $1.5$B model and $0.830$ to $0.850$ for the others. The fallback
-helps where programs fail to execute, which is the small model.
+for the $1.5$B model and $0.830$ to $0.850$ for the others.
 
 \subsection{Validation drives, with drive-level intervals}
 \label{sec:val}
@@ -781,8 +798,7 @@ named classes, prompt \code{direct-1}. \emph{As labelled}: the unsigned rule,
 every annotation and the ego vehicle as things, prompt \code{direct-2}.
 Uncertainty is computed with the drive as the unit: drives are drawn with
 replacement $10{,}000$ times, every question of a drawn drive is kept, and
-the statistic is recomputed. Table~\ref{tab:val} lists the models whose runs
-were complete when this was written.
+the statistic is recomputed (Table~\ref{tab:val}).
 
 \begin{table}[ht]
 \centering
@@ -796,39 +812,43 @@ Model & Conventions & direct & program & program $-$ direct & drives $+$ / $-$ /
 1.5B & as labelled & 0.582 [0.552, 0.612] & 0.747 [0.725, 0.769] & $+0.166$ [$+0.125$, $+0.205$] & 108 / 29 / 9 \\
 7B   & published   & 0.571 [0.543, 0.599] & 0.842 [0.821, 0.863] & $+0.271$ [$+0.244$, $+0.298$] & 135 / 3 / 8 \\
 7B   & as labelled & 0.595 [0.566, 0.623] & 0.961 [0.950, 0.971] & $+0.366$ [$+0.337$, $+0.395$] & 143 / 0 / 3 \\
+32B  & published   & 0.628 [0.601, 0.654] & 0.853 [0.832, 0.874] & $+0.225$ [$+0.197$, $+0.253$] & 122 / 7 / 17 \\
+32B  & as labelled & 0.679 [0.654, 0.704] & 0.978 [0.969, 0.986] & $+0.299$ [$+0.274$, $+0.323$] & 142 / 0 / 4 \\
 \bottomrule
 \end{tabular}
 \caption{Qwen2.5 models on $1{,}460$ questions from $146$ validation drives
-never used before. Brackets are $95\%$ intervals from $10{,}000$ resamples of
+never used before; the $32$B model is quantised to $4$ bits. Brackets are $95\%$ intervals from $10{,}000$ resamples of
 drives. The last column counts drives where the program mode is ahead,
 behind, or tied.}
 \label{tab:val}
 \end{table}
 
-The program mode is ahead for both models under both settings, and no
-interval on the difference comes near zero. For the $7$B model as labelled,
-the program mode is ahead on $143$ drives and behind on none. The published
-rows reproduce the archived picture on new drives ($0.694$ and $0.842$,
-against $0.685$ and $0.825$ on the three mini drives), which indicates that
-the first comparison was not an accident of its three drives. On the same
-questions, moving from the published to the as-labelled conventions is worth
-$+0.119$ $[+0.099, +0.139]$ to the $7$B program mode and $+0.024$ $[+0.005,
-+0.045]$ to its direct mode; for the $1.5$B model, $+0.053$ $[+0.042,
-+0.065]$ and $+0.045$ $[+0.027, +0.064]$.
+The program mode is ahead for all three models under both settings, and no
+interval on the difference comes near zero. As labelled, the program mode is
+behind on no drive for the $7$B model (ahead on $143$) and for the $32$B
+model (ahead on $142$). The published rows reproduce the archived picture on
+new drives ($0.694$, $0.842$ and $0.853$, against $0.685$, $0.825$ and
+$0.845$ on the three mini drives), which indicates that the first comparison
+was not an accident of its three drives. On the same questions, moving from
+the published to the as-labelled conventions is worth $+0.053$ $[+0.042,
++0.065]$, $+0.119$ $[+0.099, +0.139]$ and $+0.125$ $[+0.105, +0.145]$ to the
+program mode of the three models in order of size, and $+0.045$ $[+0.027,
++0.064]$, $+0.024$ $[+0.005, +0.045]$ and $+0.051$ $[+0.035, +0.068]$ to
+their direct mode.
 
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrrrrr}
 \toprule
- & & \multicolumn{2}{c}{Qwen2.5-1.5B} & \multicolumn{2}{c}{Qwen2.5-7B} \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
-Family & $n$ & direct & program & direct & program \\
+ & & \multicolumn{2}{c}{Qwen2.5-1.5B} & \multicolumn{2}{c}{Qwen2.5-7B} & \multicolumn{2}{c}{Qwen2.5-32B (int4)} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Family & $n$ & direct & program & direct & program & direct & program \\
 \midrule
-Category only               & 440 & 0.695 & 0.755 & 0.761 & 0.995 \\
-Category with a status      & 438 & 0.598 & 0.970 & 0.678 & 0.968 \\
-Ego-relative region         & 292 & 0.486 & 0.815 & 0.418 & 0.938 \\
-Anchored on another object  & 290 & 0.479 & 0.331 & 0.393 & 0.921 \\
+Category only               & 440 & 0.695 & 0.755 & 0.761 & 0.995 & 0.861 & 0.995 \\
+Category with a status      & 438 & 0.598 & 0.970 & 0.678 & 0.968 & 0.751 & 0.984 \\
+Ego-relative region         & 292 & 0.486 & 0.815 & 0.418 & 0.938 & 0.534 & 0.942 \\
+Anchored on another object  & 290 & 0.479 & 0.331 & 0.393 & 0.921 & 0.441 & 0.979 \\
 \bottomrule
 \end{tabular}
 \caption{Validation drives, as labelled, by family.}
@@ -839,8 +859,9 @@ By family (Table~\ref{tab:valfamily}) the picture is not uniform. For the
 $1.5$B model the program mode is \emph{behind} on questions anchored on
 another object, $0.331$ against $0.479$: this is the family where a definite
 reference must be resolved and where the small model's programs fail most.
-The $7$B model is ahead in every family, and its direct mode is weakest
-exactly where a spatial test is involved ($0.418$ and $0.393$).
+The $7$B and $32$B models are ahead in every family, and their direct mode
+is weakest in the two families that involve a spatial test ($0.418$ and
+$0.393$ at $7$B, $0.534$ and $0.441$ at $32$B).
 
 \subsection{The hosted model that appeared to reach parity}
 \label{sec:hosted}
@@ -1001,7 +1022,9 @@ the typed one to $0.314$. At $1.5$B, on the wide scope, the program mode is
 not ahead of the direct mode, and a more expressive language is harder for
 the model to write. Chaining the modes (typed program if it executes, else
 flat program, else direct answer) gives $0.739$ as labelled and $0.700$
-under the published layout, above any single mode.
+under the published layout, above any single mode. Constrained decoding
+(Table~\ref{tab:constrained}) raises the flat language to $0.550$ and the
+typed one to $0.354$.
 
 % =====================================================================
 \section{A preliminary study on synthetic scenes}
@@ -1010,10 +1033,8 @@ under the published layout, above any single mode.
 
 Before the nuScenes protocol existed, the same executor was compared with
 \emph{trained} baselines on a synthetic corpus under an earlier $45^{\circ}$
-octant convention. These numbers are a preliminary study and are not
-comparable with the sections above. Scenes are sampled with nuScenes-like
-class frequencies and questions are generated from programs. No 3D detector
-was run anywhere in this project.
+octant convention, with questions generated from programs. These numbers are
+not comparable with the sections above.
 
 \begin{table}[ht]
 \centering
@@ -1056,14 +1077,14 @@ of $12{,}392$ questions is a property of the question files. Anyone reporting
 numbers on the benchmark is measuring agreement with these conventions. A
 system built on the published definition, or on a correct notion of left and
 right, loses points for it, and a comparison between such a system and one
-trained on the answers is biased against the first. We do not know why the
-labels have this form and make no claim about the generation code.
+trained on the answers is biased against the first. We make no claim about the generation code.
 
 \paragraph{What the comparison establishes.} For these question families, at
 fixed oracle perception and a fixed frozen model, executing a program the
 model writes is far more reliable than having the model answer from the
-object list. On $146$ held-out drives the difference is $+0.366$ $[+0.337,
-+0.395]$ at $7$B and $+0.166$ $[+0.125, +0.205]$ at $1.5$B. Telling the
+object list. On $146$ held-out drives the difference is $+0.166$ $[+0.125,
++0.205]$ at $1.5$B, $+0.366$ $[+0.337, +0.395]$ at $7$B and $+0.299$
+$[+0.274, +0.323]$ at $32$B. Telling the
 direct mode the right convention moved it by a few points, and asking it to
 write out its working did not close the gap for the $1.5$B and $7$B models.
 Once the convention is right, the program mode of every model but the
@@ -1106,8 +1127,9 @@ published definition the program mode appeared to saturate near $0.845$ and
 one reasoning model appeared to match it by answering directly. Under the
 convention the labels follow, the same programs reach $0.950$ to $0.980$ for
 five of six models, the questions no model gets right fall from $28$ to $4$
-of $200$, and on $146$ held-out drives a $7$B model answers $0.961$ of the
-questions through programs and $0.595$ directly. The practical consequence
+of $200$, and on $146$ held-out drives the $7$B and $32$B models answer $0.961$ and
+$0.978$ of the questions through programs against $0.595$ and $0.679$
+directly. The practical consequence
 for these question families is to let the language model write the query and
 let code compute the answer, and to check what a benchmark's labels encode
 before interpreting a ceiling.
@@ -1118,8 +1140,8 @@ $1{,}580$ per-question records, are kept unchanged; the offline
 counterparts. The runs of November 2026 are in
 \code{results/runs\_2026\_11}, each with its commit, command, GPU and package
 versions. Nothing is trained; the $1.5$B comparison runs on a T4. Tables
-\ref{tab:direct}, \ref{tab:reasoned}, \ref{tab:constrained}, \ref{tab:val}
-and \ref{tab:qwen3} contain the runs complete at the time of writing.
+\ref{tab:direct}, \ref{tab:reasoned}, \ref{tab:constrained} and
+\ref{tab:qwen3} contain the runs complete at the time of writing.
 
 \begin{thebibliography}{99}
 \small

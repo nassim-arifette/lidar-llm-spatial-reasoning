@@ -221,6 +221,6 @@ pdflatex -interaction=nonstopmode -halt-on-error rapport_npm3d.tex
 Review the compiled PDF, including tables and references. The source and PDF
 are both deliverables. Generated LaTeX auxiliaries are ignored.
 
-The current PDF was rebuilt from the current source on 1 November 2026 with
-MiKTeX pdfTeX 1.40.29. All 14 pages were rendered for visual review. The final
-log contains no undefined references or overfull boxes.
+The current PDF was rebuilt from the current source on 27 November 2026 with
+pdfTeX from TeX Live (Debian). It has 14 pages; the final log contains no
+undefined references and no overfull boxes.
