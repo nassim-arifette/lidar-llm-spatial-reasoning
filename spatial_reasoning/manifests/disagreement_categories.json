@@ -8,7 +8,12 @@
     "conventions and the dataset's -- before any model is blamed for it.",
     "",
     "Produced against manifest version 1, records_dev.jsonl of the run with",
-    "min_lidar_points=0 and layout=nuscenes_qa."
+    "min_lidar_points=0 and layout=nuscenes_qa.",
+    "",
+    "November 2026: the eight 'diagonal_sector_boundary' entries are not",
+    "boundary effects. Under layout=nuscenes_qa_as_labelled (unsigned angle)",
+    "all eight agree; see docs/LABEL_AUDIT.md. The entries are kept as the",
+    "record of what was concluded at the time, under the layout named above."
   ],
 
   "_categories": {
