@@ -1,0 +1,48 @@
+{
+  "manifest": "spatial_reasoning/manifests/first_comparison.json",
+  "split": "eval",
+  "min_lidar_points": 0,
+  "layout": "nuscenes_qa_as_labelled",
+  "conversion": {
+    "samples": 404,
+    "scenes": 10,
+    "annotations_total": 18538,
+    "annotations_kept": 18389,
+    "dropped_no_lidar_points": 0,
+    "dropped_unknown_category": 149,
+    "samples_without_pose": 0
+  },
+  "summary": {
+    "n": 200,
+    "answered": 199,
+    "answered_fraction": 0.995,
+    "agreed": 195,
+    "agreement_over_all": 0.975,
+    "agreement_when_answered": 0.9798994974874372,
+    "by_family": {
+      "category_anchor_relation": {
+        "agreed": 51,
+        "n": 54
+      },
+      "category_ego_region": {
+        "agreed": 42,
+        "n": 43
+      },
+      "category_status": {
+        "agreed": 52,
+        "n": 53
+      },
+      "count_exist_category": {
+        "agreed": 50,
+        "n": 50
+      }
+    },
+    "statuses": {
+      "ok": 199,
+      "ambiguous": 1
+    },
+    "disagreement_categories": {
+      "UNEXAMINED": 5
+    }
+  }
+}

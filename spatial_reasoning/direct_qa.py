@@ -99,9 +99,15 @@ _BARE_FORMAT = """Answer with the answer alone and nothing else:
 - an object class or a status, in lower case, for anything else.
 Do not explain. Do not restate the question. Do not show your working."""
 
-_REASONED_FORMAT = """You may work through the question step by step before answering: select the
-objects the question is about, apply the definitions above, and count.
-Then finish with one final line of exactly this form:
+# "You may work step by step" was tried first on the development split: the
+# 1.5B model then never did, and emitted the bare answer in four tokens. The
+# working is therefore asked for, not merely permitted.
+_REASONED_FORMAT = """Work through the question step by step before you answer. First go through the
+object list and write down the id of every object the question is about,
+checking each condition it states: the category, the status, and, where a
+spatial relation is involved, the angle test defined above. Then count those
+objects, or read off the property the question asks for.
+Finish with one final line of exactly this form:
 Answer: <answer>
 where <answer> is
 - a bare integer for a question that asks how many;
@@ -251,11 +257,21 @@ def final_answer_line(raw: str) -> Optional[str]:
 
 
 def normalise_reasoned(raw: str, expects_count: bool) -> Tuple[Optional[str], str]:
-    """Read a reasoned response: only its final ``Answer:`` line counts."""
+    """Read a reasoned response: only its final ``Answer:`` line counts.
+
+    One exception, seen on the development split: a model that skips the
+    working and replies with the bare answer on a single line ("yes") has
+    answered, in the format the bare mode accepts. Refusing it would score a
+    missing prefix as a wrong answer. Anything longer without an ``Answer:``
+    line stays unreadable.
+    """
     line = final_answer_line(raw)
-    if not line:
-        return None, "unparseable"
-    return normalise_answer(line, expects_count)
+    if line:
+        return normalise_answer(line, expects_count)
+    lines = [l for l in (raw or "").strip().splitlines() if l.strip()]
+    if len(lines) == 1:
+        return normalise_answer(lines[0], expects_count)
+    return None, "unparseable"
 
 
 def asks_for_a_count(question: str) -> bool:

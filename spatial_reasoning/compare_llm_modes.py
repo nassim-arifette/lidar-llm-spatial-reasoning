@@ -337,6 +337,66 @@ def scene_dependence(rows: Sequence[Row]) -> Dict[str, object]:
 # The run
 # --------------------------------------------------------------------------- #
 
+def fill_executed(row: "Row", attempt, scene: Scene, config: RegionConfig) -> None:
+    """Write mode B's fields from one program attempt.
+
+    Shared by the live run and by ``rescore_programs``, which replays archived
+    programs under another layout: two copies of this would be two executors
+    that had to agree.
+    """
+    # The generation's own time, not the caller's loop: by here the program
+    # has already been produced in a batch, and timing the cache lookup would
+    # report the executed branch as free.
+    row.program_seconds = attempt.seconds
+    row.program_raw = attempt.raw
+    row.program_status = attempt.status
+    row.program_valid = attempt.ok
+    row.program_input_tokens = attempt.input_tokens
+    row.program_output_tokens = attempt.output_tokens
+    row.program = ""
+    row.executed_answer = None
+    row.executed_correct = False
+    row.selected = []
+
+    if attempt.ok and attempt.query is not None:
+        row.program = attempt.query.describe()
+        result = execute(attempt.query, scene, config)
+        row.execution_status = result.status.value
+        row.execution_reason = result.reason
+        if result.ok:
+            row.executed_answer = str(result.answer)
+            row.executed_correct = _correct(result.answer, row.reference_answer)
+            row.selected = [o.token for o in result.selected if o.token][:40]
+    else:
+        row.execution_status = "not_attempted"
+        row.execution_reason = attempt.reason
+
+
+def fill_functional(row: "Row", tried, scene: Scene, config: RegionConfig) -> None:
+    """Write mode C's fields from one typed-program attempt."""
+    row.functional_raw = tried.raw
+    row.functional_status = tried.status
+    row.functional_valid = tried.ok
+    row.functional_input_tokens = tried.input_tokens
+    row.functional_output_tokens = tried.output_tokens
+    row.functional_seconds = tried.seconds
+    row.functional_program = ""
+    row.functional_answer = None
+    row.functional_correct = False
+    if tried.ok and tried.program is not None:
+        row.functional_program = tried.program.describe()
+        outcome = execute_functional(tried.program, scene, config)
+        row.functional_execution_status = (
+            outcome.failure.value if outcome.failure else "ok")
+        row.functional_reason = outcome.reason
+        if outcome.ok:
+            row.functional_answer = str(outcome.answer)
+            row.functional_correct = _correct(outcome.answer, row.reference_answer)
+    else:
+        row.functional_execution_status = "not_attempted"
+        row.functional_reason = tried.reason
+
+
 def run(
     items: Sequence[ManifestItem],
     scenes: Dict[str, Scene],
@@ -394,50 +454,10 @@ def run(
             row.direct_seconds = answer.seconds
         row.prompt_version = direct.prompt_version
 
-        attempt = parser.parse_detailed(item.question)
-        # The generation's own time, not this loop's: by here the program has
-        # already been produced in a batch, and timing the cache lookup would
-        # report the executed branch as free.
-        row.program_seconds = attempt.seconds
-        row.program_raw = attempt.raw
-        row.program_status = attempt.status
-        row.program_valid = attempt.ok
-        row.program_input_tokens = attempt.input_tokens
-        row.program_output_tokens = attempt.output_tokens
-
-        if attempt.ok and attempt.query is not None:
-            row.program = attempt.query.describe()
-            result = execute(attempt.query, scene, config)
-            row.execution_status = result.status.value
-            row.execution_reason = result.reason
-            if result.ok:
-                row.executed_answer = str(result.answer)
-                row.executed_correct = _correct(result.answer, item.answer)
-                row.selected = [o.token for o in result.selected if o.token][:40]
-        else:
-            row.execution_status = "not_attempted"
-            row.execution_reason = attempt.reason
-
+        fill_executed(row, parser.parse_detailed(item.question), scene, config)
         if functional is not None:
-            tried = functional.parse_detailed(item.question)
-            row.functional_raw = tried.raw
-            row.functional_status = tried.status
-            row.functional_valid = tried.ok
-            row.functional_input_tokens = tried.input_tokens
-            row.functional_output_tokens = tried.output_tokens
-            row.functional_seconds = tried.seconds
-            if tried.ok and tried.program is not None:
-                row.functional_program = tried.program.describe()
-                outcome = execute_functional(tried.program, scene, config)
-                row.functional_execution_status = (
-                    outcome.failure.value if outcome.failure else "ok")
-                row.functional_reason = outcome.reason
-                if outcome.ok:
-                    row.functional_answer = str(outcome.answer)
-                    row.functional_correct = _correct(outcome.answer, item.answer)
-            else:
-                row.functional_execution_status = "not_attempted"
-                row.functional_reason = tried.reason
+            fill_functional(row, functional.parse_detailed(item.question),
+                            scene, config)
 
         rows.append(row)
         if verbose and (index + 1) % 50 == 0:

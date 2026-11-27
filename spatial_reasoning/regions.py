@@ -64,10 +64,11 @@ SECTOR_LAYOUTS: Dict[str, Dict[str, Tuple[float, float]]] = {
         "back_right":  (-150.0, -90.0),
         "front_right": (-90.0, -30.0),
     },
-    # Same six names and intervals as ``nuscenes_qa``; what differs is the
-    # angle fed to them (see UNSIGNED_LAYOUTS). Keeping the names identical
-    # means a program written under one layout is valid under the other, so
-    # archived programs can be re-executed without regenerating them.
+    # Same six names as ``nuscenes_qa``, so a program written under one layout
+    # is valid under the other and archived programs can be re-executed
+    # without regenerating them. The intervals below are only where each name
+    # is *drawn*; membership is decided on the unsigned angle (see
+    # UNSIGNED_LAYOUTS and ``sector_contains``).
     "nuscenes_qa_as_labelled": {
         "front":       (-30.0, 30.0),
         "front_left":  (30.0, 90.0),
@@ -78,8 +79,8 @@ SECTOR_LAYOUTS: Dict[str, Dict[str, Tuple[float, float]]] = {
     },
 }
 
-#: Layouts whose bearing is folded to an **unsigned** angle before the sector
-#: test. ``nuscenes_qa`` is the definition as published; the released answers
+#: Layouts that test the **unsigned** angle instead of the signed bearing.
+#: ``nuscenes_qa`` is the definition as published; the released answers
 #: do not follow it. They behave as if the angle between the ego heading and
 #: the direction to the object were taken without its sign (an ``arccos``):
 #: with ``a = |bearing|`` in [0, 180],
@@ -102,18 +103,32 @@ SECTOR_LAYOUTS: Dict[str, Dict[str, Tuple[float, float]]] = {
 UNSIGNED_LAYOUTS = frozenset({"nuscenes_qa_as_labelled"})
 
 
-def fold_bearing(theta: float, layout: str) -> float:
-    """The angle a layout actually tests, from a signed bearing in degrees.
+#: The unsigned test itself: ``(low, high]`` on ``a = |bearing|``. ``None``
+#: marks a relation no position satisfies. ``front`` starts below zero only so
+#: that ``a = 0`` (dead ahead) falls inside a half-open interval.
+UNSIGNED_INTERVALS: Dict[str, Optional[Tuple[float, float]]] = {
+    "front":       (-1.0, 30.0),
+    "front_left":  (30.0, 90.0),
+    "front_right": None,
+    "back_right":  (90.0, 150.0),
+    "back_left":   None,
+    "back":        (150.0, 180.0),
+}
 
-    Signed layouts use ``theta`` unchanged. An unsigned layout maps it to
-    ``a = |theta|`` when ``a <= 90`` and to ``-a`` otherwise, which sends both
-    front diagonals to ``front_left``'s interval and both rear diagonals to
-    ``back_right``'s, and leaves ``front_right`` and ``back_left`` empty.
+
+def sector_contains(name: str, theta: float, config: "RegionConfig") -> bool:
+    """Does the signed bearing ``theta`` (degrees) satisfy relation ``name``?
+
+    The one place a bearing is compared with a relation, for every layout.
     """
-    if layout not in UNSIGNED_LAYOUTS:
-        return theta
-    a = abs(theta)
-    return a if a <= 90.0 else -a
+    if config.layout in UNSIGNED_LAYOUTS:
+        interval = UNSIGNED_INTERVALS[name]
+        if interval is None:
+            return False
+        return interval[0] < abs(theta) <= interval[1]
+    low, high = config.sectors[name]
+    return _in_interval(theta, low, high)
+
 
 DEFAULT_LAYOUT = "octant"
 
@@ -230,9 +245,7 @@ def in_direction(
         return False
 
     theta = _normalise_degrees(math.degrees(math.atan2(dy, dx) - reference_yaw))
-    theta = fold_bearing(theta, config.layout)
-    low, high = sectors[name]
-    return _in_interval(theta, low, high)
+    return sector_contains(name, theta, config)
 
 
 def relative_direction(
@@ -390,10 +403,9 @@ def direction_of(
     """
     if obj.range_xy < config.min_range:
         return None
-    theta = fold_bearing(_normalise_degrees(math.degrees(obj.bearing)),
-                         config.layout)
-    for name, (low, high) in config.sectors.items():
-        if _in_interval(theta, low, high):
+    theta = _normalise_degrees(math.degrees(obj.bearing))
+    for name in config.sectors:
+        if sector_contains(name, theta, config):
             return name
     return None
 
@@ -428,7 +440,7 @@ def sample_position_in_direction(
             f"direction {direction!r} does not exist in layout {config.layout!r}; "
             f"available: {sorted(config.sectors)}"
         )
-    if config.layout in UNSIGNED_LAYOUTS and name in ("front_right", "back_left"):
+    if config.layout in UNSIGNED_LAYOUTS and UNSIGNED_INTERVALS[name] is None:
         raise ValueError(
             f"relation {name!r} is empty under layout {config.layout!r}: "
             "no position satisfies it")

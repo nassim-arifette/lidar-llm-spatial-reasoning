@@ -1,0 +1,377 @@
+{
+  "manifest": "spatial_reasoning/manifests/wide_comparison.json",
+  "split": "eval",
+  "runtime": {
+    "model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "max_new_tokens": 384,
+    "max_input_tokens": 8192,
+    "precision": "fp16",
+    "decoding": "greedy"
+  },
+  "prompt_version": "direct-1",
+  "dsl_version": "dsl-1",
+  "layout": "nuscenes_qa_as_labelled",
+  "min_lidar_points": 0,
+  "scope": "wide",
+  "parser_stats": {
+    "total": 280,
+    "unique_questions": 252,
+    "coverage": 0.8571428571428571,
+    "refused": 0.017857142857142856,
+    "invalid": 0.125,
+    "cache_hit_rate": 1.0,
+    "truncated_generations": 0,
+    "foreign_cache_used": 0.0,
+    "seconds": 208.6
+  },
+  "functional_schema": "functional-1",
+  "functional_stats": {
+    "total": 280,
+    "coverage": 0.39285714285714285,
+    "refused": 0.0,
+    "malformed": 0.017857142857142856,
+    "ill_typed": 0.5892857142857143,
+    "truncated_generations": 2,
+    "cache_hit_rate": 1.0,
+    "seconds": 523.5
+  },
+  "wall_seconds": 853.9,
+  "rescored_from": {
+    "summary": "spatial_reasoning/results/wide_1p5b/summary_eval.json",
+    "sha256": {
+      "summary": "aa843d8faadf90bce5fdef70a95f56f7284b31a70bdae654881c3f40f67abcc9",
+      "rows": "3d874a16dfe9c721a0d3d3a61c0ec4f836c1ed208b98f0ba686ccd21d17008ae"
+    },
+    "layout": "nuscenes_qa",
+    "replay_check": "identical to the archive under nuscenes_qa (280 rows, fields: program_status, program_valid, program, executed_answer, execution_status, executed_correct, selected, functional_status, functional_valid, functional_program, functional_answer, functional_execution_status, functional_correct)"
+  },
+  "direct_note": "direct_* fields are the archived answers, unchanged. They were given under prompt direct-1, which states the nuscenes_qa convention; a direct result under this layout needs a new run.",
+  "changed_rows": {
+    "executed": 21,
+    "functional": 9
+  },
+  "summary": {
+    "n": 280,
+    "direct": {
+      "accuracy": 0.5214285714285715,
+      "answered_fraction": 1.0,
+      "accuracy_when_answered": 0.5214285714285715,
+      "statuses": {
+        "ok": 280
+      },
+      "count_errors": {
+        "n_asked": 53,
+        "n_numeric": 53,
+        "numeric_coverage": 1.0,
+        "under": 2.0754716981132075,
+        "over": 0.39622641509433965,
+        "mae": 2.4716981132075473,
+        "n_undercounted": 29,
+        "n_overcounted": 17,
+        "worst": [
+          {
+            "error": 9,
+            "question_id": "q_b85cd69ef1b0"
+          },
+          {
+            "error": 9,
+            "question_id": "q_a5ae5373d389"
+          },
+          {
+            "error": 9,
+            "question_id": "q_505305f0a693"
+          },
+          {
+            "error": 8,
+            "question_id": "q_9d0a867ddc3a"
+          },
+          {
+            "error": 7,
+            "question_id": "q_a0014a578f04"
+          }
+        ]
+      },
+      "input_tokens": 312298,
+      "output_tokens": 593,
+      "seconds": 78.2
+    },
+    "executed": {
+      "accuracy": 0.5214285714285715,
+      "answered_fraction": 0.5964285714285714,
+      "accuracy_when_answered": 0.874251497005988,
+      "program_statuses": {
+        "ok": 240,
+        "invalid": 35,
+        "refused": 5
+      },
+      "execution_statuses": {
+        "ok": 167,
+        "ambiguous": 43,
+        "missing": 30
+      },
+      "count_errors": {
+        "n_asked": 53,
+        "n_numeric": 47,
+        "numeric_coverage": 0.8867924528301887,
+        "under": 0.1276595744680851,
+        "over": 3.765957446808511,
+        "mae": 3.893617021276596,
+        "n_undercounted": 4,
+        "n_overcounted": 4,
+        "worst": [
+          {
+            "error": 62,
+            "question_id": "q_9d0a867ddc3a"
+          },
+          {
+            "error": 47,
+            "question_id": "q_a5ae5373d389"
+          },
+          {
+            "error": 47,
+            "question_id": "q_658309d2edc7"
+          },
+          {
+            "error": 21,
+            "question_id": "q_c8626bd5ca90"
+          },
+          {
+            "error": 2,
+            "question_id": "q_a153d5baec20"
+          }
+        ]
+      },
+      "input_tokens": 315375,
+      "output_tokens": 20729,
+      "seconds": 217.5
+    },
+    "paired": {
+      "both": 79,
+      "direct_only": 67,
+      "executed_only": 67,
+      "neither": 67
+    },
+    "by_family": {
+      "category_anchor_relation": {
+        "n": 31,
+        "direct": 0.3548387096774194,
+        "executed": 0.4838709677419355,
+        "paired": {
+          "both": 3,
+          "direct_only": 8,
+          "executed_only": 12,
+          "neither": 8
+        }
+      },
+      "category_ego_region": {
+        "n": 31,
+        "direct": 0.3870967741935484,
+        "executed": 0.7741935483870968,
+        "paired": {
+          "both": 9,
+          "direct_only": 3,
+          "executed_only": 15,
+          "neither": 4
+        }
+      },
+      "category_status": {
+        "n": 31,
+        "direct": 0.5161290322580645,
+        "executed": 0.8709677419354839,
+        "paired": {
+          "both": 15,
+          "direct_only": 1,
+          "executed_only": 12,
+          "neither": 3
+        }
+      },
+      "compare_attribute": {
+        "n": 31,
+        "direct": 0.5806451612903226,
+        "executed": 0.2903225806451613,
+        "paired": {
+          "both": 9,
+          "direct_only": 9,
+          "executed_only": 0,
+          "neither": 13
+        }
+      },
+      "compare_count": {
+        "n": 31,
+        "direct": 0.6774193548387096,
+        "executed": 0.1935483870967742,
+        "paired": {
+          "both": 5,
+          "direct_only": 16,
+          "executed_only": 1,
+          "neither": 9
+        }
+      },
+      "count_exist_category": {
+        "n": 31,
+        "direct": 0.7419354838709677,
+        "executed": 0.7741935483870968,
+        "paired": {
+          "both": 16,
+          "direct_only": 7,
+          "executed_only": 8,
+          "neither": 0
+        }
+      },
+      "identify_object": {
+        "n": 31,
+        "direct": 0.3870967741935484,
+        "executed": 0.45161290322580644,
+        "paired": {
+          "both": 5,
+          "direct_only": 7,
+          "executed_only": 9,
+          "neither": 10
+        }
+      },
+      "query_status": {
+        "n": 32,
+        "direct": 0.65625,
+        "executed": 0.75,
+        "paired": {
+          "both": 16,
+          "direct_only": 5,
+          "executed_only": 8,
+          "neither": 3
+        }
+      },
+      "same_attribute_set": {
+        "n": 31,
+        "direct": 0.3870967741935484,
+        "executed": 0.0967741935483871,
+        "paired": {
+          "both": 1,
+          "direct_only": 11,
+          "executed_only": 2,
+          "neither": 17
+        }
+      }
+    },
+    "by_scene": {
+      "325cef682f064c55a255f2625c533b75": {
+        "n": 119,
+        "direct": 0.5042016806722689,
+        "executed": 0.4957983193277311,
+        "paired": {
+          "both": 33,
+          "direct_only": 27,
+          "executed_only": 26,
+          "neither": 33
+        }
+      },
+      "de7d80a1f5fb4c3e82ce8a4f213b450a": {
+        "n": 94,
+        "direct": 0.5212765957446809,
+        "executed": 0.5,
+        "paired": {
+          "both": 26,
+          "direct_only": 23,
+          "executed_only": 21,
+          "neither": 24
+        }
+      },
+      "e233467e827140efa4b42d2b4c435855": {
+        "n": 67,
+        "direct": 0.5522388059701493,
+        "executed": 0.5970149253731343,
+        "paired": {
+          "both": 20,
+          "direct_only": 17,
+          "executed_only": 20,
+          "neither": 10
+        }
+      }
+    },
+    "functional": {
+      "accuracy": 0.3142857142857143,
+      "answered_fraction": 0.35,
+      "accuracy_when_answered": 0.8979591836734694,
+      "program_statuses": {
+        "ok": 110,
+        "ill_typed": 165,
+        "malformed": 5
+      },
+      "execution_statuses": {
+        "ok": 98,
+        "missing": 9,
+        "ambiguous": 3
+      },
+      "count_errors": {
+        "n_asked": 53,
+        "n_numeric": 31,
+        "numeric_coverage": 0.5849056603773585,
+        "under": 0.0,
+        "over": 1.6129032258064515,
+        "mae": 1.6129032258064515,
+        "n_undercounted": 0,
+        "n_overcounted": 3,
+        "worst": [
+          {
+            "error": 38,
+            "question_id": "q_19742d37d0dc"
+          },
+          {
+            "error": 10,
+            "question_id": "q_c8626bd5ca90"
+          },
+          {
+            "error": 2,
+            "question_id": "q_23dabad9c16e"
+          },
+          {
+            "error": 0,
+            "question_id": "q_fe5585db7efd"
+          },
+          {
+            "error": 0,
+            "question_id": "q_ef36e1b3175e"
+          }
+        ]
+      },
+      "input_tokens": 546375,
+      "output_tokens": 35995,
+      "seconds": 563.6
+    },
+    "paired_tables": {
+      "direct_vs_executed": {
+        "table": {
+          "both": 79,
+          "direct_only": 67,
+          "executed_only": 67,
+          "neither": 67
+        },
+        "sign_test": 1.0
+      },
+      "direct_vs_functional": {
+        "table": {
+          "both": 46,
+          "direct_only": 100,
+          "functional_only": 42,
+          "neither": 92
+        },
+        "sign_test": 1.2430089403538288e-06
+      },
+      "executed_vs_functional": {
+        "table": {
+          "both": 69,
+          "executed_only": 77,
+          "functional_only": 19,
+          "neither": 115
+        },
+        "sign_test": 1.8621521769948975e-09
+      }
+    },
+    "scene_dependence": {
+      "n_question_groups": 6,
+      "direct_gave_one_answer_to_all": 2,
+      "direct_correct_on_every_scene": 0,
+      "executed_gave_one_answer_to_all": 0,
+      "executed_correct_on_every_scene": 5
+    }
+  }
+}
