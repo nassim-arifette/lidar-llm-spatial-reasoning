@@ -222,5 +222,5 @@ Review the compiled PDF, including tables and references. The source and PDF
 are both deliverables. Generated LaTeX auxiliaries are ignored.
 
 The current PDF was rebuilt from the current source on 27 November 2026 with
-pdfTeX from TeX Live (Debian). It has 14 pages; the final log contains no
+pdfTeX from TeX Live (Debian). It has 15 pages; the final log contains no
 undefined references and no overfull boxes.

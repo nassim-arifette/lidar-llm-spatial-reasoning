@@ -46,7 +46,7 @@ The first comparison (200 questions, three drives of v1.0-mini) told both modes 
 
 The plateau near 84.5 % was the convention mismatch: 28 questions were wrong for all six models under the published layout, 4 as labelled. The last row used to read as parity between the two modes; that model's direct answers were given under the old prompt and its endpoint was not rerun, so neither parity nor a gap is established for it.
 
-Two more conditions, on the same 200 questions. Asking the direct mode to write out its working before a final `Answer:` line gave 34.5 % at 1.5B and 62.5 % at 7B with the corrected prompt, against 76.5 % and 95.0 % for their programs. Decoding programs under a JSON Schema with a closed vocabulary removed every invalid program and moved the 1.5B model from 76.5 % to 80.5 %. All tables: [`spatial_reasoning/results/runs_2026_11/README.md`](spatial_reasoning/results/runs_2026_11/README.md).
+Two more conditions, on the same 200 questions. Asking the direct mode to write out its working before a final `Answer:` line gave 34.5 % at 1.5B and 62.5 % at 7B with the corrected prompt, against 76.5 % and 95.0 % for their programs. A model trained to think behaves differently: Qwen3-8B with thinking on, on the 100 development questions, is right on all 63 it finishes within 4,096 tokens and is cut off on the other 37 (about 2,100 output tokens per question, against a few dozen for a program); its evaluation run was interrupted and is not reported. Decoding programs under a JSON Schema with a closed vocabulary removed every invalid program and moved the 1.5B model from 76.5 % to 80.5 %. All tables: [`spatial_reasoning/results/runs_2026_11/README.md`](spatial_reasoning/results/runs_2026_11/README.md).
 
 ## What you can do on the site
 

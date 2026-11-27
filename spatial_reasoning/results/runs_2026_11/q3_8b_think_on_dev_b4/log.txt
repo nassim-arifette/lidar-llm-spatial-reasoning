@@ -1,0 +1,123 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen3-8B  backend=local  (c33ce37d6d1a)
+objects: min_lidar_points=0, things=named -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 4096)
+
+direct: generating 100 of 100 (0 cached)
+
+Loading weights:   0%|          | 0/399 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/399 [00:02<15:24,  2.32s/it]
+Loading weights:  26%|██▌       | 104/399 [00:02<00:04, 59.21it/s]
+Loading weights:  38%|███▊      | 153/399 [00:02<00:03, 69.93it/s]
+Loading weights:  46%|████▌     | 184/399 [00:03<00:02, 73.44it/s]
+Loading weights:  52%|█████▏    | 206/399 [00:03<00:02, 76.34it/s]
+Loading weights:  56%|█████▌    | 224/399 [00:03<00:02, 82.65it/s]
+Loading weights:  60%|██████    | 240/399 [00:03<00:02, 79.38it/s]
+Loading weights:  63%|██████▎   | 253/399 [00:04<00:01, 81.15it/s]
+Loading weights:  66%|██████▋   | 265/399 [00:04<00:01, 80.85it/s]
+Loading weights:  69%|██████▉   | 276/399 [00:04<00:01, 70.80it/s]
+Loading weights:  71%|███████▏  | 285/399 [00:04<00:02, 56.89it/s]
+Loading weights:  73%|███████▎  | 292/399 [00:04<00:01, 53.82it/s]
+Loading weights:  75%|███████▌  | 301/399 [00:05<00:01, 58.07it/s]
+Loading weights:  77%|███████▋  | 308/399 [00:05<00:01, 57.12it/s]
+Loading weights:  79%|███████▉  | 315/399 [00:05<00:01, 47.01it/s]
+Loading weights:  81%|████████  | 324/399 [00:05<00:01, 54.90it/s]
+Loading weights:  84%|████████▍ | 335/399 [00:05<00:01, 51.14it/s]
+Loading weights:  85%|████████▌ | 341/399 [00:05<00:01, 48.49it/s]
+Loading weights:  87%|████████▋ | 347/399 [00:06<00:01, 39.25it/s]
+Loading weights:  89%|████████▉ | 357/399 [00:06<00:01, 21.35it/s]
+Loading weights: 100%|██████████| 399/399 [00:07<00:00, 56.99it/s]
+  generated 4/100
+  generated 8/100
+  generated 12/100
+  generated 16/100
+  generated 20/100
+  generated 24/100
+  generated 28/100
+  generated 32/100
+  generated 36/100
+  generated 40/100
+  generated 44/100
+  generated 48/100
+  generated 52/100
+  generated 56/100
+  generated 60/100
+  generated 64/100
+  generated 68/100
+  generated 72/100
+  generated 76/100
+  generated 80/100
+  generated 84/100
+  generated 88/100
+  generated 92/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 4/85 unique questions (37s)
+  parsed 8/85 unique questions (78s)
+  parsed 12/85 unique questions (114s)
+  parsed 16/85 unique questions (134s)
+  parsed 20/85 unique questions (154s)
+  parsed 24/85 unique questions (172s)
+  parsed 28/85 unique questions (195s)
+  parsed 32/85 unique questions (215s)
+  parsed 36/85 unique questions (260s)
+  parsed 40/85 unique questions (280s)
+  parsed 44/85 unique questions (302s)
+  parsed 48/85 unique questions (325s)
+  parsed 52/85 unique questions (347s)
+  parsed 56/85 unique questions (369s)
+  parsed 60/85 unique questions (407s)
+  parsed 64/85 unique questions (427s)
+  parsed 68/85 unique questions (456s)
+  parsed 72/85 unique questions (488s)
+  parsed 76/85 unique questions (515s)
+  parsed 80/85 unique questions (538s)
+  parsed 84/85 unique questions (571s)
+  parsed 85/85 unique questions (585s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.630     0.970
+answers                    0.630     0.970
+accuracy when answered     1.000     1.000
+
+counting                  direct  executed
+  numeric coverage         0.486     1.000
+  under                     0.00      0.00
+  over                      0.00      0.00
+  MAE                       0.00      0.00
+  n numeric                   18        37
+
+paired:  both right 61 | direct only 2 | executed only 36 | neither 1
+
+direct statuses   : {'ok': 63, 'truncated': 37}
+program statuses  : {'ok': 98, 'invalid': 2}
+execution statuses: {'ok': 97, 'ambiguous': 1}
+
+cost: direct 128211in/212352out 4125.7s | executed 112095in/36870out 687.6s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.240     0.960
+category_ego_region            25    0.320     1.000
+category_status                25    0.960     1.000
+count_exist_category           25    1.000     0.920
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.733     0.933
+6f83169d067343658251f72e1d     13    0.769     1.000
+bebf5f5b2a674631ab5c88fd1a     13    0.692     1.000
+c5224b9b454b4ded9b5d2d2634     15    0.667     0.933
+cc8c0bf57f984915a77078b10e     18    0.500     1.000
+d25718445d89453381c659b9c8     16    0.562     1.000
+fcbccedd61424f1b85dcbf8f89     10    0.500     0.900
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 2, "direct_correct_on_every_scene": 2, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/q3_8b_think_on_dev_b4/rows_dev.jsonl
+wrote /vol/outputs/q3_8b_think_on_dev_b4/summary_dev.json

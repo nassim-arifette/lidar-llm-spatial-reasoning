@@ -93,6 +93,7 @@ Same weights, prompt `direct-2`, bare answer format; only the chat template's th
 | thinking | split | direct | mean direct output tokens | no readable answer | program | invalid programs |
 |---|---|---:|---:|---:|---:|---:|
 | off | dev | 0.610 | 2 | 0 | 0.990 | 1 |
+| on | dev | 0.630 | 2124 | 37 | 0.970 | 2 |
 | off | eval | 0.580 | 2 | 0 | 0.980 | 1 |
 
 ## Runs read
@@ -118,6 +119,7 @@ Same weights, prompt `direct-2`, bare answer format; only the chat template's th
 - free_wide_1p5b_eval (eval, n=280)
 - q3_8b_think_off_dev_b4 (dev, n=100)
 - q3_8b_think_off_eval (eval, n=200)
+- q3_8b_think_on_dev_b4 (dev, n=100)
 - val_new_1p5b (eval, n=1460)
 - val_new_32b (eval, n=1460)
 - val_new_7b (eval, n=1460)

@@ -89,7 +89,7 @@ Qwen2.5-7B reaches $0.961$ with programs against $0.595$ directly, a
 difference of $+0.366$ with a $95\%$ drive-level bootstrap interval of
 $[+0.337, +0.395]$; Qwen2.5-1.5B reaches $0.747$ against $0.582$ and
 Qwen2.5-32B ($4$-bit) $0.978$ against $0.679$. Asking the direct mode to
-write out its working did not close the gap for the $1.5$B and $7$B models. The rules are inferred from the answers, not read from the generation
+write out its working did not close the gap for the $1.5$B and $7$B models; Qwen3-8B with its thinking mode on is right on every development question it finishes within $4{,}096$ tokens, and finishes $63$ of $100$. The rules are inferred from the answers, not read from the generation
 code, and perception is an oracle throughout. The result concerns these
 question families; it does not show that language models cannot reason about
 space.
@@ -891,21 +891,30 @@ completed when this was written.
 \begin{table}[ht]
 \centering
 \small
-\begin{tabular}{llrrrr}
+\begin{tabular}{llrrrrr}
 \toprule
-Thinking & Split & direct & direct tokens & program & invalid programs \\
+Thinking & Split & direct & direct tokens & no answer & program & invalid programs \\
 \midrule
-off & dev  & 0.610 & 2 & 0.990 & 1 \\
-off & eval & 0.580 & 2 & 0.980 & 1 \\
+off & dev  & 0.610 & 2 & 0 & 0.990 & 1 \\
+on  & dev  & 0.630 & 2{,}124 & 37 & 0.970 & 2 \\
+off & eval & 0.580 & 2 & 0 & 0.980 & 1 \\
 \bottomrule
 \end{tabular}
 \caption{Qwen3-8B on the first comparison, as labelled. ``Direct tokens'' is
-the mean number of output tokens per direct answer.}
+the mean number of output tokens per direct answer, thinking included; ``no
+answer'' counts responses cut off by the budget.}
 \label{tab:qwen3}
 \end{table}
 
 Without thinking, this fourth local checkpoint behaves like the Qwen2.5
-models: $0.580$ directly and $0.980$ with programs on evaluation.
+models: $0.580$ directly and $0.980$ with programs on evaluation. With
+thinking, on development, the direct mode is right on all $63$ questions it
+finishes and runs out of its $4{,}096$ tokens on the other $37$, which count
+as wrong; $31$ of those $37$ are directional questions. So for this
+checkpoint the direct mode's errors with thinking are a matter of budget, at
+about $2{,}100$ output tokens per question against a few dozen for a program,
+and a larger budget might close the gap. The evaluation run with thinking on
+was interrupted before completing and is not reported.
 
 \subsection{The scene-dependence control}
 \label{sec:scene}
@@ -1105,8 +1114,8 @@ of several dozen objects, a task small models are known to be poor at, and
 part of its disadvantage may be context handling and not spatial reasoning.
 The reasoned-direct ablation covers two models, one prompt and one budget.
 The one model that reasons at length by default was not rerun under the
-corrected prompt, and the thinking-switch experiment is designed but not yet
-complete. Perception is an oracle, so the result says nothing about a system
+corrected prompt, and the thinking-switch experiment has its development
+split only, with $37$ of $100$ answers cut off by the budget. Perception is an oracle, so the result says nothing about a system
 that must detect objects first; given Section~\ref{sec:lidar}, such a system
 would also be asked to count objects it cannot see. The first comparison has
 three evaluation drives, and the prompts and layout were developed on
