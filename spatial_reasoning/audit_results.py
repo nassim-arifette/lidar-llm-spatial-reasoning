@@ -61,10 +61,24 @@ def _same(expected, actual, path: str) -> None:
         raise ValueError(f"{path}: saved {expected!r}, recomputed {actual!r}")
 
 
+#: Runs added in November 2026, each with a ``provenance.json`` written by the
+#: Modal runner. Discovered by listing, so a run cannot be added to the tables
+#: without being audited.
+NEW_RUNS_ROOT = "runs_2026_11"
+
+
+def new_runs(results: Path) -> tuple:
+    return tuple(sorted(
+        str(path.relative_to(results)).replace("\\", "/")
+        for path in (results / NEW_RUNS_ROOT).glob("*/summary_*.json")))
+
+
 def audit(root: Path) -> dict:
     results = root / "spatial_reasoning" / "results"
     checked = []
-    for relative in PUBLISHED:
+    added = []
+    fresh = new_runs(results)
+    for relative in PUBLISHED + fresh:
         summary_path = results / relative
         saved = json.loads(summary_path.read_text(encoding="utf-8"))
         split = saved["split"]
@@ -99,7 +113,21 @@ def audit(root: Path) -> dict:
         recomputed = summarise(rows)
         recomputed["scene_dependence"] = scene_dependence(rows)
         _same(saved["summary"], recomputed, f"{relative}.summary")
-        checked.append({
+        provenance = None
+        if relative in fresh:
+            provenance = json.loads(
+                summary_path.with_name("provenance.json").read_text(encoding="utf-8"))
+            if provenance.get("exit_code") != 0 or not provenance.get("commit"):
+                raise ValueError(f"{relative}: provenance missing a commit or a clean exit")
+            if provenance.get("worktree_dirty"):
+                raise ValueError(f"{relative}: run from uncommitted code")
+        (added if relative in fresh else checked).append({
+            **({"commit": provenance["commit"], "gpu": provenance["gpu"],
+                "command": provenance["command"],
+                "prompt_version": saved.get("prompt_version"),
+                "layout": saved.get("layout"), "things": saved.get("things", "named"),
+                "program_decoding": saved.get("program_decoding", "free")}
+               if provenance else {}),
             "summary": str(summary_path.relative_to(root)).replace("\\", "/"),
             "sha256": {"summary": _hash(summary_path), "rows": _hash(rows_path),
                        "manifest": _hash(manifest_path)},
@@ -170,6 +198,7 @@ def audit(root: Path) -> dict:
                    "Hashes attest these files, not historical execution or provider identity.",
                    "Question-level p-values assume independence; only three evaluation scenes exist."],
         "experiments": checked,
+        "runs_2026_11": added,
         "rescored": rescored,
         "rescored_checks": [
             "source hashes match the archive", "model outputs and references unchanged",
@@ -192,6 +221,8 @@ def main(argv=None) -> int:
         args.out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(f"Verified {len(result['experiments'])} complete comparisons "
           f"({sum(e['n'] for e in result['experiments'])} saved rows).")
+    print(f"Verified {len(result['runs_2026_11'])} runs of November 2026 "
+          f"({sum(e['n'] for e in result['runs_2026_11'])} rows), each with provenance.")
     print(f"Verified {len(result['rescored'])} rescored comparisons "
           f"({sum(e['n'] for e in result['rescored'])} rows) against their sources.")
     return 0
