@@ -364,3 +364,27 @@ def test_things_all_keeps_unnamed_classes_and_adds_the_ego(tmp_path):
     assert count(everything["s"], "object", Region("direction", "back")) == "1"
     with pytest.raises(ValueError):
         load_nuscenes_scenes(str(tmp_path), things="everything")
+
+
+# -- the drive as the unit of uncertainty ---------------------------------------- #
+
+def test_drive_bootstrap_is_wider_than_a_question_bootstrap_when_drives_differ():
+    from spatial_reasoning.drive_bootstrap import across, analyse, interval
+
+    # Ten drives, twenty questions each; half the drives are all right, half
+    # all wrong. Questions are perfectly correlated within a drive.
+    rows = [{"question_id": f"q{d}_{i}", "scene_token": f"d{d}",
+             "direct_correct": d % 2 == 0, "executed_correct": True}
+            for d in range(10) for i in range(20)]
+    e = interval(rows, [float(r["direct_correct"]) for r in rows], 2000, 0)
+    assert e["estimate"] == 0.5 and e["n_drives"] == 10 and e["n_questions"] == 200
+    # A question-level interval would be about +-0.07; the drive-level one
+    # has to reflect ten units, not two hundred.
+    assert e["high"] - e["low"] > 0.4
+    result = analyse(rows, 2000, 0)
+    diff = result["paired_difference"]["executed_minus_direct"]
+    assert diff["estimate"] == 0.5
+    assert diff["drives_where_second_is_ahead"] == 5 and diff["drives_tied"] == 5
+    assert across(rows, rows, 500, 0)["direct"]["estimate"] == 0.0
+    with pytest.raises(ValueError):
+        across(rows, rows[:-1], 500, 0)
