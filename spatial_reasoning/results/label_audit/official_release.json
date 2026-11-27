@@ -1,0 +1,86 @@
+{
+  "files": {
+    "NuScenes_train_questions.json": {
+      "sha256": "3b9984148bc8434f88cd16ec6060cec193bcf463469fff14a96d7b4d75df7f71",
+      "n_questions": 376604,
+      "n_samples": 28106,
+      "laterality": {
+        "front left": {
+          "n": 19243,
+          "empty": 4396
+        },
+        "front right": {
+          "n": 5070,
+          "empty": 5070
+        },
+        "back left": {
+          "n": 5137,
+          "empty": 5137
+        },
+        "back right": {
+          "n": 19373,
+          "empty": 4527
+        },
+        "front": {
+          "n": 19345,
+          "empty": 4023
+        },
+        "back": {
+          "n": 19778,
+          "empty": 4018
+        }
+      },
+      "things": {
+        "n": 2080,
+        "answer_equals": {
+          "every annotation": 0,
+          "every annotation + ego": 2080,
+          "ten named classes": 0,
+          "ten named classes + ego": 1610,
+          "annotations with a LiDAR return + ego": 973
+        }
+      }
+    },
+    "NuScenes_val_questions.json": {
+      "sha256": "85cb93a8a170f70c3526f3eb41bc55884fbf5fc2f0d70803b4b7c851f8f79141",
+      "n_questions": 83337,
+      "n_samples": 6011,
+      "laterality": {
+        "front left": {
+          "n": 4156,
+          "empty": 913
+        },
+        "front right": {
+          "n": 1134,
+          "empty": 1134
+        },
+        "back left": {
+          "n": 1051,
+          "empty": 1051
+        },
+        "back right": {
+          "n": 4103,
+          "empty": 980
+        },
+        "front": {
+          "n": 4427,
+          "empty": 895
+        },
+        "back": {
+          "n": 4284,
+          "empty": 907
+        }
+      },
+      "things": {
+        "n": 648,
+        "answer_equals": {
+          "every annotation": 0,
+          "every annotation + ego": 648,
+          "ten named classes": 0,
+          "ten named classes + ego": 495,
+          "annotations with a LiDAR return + ego": 304
+        }
+      }
+    }
+  }
+}

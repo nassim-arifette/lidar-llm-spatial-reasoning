@@ -1,0 +1,224 @@
+dev: 100 examples over 7 scenes
+model: Qwen/Qwen2.5-32B-Instruct  backend=local  (95cf855efeb9)
+objects: min_lidar_points=0 -> 18389 annotations
+layout: nuscenes_qa_as_labelled -> ('front', 'front_left', 'back_left', 'back', 'back_right', 'front_right')
+direct prompt: direct-2 (budget 256)
+
+direct: generating 100 of 100 (0 cached)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 17 files:   0%|          | 0/17 [00:00<?, ?it/s]
+Fetching 17 files:   6%|▌         | 1/17 [01:15<20:14, 75.91s/it]
+Fetching 17 files:  12%|█▏        | 2/17 [01:41<11:34, 46.30s/it]
+Fetching 17 files:  18%|█▊        | 3/17 [01:48<06:35, 28.29s/it]
+Fetching 17 files:  24%|██▎       | 4/17 [01:58<04:33, 21.05s/it]
+Fetching 17 files:  29%|██▉       | 5/17 [02:17<04:03, 20.26s/it]
+Fetching 17 files:  35%|███▌      | 6/17 [02:38<03:46, 20.56s/it]
+Fetching 17 files:  41%|████      | 7/17 [02:50<02:58, 17.87s/it]
+Fetching 17 files:  47%|████▋     | 8/17 [03:08<02:41, 17.94s/it]
+Fetching 17 files:  53%|█████▎    | 9/17 [03:34<02:43, 20.49s/it]
+Fetching 17 files:  59%|█████▉    | 10/17 [03:53<02:19, 19.91s/it]
+Fetching 17 files:  65%|██████▍   | 11/17 [04:09<01:52, 18.82s/it]
+Fetching 17 files:  71%|███████   | 12/17 [04:37<01:47, 21.42s/it]
+Fetching 17 files:  76%|███████▋  | 13/17 [05:01<01:28, 22.24s/it]
+Fetching 17 files:  82%|████████▏ | 14/17 [05:16<01:00, 20.19s/it]
+Fetching 17 files:  88%|████████▊ | 15/17 [05:31<00:37, 18.71s/it]
+Fetching 17 files:  94%|█████████▍| 16/17 [05:37<00:14, 14.68s/it]
+Fetching 17 files: 100%|██████████| 17/17 [05:40<00:00, 11.32s/it]
+Fetching 17 files: 100%|██████████| 17/17 [05:40<00:00, 20.05s/it]
+
+Loading weights:   0%|          | 0/771 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/771 [00:00<05:15,  2.44it/s]
+Loading weights:   0%|          | 2/771 [00:01<07:04,  1.81it/s]
+Loading weights:   1%|          | 4/771 [00:01<03:12,  3.99it/s]
+Loading weights:   2%|▏         | 16/771 [00:01<00:36, 20.69it/s]
+Loading weights:   4%|▎         | 28/771 [00:01<00:21, 34.19it/s]
+Loading weights:   4%|▍         | 34/771 [00:01<00:23, 31.79it/s]
+Loading weights:   5%|▌         | 41/771 [00:01<00:20, 36.02it/s]
+Loading weights:   6%|▌         | 46/771 [00:01<00:19, 36.28it/s]
+Loading weights:   7%|▋         | 53/771 [00:02<00:20, 35.75it/s]
+Loading weights:   8%|▊         | 58/771 [00:02<00:20, 34.53it/s]
+Loading weights:   8%|▊         | 64/771 [00:02<00:21, 33.05it/s]
+Loading weights:   9%|▉         | 68/771 [00:02<00:24, 28.32it/s]
+Loading weights:  10%|▉         | 76/771 [00:02<00:20, 33.18it/s]
+Loading weights:  10%|█         | 80/771 [00:03<00:25, 27.13it/s]
+Loading weights:  11%|█▏        | 88/771 [00:03<00:21, 32.09it/s]
+Loading weights:  12%|█▏        | 92/771 [00:03<00:25, 27.06it/s]
+Loading weights:  13%|█▎        | 100/771 [00:03<00:21, 31.28it/s]
+Loading weights:  14%|█▎        | 105/771 [00:03<00:19, 34.14it/s]
+Loading weights:  15%|█▍        | 112/771 [00:04<00:19, 33.06it/s]
+Loading weights:  15%|█▌        | 116/771 [00:04<00:25, 25.72it/s]
+Loading weights:  16%|█▌        | 124/771 [00:04<00:21, 29.74it/s]
+Loading weights:  17%|█▋        | 128/771 [00:04<00:27, 23.23it/s]
+Loading weights:  18%|█▊        | 136/771 [00:05<00:20, 31.01it/s]
+Loading weights:  18%|█▊        | 140/771 [00:05<00:26, 24.08it/s]
+Loading weights:  19%|█▉        | 148/771 [00:05<00:19, 31.80it/s]
+Loading weights:  20%|█▉        | 153/771 [00:05<00:20, 30.03it/s]
+Loading weights:  21%|██        | 161/771 [00:05<00:16, 36.57it/s]
+Loading weights:  22%|██▏       | 166/771 [00:05<00:17, 35.32it/s]
+Loading weights:  22%|██▏       | 172/771 [00:06<00:15, 39.72it/s]
+Loading weights:  23%|██▎       | 177/771 [00:06<00:19, 30.51it/s]
+Loading weights:  24%|██▍       | 184/771 [00:06<00:18, 31.53it/s]
+Loading weights:  24%|██▍       | 188/771 [00:06<00:21, 26.83it/s]
+Loading weights:  26%|██▌       | 198/771 [00:06<00:17, 33.12it/s]
+Loading weights:  27%|██▋       | 208/771 [00:07<00:12, 44.34it/s]
+Loading weights:  29%|██▊       | 220/771 [00:07<00:10, 53.33it/s]
+Loading weights:  29%|██▉       | 227/771 [00:07<00:12, 43.88it/s]
+Loading weights:  30%|███       | 233/771 [00:07<00:12, 41.58it/s]
+Loading weights:  32%|███▏      | 244/771 [00:07<00:10, 49.92it/s]
+Loading weights:  32%|███▏      | 250/771 [00:07<00:12, 43.41it/s]
+Loading weights:  33%|███▎      | 258/771 [00:08<00:10, 49.25it/s]
+Loading weights:  35%|███▍      | 268/771 [00:08<00:09, 52.88it/s]
+Loading weights:  36%|███▌      | 274/771 [00:08<00:11, 43.85it/s]
+Loading weights:  36%|███▋      | 281/771 [00:08<00:10, 44.91it/s]
+Loading weights:  38%|███▊      | 293/771 [00:08<00:09, 48.08it/s]
+Loading weights:  39%|███▊      | 298/771 [00:08<00:10, 43.71it/s]
+Loading weights:  39%|███▉      | 304/771 [00:09<00:11, 42.20it/s]
+Loading weights:  40%|████      | 309/771 [00:09<00:14, 31.47it/s]
+Loading weights:  41%|████      | 317/771 [00:09<00:12, 35.09it/s]
+Loading weights:  42%|████▏     | 322/771 [00:09<00:12, 36.95it/s]
+Loading weights:  43%|████▎     | 328/771 [00:09<00:10, 41.47it/s]
+Loading weights:  43%|████▎     | 333/771 [00:09<00:10, 40.63it/s]
+Loading weights:  44%|████▍     | 341/771 [00:10<00:09, 47.70it/s]
+Loading weights:  46%|████▌     | 352/771 [00:10<00:06, 59.96it/s]
+Loading weights:  47%|████▋     | 359/771 [00:10<00:06, 61.51it/s]
+Loading weights:  47%|████▋     | 366/771 [00:10<00:09, 42.32it/s]
+Loading weights:  49%|████▉     | 376/771 [00:10<00:08, 46.28it/s]
+Loading weights:  50%|████▉     | 382/771 [00:11<00:11, 34.38it/s]
+Loading weights:  50%|█████     | 388/771 [00:11<00:11, 34.22it/s]
+Loading weights:  51%|█████     | 393/771 [00:11<00:10, 35.58it/s]
+Loading weights:  52%|█████▏    | 401/771 [00:11<00:08, 42.60it/s]
+Loading weights:  53%|█████▎    | 412/771 [00:11<00:06, 53.57it/s]
+Loading weights:  55%|█████▍    | 422/771 [00:11<00:05, 63.51it/s]
+Loading weights:  56%|█████▌    | 430/771 [00:11<00:05, 60.60it/s]
+Loading weights:  57%|█████▋    | 438/771 [00:12<00:05, 59.57it/s]
+Loading weights:  58%|█████▊    | 449/771 [00:12<00:04, 67.88it/s]
+Loading weights:  60%|█████▉    | 460/771 [00:12<00:04, 72.10it/s]
+Loading weights:  61%|██████    | 468/771 [00:12<00:04, 70.94it/s]
+Loading weights:  62%|██████▏   | 476/771 [00:12<00:04, 64.79it/s]
+Loading weights:  63%|██████▎   | 485/771 [00:12<00:04, 70.64it/s]
+Loading weights:  64%|██████▍   | 496/771 [00:12<00:03, 79.57it/s]
+Loading weights:  65%|██████▌   | 505/771 [00:12<00:03, 81.99it/s]
+Loading weights:  67%|██████▋   | 514/771 [00:13<00:03, 71.38it/s]
+Loading weights:  68%|██████▊   | 522/771 [00:13<00:03, 64.52it/s]
+Loading weights:  69%|██████▉   | 533/771 [00:13<00:03, 68.75it/s]
+Loading weights:  71%|███████   | 544/771 [00:13<00:02, 75.85it/s]
+Loading weights:  72%|███████▏  | 552/771 [00:13<00:03, 71.64it/s]
+Loading weights:  73%|███████▎  | 560/771 [00:13<00:03, 63.96it/s]
+Loading weights:  74%|███████▍  | 569/771 [00:13<00:03, 65.42it/s]
+Loading weights:  75%|███████▌  | 580/771 [00:14<00:02, 71.03it/s]
+Loading weights:  76%|███████▋  | 588/771 [00:14<00:02, 68.74it/s]
+Loading weights:  77%|███████▋  | 595/771 [00:14<00:02, 60.46it/s]
+Loading weights:  78%|███████▊  | 605/771 [00:14<00:02, 64.81it/s]
+Loading weights:  80%|███████▉  | 616/771 [00:14<00:02, 70.94it/s]
+Loading weights:  81%|████████  | 624/771 [00:14<00:02, 68.42it/s]
+Loading weights:  82%|████████▏ | 631/771 [00:14<00:02, 59.96it/s]
+Loading weights:  83%|████████▎ | 641/771 [00:14<00:02, 63.28it/s]
+Loading weights:  85%|████████▍ | 652/771 [00:15<00:01, 69.05it/s]
+Loading weights:  86%|████████▌ | 660/771 [00:15<00:01, 67.65it/s]
+Loading weights:  87%|████████▋ | 667/771 [00:15<00:01, 63.51it/s]
+Loading weights:  88%|████████▊ | 677/771 [00:15<00:01, 66.70it/s]
+Loading weights:  89%|████████▉ | 688/771 [00:15<00:01, 72.12it/s]
+Loading weights:  90%|█████████ | 696/771 [00:15<00:01, 69.60it/s]
+Loading weights:  91%|█████████ | 703/771 [00:15<00:01, 59.69it/s]
+Loading weights:  92%|█████████▏| 713/771 [00:16<00:00, 65.89it/s]
+Loading weights:  94%|█████████▍| 724/771 [00:16<00:00, 75.24it/s]
+Loading weights:  95%|█████████▍| 732/771 [00:16<00:00, 74.92it/s]
+Loading weights:  96%|█████████▌| 740/771 [00:16<00:00, 69.04it/s]
+Loading weights:  97%|█████████▋| 749/771 [00:16<00:00, 72.79it/s]
+Loading weights:  99%|█████████▊| 760/771 [00:16<00:00, 81.01it/s]
+Loading weights: 100%|█████████▉| 769/771 [00:16<00:00, 75.90it/s]
+Loading weights: 100%|██████████| 771/771 [00:16<00:00, 46.02it/s]
+  generated 4/100
+  generated 8/100
+  generated 12/100
+  generated 16/100
+  generated 20/100
+  generated 24/100
+  generated 28/100
+  generated 32/100
+  generated 36/100
+  generated 40/100
+  generated 44/100
+  generated 48/100
+  generated 52/100
+  generated 56/100
+  generated 60/100
+  generated 64/100
+  generated 68/100
+  generated 72/100
+  generated 76/100
+  generated 80/100
+  generated 84/100
+  generated 88/100
+  generated 92/100
+  generated 96/100
+  generated 100/100
+executed: generating programs for 100 questions
+  parsed 4/85 unique questions (7s)
+  parsed 8/85 unique questions (14s)
+  parsed 12/85 unique questions (22s)
+  parsed 16/85 unique questions (32s)
+  parsed 20/85 unique questions (42s)
+  parsed 24/85 unique questions (49s)
+  parsed 28/85 unique questions (59s)
+  parsed 32/85 unique questions (69s)
+  parsed 36/85 unique questions (80s)
+  parsed 40/85 unique questions (89s)
+  parsed 44/85 unique questions (99s)
+  parsed 48/85 unique questions (107s)
+  parsed 52/85 unique questions (114s)
+  parsed 56/85 unique questions (125s)
+  parsed 60/85 unique questions (134s)
+  parsed 64/85 unique questions (145s)
+  parsed 68/85 unique questions (155s)
+  parsed 72/85 unique questions (165s)
+  parsed 76/85 unique questions (175s)
+  parsed 80/85 unique questions (186s)
+  parsed 84/85 unique questions (193s)
+  parsed 85/85 unique questions (198s)
+executed: executing 100 programs
+  executed 50/100
+  executed 100/100
+
+n = 100
+
+                          direct  executed
+accuracy (all)             0.600     0.990
+answers                    1.000     0.990
+accuracy when answered     0.600     1.000
+
+counting                  direct  executed
+  numeric coverage         1.000     1.000
+  under                     1.03      0.00
+  over                      1.22      0.00
+  MAE                       2.24      0.00
+  n numeric                   37        37
+
+paired:  both right 59 | direct only 1 | executed only 40 | neither 0
+
+direct statuses   : {'ok': 100}
+program statuses  : {'ok': 100}
+execution statuses: {'ok': 99, 'ambiguous': 1}
+
+cost: direct 128211in/205out 102.7s | executed 112095in/5704out 229.6s
+
+family                          n   direct  executed
+category_anchor_relation       25    0.440     0.960
+category_ego_region            25    0.400     1.000
+category_status                25    0.640     1.000
+count_exist_category           25    0.920     1.000
+
+scene                           n   direct  executed
+2fc3753772e241f2ab2cd16a78     15    0.600     1.000
+6f83169d067343658251f72e1d     13    0.462     1.000
+bebf5f5b2a674631ab5c88fd1a     13    0.692     1.000
+c5224b9b454b4ded9b5d2d2634     15    0.600     1.000
+cc8c0bf57f984915a77078b10e     18    0.556     1.000
+d25718445d89453381c659b9c8     16    0.625     1.000
+fcbccedd61424f1b85dcbf8f89     10    0.700     0.900
+
+scene-dependence control: {"n_question_groups": 5, "direct_gave_one_answer_to_all": 2, "direct_correct_on_every_scene": 0, "executed_gave_one_answer_to_all": 0, "executed_correct_on_every_scene": 5}
+
+wrote /vol/outputs/d2_bare_32b_dev/rows_dev.jsonl
+wrote /vol/outputs/d2_bare_32b_dev/summary_dev.json

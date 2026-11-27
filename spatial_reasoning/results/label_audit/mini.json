@@ -1,0 +1,45 @@
+{
+  "files": {
+    "nuscenes_qa_mini.json": {
+      "sha256": "14820b2fb9a43831443cebae359b41bf9f760f4b743408f81194e7e5f6fad14c",
+      "n_questions": 3068,
+      "n_samples": 276,
+      "laterality": {
+        "front left": {
+          "n": 138,
+          "empty": 30
+        },
+        "front right": {
+          "n": 37,
+          "empty": 37
+        },
+        "back left": {
+          "n": 41,
+          "empty": 41
+        },
+        "back right": {
+          "n": 170,
+          "empty": 40
+        },
+        "front": {
+          "n": 116,
+          "empty": 30
+        },
+        "back": {
+          "n": 109,
+          "empty": 27
+        }
+      },
+      "things": {
+        "n": 1,
+        "answer_equals": {
+          "every annotation": 0,
+          "every annotation + ego": 1,
+          "ten named classes": 0,
+          "ten named classes + ego": 1,
+          "annotations with a LiDAR return + ego": 0
+        }
+      }
+    }
+  }
+}
