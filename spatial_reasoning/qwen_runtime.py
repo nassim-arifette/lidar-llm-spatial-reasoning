@@ -65,13 +65,21 @@ class RuntimeConfig:
     #: Shard across devices and offload instead of calling ``.to(device)``.
     #: Required for anything that does not fit in one allocation.
     device_map: Optional[str] = None
+    #: For chat templates with a thinking switch (Qwen3). ``None`` leaves the
+    #: template's default and is omitted from the fingerprint, so runs on
+    #: models without the switch keep the identity they always had.
+    enable_thinking: Optional[bool] = None
 
     def fingerprint(self) -> Dict[str, object]:
-        return {"model": self.model_name,
-                "max_new_tokens": self.max_new_tokens,
-                "max_input_tokens": self.max_input_tokens,
-                "precision": self.precision,
-                "decoding": self.decoding}
+        out: Dict[str, object] = {
+            "model": self.model_name,
+            "max_new_tokens": self.max_new_tokens,
+            "max_input_tokens": self.max_input_tokens,
+            "precision": self.precision,
+            "decoding": self.decoding}
+        if self.enable_thinking is not None:
+            out["enable_thinking"] = self.enable_thinking
+        return out
 
     def identity(self) -> str:
         blob = json.dumps(self.fingerprint(), sort_keys=True)
@@ -83,6 +91,10 @@ class Generation:
     """One model output, with the facts needed to trust or distrust it."""
 
     text: str
+    #: Content of a ``<think>`` block, when the model emitted one. It is kept
+    #: out of ``text`` so no reader mistakes working for the answer, and its
+    #: tokens are still counted in ``output_tokens``.
+    thinking: str = ""
     input_tokens: int = 0
     output_tokens: int = 0
     truncated_input: bool = False
@@ -96,6 +108,20 @@ class Generation:
 
     def to_dict(self) -> Dict[str, object]:
         return asdict(self)
+
+
+def split_thinking(text: str):
+    """Separate a ``<think>...</think>`` block from the answer that follows.
+
+    An unterminated block (the budget ran out while thinking) leaves no answer
+    at all, which is what happened and is what gets scored.
+    """
+    if "</think>" in text:
+        thinking, _, rest = text.rpartition("</think>")
+        return rest.strip(), thinking.replace("<think>", "").strip()
+    if "<think>" in text:
+        return "", text.replace("<think>", "").strip()
+    return text, ""
 
 
 class QwenRuntime:
@@ -182,26 +208,35 @@ class QwenRuntime:
         self.ensure_loaded()
         return str(self._device)
 
+    def _template(self, messages: Sequence[Dict[str, str]]) -> str:
+        extra = ({} if self.config.enable_thinking is None
+                 else {"enable_thinking": self.config.enable_thinking})
+        return self._tokenizer.apply_chat_template(
+            list(messages), tokenize=False, add_generation_prompt=True, **extra)
+
     def count_tokens(self, messages: Sequence[Dict[str, str]]) -> int:
         self.ensure_loaded()
-        text = self._tokenizer.apply_chat_template(
-            list(messages), tokenize=False, add_generation_prompt=True)
-        return len(self._tokenizer(text)["input_ids"])
+        return len(self._tokenizer(self._template(messages))["input_ids"])
 
     # -- generation ------------------------------------------------------- #
 
     def generate(
-        self, conversations: Sequence[Sequence[Dict[str, str]]]
+        self, conversations: Sequence[Sequence[Dict[str, str]]],
+        max_new_tokens: Optional[int] = None,
+        prefix_allowed_tokens_fn=None,
     ) -> List[Generation]:
-        """Run one batch of chat conversations and return their completions."""
+        """Run one batch of chat conversations and return their completions.
+
+        ``max_new_tokens`` overrides the configured budget for this call; the
+        caller is then responsible for recording it. ``prefix_allowed_tokens_fn``
+        constrains decoding (see ``constrained.py``) and is likewise the
+        caller's to record: a constrained run is a separate condition.
+        """
         import torch
 
         self.ensure_loaded()
-        prompts = [
-            self._tokenizer.apply_chat_template(
-                list(messages), tokenize=False, add_generation_prompt=True)
-            for messages in conversations
-        ]
+        budget = max_new_tokens or self.config.max_new_tokens
+        prompts = [self._template(messages) for messages in conversations]
 
         lengths = [len(self._tokenizer(p)["input_ids"]) for p in prompts]
         overlong = [i for i, n in enumerate(lengths)
@@ -229,9 +264,11 @@ class QwenRuntime:
         with torch.no_grad():
             out = self._model.generate(
                 **batch,
-                max_new_tokens=self.config.max_new_tokens,
+                max_new_tokens=budget,
                 do_sample=False,               # greedy: the run is reproducible
                 pad_token_id=self._tokenizer.pad_token_id,
+                **({"prefix_allowed_tokens_fn": prefix_allowed_tokens_fn}
+                   if prefix_allowed_tokens_fn is not None else {}),
             )
         elapsed = time.perf_counter() - start
 
@@ -256,15 +293,17 @@ class QwenRuntime:
             row = generated[i].tolist()
             produced = [t for t in row if t != self._tokenizer.pad_token_id]
             stopped_on_eos = any(t in eos_ids for t in row)
+            text, thinking = split_thinking(text)
             results.append(Generation(
                 text=text,
+                thinking=thinking,
                 input_tokens=lengths[i],
                 output_tokens=len(produced),
                 truncated_input=lengths[i] > self.config.max_input_tokens,
                 # Nothing was emitted to end the sequence and the budget is
                 # spent: the output is cut off, whatever it looks like.
                 hit_token_budget=(not stopped_on_eos
-                                  and len(produced) >= self.config.max_new_tokens),
+                                  and len(produced) >= budget),
                 seconds=per_item,
             ))
         return results
@@ -272,12 +311,16 @@ class QwenRuntime:
     def generate_all(
         self, conversations: Sequence[Sequence[Dict[str, str]]],
         verbose: bool = False,
+        max_new_tokens: Optional[int] = None,
+        prefix_allowed_tokens_fn=None,
     ) -> List[Generation]:
         """Batched :meth:`generate` over an arbitrary number of conversations."""
         out: List[Generation] = []
         size = max(self.config.batch_size, 1)
         for start in range(0, len(conversations), size):
-            out.extend(self.generate(conversations[start:start + size]))
+            out.extend(self.generate(
+                conversations[start:start + size], max_new_tokens=max_new_tokens,
+                prefix_allowed_tokens_fn=prefix_allowed_tokens_fn))
             if verbose:
                 print(f"  generated {len(out)}/{len(conversations)}", flush=True)
         return out

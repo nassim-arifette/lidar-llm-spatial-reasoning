@@ -64,7 +64,56 @@ SECTOR_LAYOUTS: Dict[str, Dict[str, Tuple[float, float]]] = {
         "back_right":  (-150.0, -90.0),
         "front_right": (-90.0, -30.0),
     },
+    # Same six names and intervals as ``nuscenes_qa``; what differs is the
+    # angle fed to them (see UNSIGNED_LAYOUTS). Keeping the names identical
+    # means a program written under one layout is valid under the other, so
+    # archived programs can be re-executed without regenerating them.
+    "nuscenes_qa_as_labelled": {
+        "front":       (-30.0, 30.0),
+        "front_left":  (30.0, 90.0),
+        "back_left":   (90.0, 150.0),
+        "back":        (150.0, -150.0),
+        "back_right":  (-150.0, -90.0),
+        "front_right": (-90.0, -30.0),
+    },
 }
+
+#: Layouts whose bearing is folded to an **unsigned** angle before the sector
+#: test. ``nuscenes_qa`` is the definition as published; the released answers
+#: do not follow it. They behave as if the angle between the ego heading and
+#: the direction to the object were taken without its sign (an ``arccos``):
+#: with ``a = |bearing|`` in [0, 180],
+#:
+#: ========== ==========================================
+#: relation    true in the released labels when
+#: ========== ==========================================
+#: front       a <= 30
+#: front left  30 < a <= 90, on **either** side
+#: front right never
+#: back right  90 < a <= 150, on **either** side
+#: back left   never
+#: back        a > 150
+#: ========== ==========================================
+#:
+#: This was inferred from the answers, not read from the generation code. It
+#: is a description of the labels, kept as a separate layout so that the
+#: published convention stays available and every result names which one
+#: scored it.
+UNSIGNED_LAYOUTS = frozenset({"nuscenes_qa_as_labelled"})
+
+
+def fold_bearing(theta: float, layout: str) -> float:
+    """The angle a layout actually tests, from a signed bearing in degrees.
+
+    Signed layouts use ``theta`` unchanged. An unsigned layout maps it to
+    ``a = |theta|`` when ``a <= 90`` and to ``-a`` otherwise, which sends both
+    front diagonals to ``front_left``'s interval and both rear diagonals to
+    ``back_right``'s, and leaves ``front_right`` and ``back_left`` empty.
+    """
+    if layout not in UNSIGNED_LAYOUTS:
+        return theta
+    a = abs(theta)
+    return a if a <= 90.0 else -a
 
 DEFAULT_LAYOUT = "octant"
 
@@ -110,8 +159,11 @@ class RegionConfig:
 
 DEFAULT_REGION_CONFIG = RegionConfig()
 
-#: Config to use for anything evaluated against nuScenes-QA.
+#: The nuScenes-QA convention as published (signed 60-degree sectors).
 NUSCENES_QA_REGION_CONFIG = RegionConfig(layout="nuscenes_qa")
+
+#: The convention the released nuScenes-QA answers actually follow.
+NUSCENES_QA_AS_LABELLED_REGION_CONFIG = RegionConfig(layout="nuscenes_qa_as_labelled")
 
 
 # --------------------------------------------------------------------------- #
@@ -178,6 +230,7 @@ def in_direction(
         return False
 
     theta = _normalise_degrees(math.degrees(math.atan2(dy, dx) - reference_yaw))
+    theta = fold_bearing(theta, config.layout)
     low, high = sectors[name]
     return _in_interval(theta, low, high)
 
@@ -337,7 +390,8 @@ def direction_of(
     """
     if obj.range_xy < config.min_range:
         return None
-    theta = _normalise_degrees(math.degrees(obj.bearing))
+    theta = fold_bearing(_normalise_degrees(math.degrees(obj.bearing)),
+                         config.layout)
     for name, (low, high) in config.sectors.items():
         if _in_interval(theta, low, high):
             return name
@@ -374,6 +428,10 @@ def sample_position_in_direction(
             f"direction {direction!r} does not exist in layout {config.layout!r}; "
             f"available: {sorted(config.sectors)}"
         )
+    if config.layout in UNSIGNED_LAYOUTS and name in ("front_right", "back_left"):
+        raise ValueError(
+            f"relation {name!r} is empty under layout {config.layout!r}: "
+            "no position satisfies it")
     low, _ = config.sectors[name]
     span = sector_span(name, config)
     margin = margin_fraction * span

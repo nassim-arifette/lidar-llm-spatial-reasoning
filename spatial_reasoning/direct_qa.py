@@ -41,15 +41,44 @@ from typing import Dict, List, Optional, Sequence, Tuple
 from .manifest import ManifestItem, describe_objects, scene_fingerprint
 from .objects import Scene
 from .qwen_runtime import Generation, QwenRuntime, RuntimeConfig
-from .regions import RegionConfig
+from .regions import UNSIGNED_LAYOUTS, RegionConfig
 
-#: Bumped whenever the wording below changes, and recorded with every answer.
-#: Two runs under different prompts are two experiments.
+#: The prompt of the archived runs: the signed sectors, bare answer. Kept as
+#: the default so that archived rows and caches keep meaning what they meant.
+#: Two runs under different prompts are two experiments; :func:`prompt_version`
+#: names the one a given configuration produces.
 PROMPT_VERSION = "direct-1"
 
+#: ``bare``     -- answer alone, working forbidden (the archived condition).
+#: ``reasoned`` -- working allowed, then one final ``Answer: ...`` line.
+STYLES = ("bare", "reasoned")
 
-def build_system_prompt(config: RegionConfig) -> str:
-    """The conventions, stated exactly as the executor implements them."""
+
+def prompt_version(config: RegionConfig, style: str = "bare") -> str:
+    """Name of the prompt a (layout, style) pair produces.
+
+    ``direct-1`` states the published signed sectors; ``direct-2`` states the
+    convention the released labels follow. The ``r`` suffix marks the variant
+    that lets the model show its working.
+    """
+    if style not in STYLES:
+        raise ValueError(f"unknown direct style {style!r}; known: {STYLES}")
+    base = "direct-2" if config.layout in UNSIGNED_LAYOUTS else PROMPT_VERSION
+    return base + ("r" if style == "reasoned" else "")
+
+
+def _convention(config: RegionConfig) -> str:
+    """The spatial convention in prose, exactly as the executor computes it."""
+    if config.layout in UNSIGNED_LAYOUTS:
+        return """The spatial relations use the UNSIGNED angle a between straight ahead and the
+direction to the object: a is the absolute value of the bearing, from 0 to 180
+degrees. Left and right are therefore NOT distinguished, whatever the name of
+the relation suggests: front = a in [0, 30] degrees; front left = a in
+(30, 90] degrees, on EITHER side of the vehicle; back right = a in (90, 150]
+degrees, on EITHER side; back = a in (150, 180] degrees; front right and back
+left never contain any object.
+"To the <relation> of object Z" means the same test with the angle measured
+from Z's position instead of the origin, keeping the ego vehicle's heading."""
     # The rear sector wraps through 180, and printing it as "(150, -150]" reads
     # as an empty interval. Unwrapping it keeps the prose a correct statement
     # of what the executor computes, which is the whole point of giving the
@@ -59,29 +88,50 @@ def build_system_prompt(config: RegionConfig) -> str:
         f"{name.replace('_', ' ')} = bearing in "
         f"({low:g}, {high if high > low else high + 360:g}] degrees"
         for name, (low, high) in sorted(sectors.items(), key=lambda kv: kv[1][0]))
+    return f"""The spatial relations are bearing sectors around the ego vehicle: {lines}.
+"To the <relation> of object Z" means the same sectors measured from Z's
+position instead of the origin, keeping the ego vehicle's heading."""
+
+
+_BARE_FORMAT = """Answer with the answer alone and nothing else:
+- a bare integer for a question that asks how many;
+- yes or no for a question that asks whether something exists;
+- an object class or a status, in lower case, for anything else.
+Do not explain. Do not restate the question. Do not show your working."""
+
+_REASONED_FORMAT = """You may work through the question step by step before answering: select the
+objects the question is about, apply the definitions above, and count.
+Then finish with one final line of exactly this form:
+Answer: <answer>
+where <answer> is
+- a bare integer for a question that asks how many;
+- yes or no for a question that asks whether something exists;
+- an object class or a status, in lower case, for anything else.
+Only that final line is read."""
+
+
+def build_system_prompt(config: RegionConfig, style: str = "bare") -> str:
+    """The conventions, stated exactly as the executor implements them."""
+    if style not in STYLES:
+        raise ValueError(f"unknown direct style {style!r}; known: {STYLES}")
     return f"""You answer questions about a 3D driving scene from a list of objects.
 
 Coordinate frame: the ego vehicle is at the origin. x points forward, y points
 left, both in metres. A bearing of 0 degrees is straight ahead and bearings
 increase to the left.
 
-The spatial relations are bearing sectors around the ego vehicle: {lines}.
-"To the <relation> of object Z" means the same sectors measured from Z's
-position instead of the origin, keeping the ego vehicle's heading.
+{_convention(config)}
 
 An object's status is one of moving, parked, stopped, standing, sitting lying
 down, with rider, without rider, or unknown. An unknown status is not a
 different status: an object whose status is unknown is neither "parked" nor
 "not parked", so it must not be counted under either.
 
-Answer with the answer alone and nothing else:
-- a bare integer for a question that asks how many;
-- yes or no for a question that asks whether something exists;
-- an object class or a status, in lower case, for anything else.
-Do not explain. Do not restate the question. Do not show your working."""
+{_REASONED_FORMAT if style == "reasoned" else _BARE_FORMAT}"""
 
 
-def build_user_prompt(question: str, objects: Sequence[Dict[str, object]]) -> str:
+def build_user_prompt(question: str, objects: Sequence[Dict[str, object]],
+                      style: str = "bare") -> str:
     """The scene and the question, in a fixed order that ignores the question.
 
     The object rows are emitted in the order the adapter produced them, which
@@ -93,15 +143,19 @@ def build_user_prompt(question: str, objects: Sequence[Dict[str, object]]) -> st
     rows = "\n".join(
         f"{o['id']}, {o['category']}, {o['x']}, {o['y']}, {o['status']}"
         for o in objects)
+    # The bare prompt ends on "Answer:" so the next token is the answer. The
+    # reasoned one must not: it would invite the answer before the working.
+    tail = "" if style == "reasoned" else "\n\nAnswer:"
     return (f"Objects ({len(objects)}):\n{header}\n{rows}\n\n"
-            f"Question:\n{question}\n\nAnswer:")
+            f"Question:\n{question}{tail}")
 
 
 def build_messages(
-    question: str, objects: Sequence[Dict[str, object]], config: RegionConfig
+    question: str, objects: Sequence[Dict[str, object]], config: RegionConfig,
+    style: str = "bare",
 ) -> List[Dict[str, str]]:
-    return [{"role": "system", "content": build_system_prompt(config)},
-            {"role": "user", "content": build_user_prompt(question, objects)}]
+    return [{"role": "system", "content": build_system_prompt(config, style)},
+            {"role": "user", "content": build_user_prompt(question, objects, style)}]
 
 
 # --------------------------------------------------------------------------- #
@@ -179,6 +233,31 @@ def normalise_answer(raw: str, expects_count: bool) -> Tuple[Optional[str], str]
     return None, "unparseable"
 
 
+_ANSWER_LINE = re.compile(r"^\W*answer\s*:\s*(.*?)\s*$", re.IGNORECASE)
+
+
+def final_answer_line(raw: str) -> Optional[str]:
+    """The content of the last ``Answer: ...`` line, or ``None``.
+
+    The last one, because working may mention "answer:" on the way. A response
+    with no such line is unreadable: digging a number out of the working would
+    be answering on the model's behalf.
+    """
+    for line in reversed((raw or "").splitlines()):
+        match = _ANSWER_LINE.match(line.strip().strip("*`").strip())
+        if match:
+            return match.group(1).strip().strip("*`").strip()
+    return None
+
+
+def normalise_reasoned(raw: str, expects_count: bool) -> Tuple[Optional[str], str]:
+    """Read a reasoned response: only its final ``Answer:`` line counts."""
+    line = final_answer_line(raw)
+    if not line:
+        return None, "unparseable"
+    return normalise_answer(line, expects_count)
+
+
 def asks_for_a_count(question: str) -> bool:
     """Whether the question wants a number, read from the question only.
 
@@ -204,9 +283,17 @@ class DirectQwenQA:
         region_config: Optional[RegionConfig] = None,
         cache_path: Optional[str] = None,
         coordinate_precision: int = 1,
+        style: str = "bare",
+        max_new_tokens: Optional[int] = None,
     ) -> None:
         self.runtime = runtime or QwenRuntime(RuntimeConfig())
         self.region_config = region_config or RegionConfig(layout="nuscenes_qa")
+        self.style = style
+        self.prompt_version = prompt_version(self.region_config, style)
+        #: Output budget for this mode alone. ``None`` uses the runtime's, as
+        #: the archived runs did. A reasoned answer needs room the program
+        #: modes do not, and the value is chosen on the development split.
+        self.max_new_tokens = max_new_tokens
         self.coordinate_precision = coordinate_precision
         self.cache_path = cache_path
         self._cache: Dict[str, Dict[str, object]] = {}
@@ -224,14 +311,17 @@ class DirectQwenQA:
         which is precisely the control the comparison uses to show a system
         looks at the scene at all.
         """
-        return json.dumps({
+        key = {
             "q": question,
             "scene": scene_fingerprint(scene),
-            "prompt": PROMPT_VERSION,
+            "prompt": self.prompt_version,
             "layout": self.region_config.layout,
             "precision": self.coordinate_precision,
             "runtime": self.runtime.config.identity(),
-        }, sort_keys=True)
+        }
+        if self.max_new_tokens is not None:
+            key["max_new_tokens"] = self.max_new_tokens
+        return json.dumps(key, sort_keys=True)
 
     def _load_cache(self) -> None:
         if not self.cache_path:
@@ -249,7 +339,7 @@ class DirectQwenQA:
         os.makedirs(os.path.dirname(os.path.abspath(self.cache_path)) or ".",
                     exist_ok=True)
         with open(self.cache_path, "w", encoding="utf-8") as fh:
-            json.dump({"prompt_version": PROMPT_VERSION,
+            json.dump({"prompt_version": self.prompt_version,
                        "runtime": self.runtime.config.fingerprint(),
                        "entries": self._cache}, fh)
 
@@ -283,13 +373,16 @@ class DirectQwenQA:
                 continue
             pending.append(index)
             conversations.append(build_messages(
-                item.question, objects, self.region_config))
+                item.question, objects, self.region_config, self.style))
 
         if conversations:
             if verbose:
                 print(f"direct: generating {len(conversations)} of {len(items)} "
                       f"({len(items) - len(conversations)} cached)")
-            generations = self.runtime.generate_all(conversations, verbose=verbose)
+            extra = ({"max_new_tokens": self.max_new_tokens}
+                     if self.max_new_tokens is not None else {})
+            generations = self.runtime.generate_all(conversations, verbose=verbose,
+                                                    **extra)
             for index, generation in zip(pending, generations):
                 item = items[index]
                 objects = payloads[index]["objects"]           # type: ignore[index]
@@ -308,7 +401,8 @@ class DirectQwenQA:
 
     def _finish(self, item: ManifestItem, raw: str, objects, scene: Scene,
                 generation: Generation) -> DirectAnswer:
-        answer, status = normalise_answer(raw, asks_for_a_count(item.question))
+        reader = normalise_reasoned if self.style == "reasoned" else normalise_answer
+        answer, status = reader(raw, asks_for_a_count(item.question))
         if generation.hit_token_budget and answer is None:
             status = "truncated"
         return DirectAnswer(
@@ -321,4 +415,5 @@ class DirectQwenQA:
             seconds=generation.seconds,
             n_objects=len(objects),
             scene_fingerprint=scene_fingerprint(scene),
+            prompt_version=self.prompt_version,
         )

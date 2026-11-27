@@ -392,6 +392,7 @@ def run(
             row.direct_input_tokens = answer.input_tokens
             row.direct_output_tokens = answer.output_tokens
             row.direct_seconds = answer.seconds
+        row.prompt_version = direct.prompt_version
 
         attempt = parser.parse_detailed(item.question)
         # The generation's own time, not this loop's: by here the program has
@@ -543,6 +544,16 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help="also run the typed functional catalogue as a third "
                         "mode; a separate target language and a separate "
                         "experiment, recorded under its own schema version")
+    p.add_argument("--direct-style", default="bare", choices=("bare", "reasoned"),
+                   help="bare: answer alone, working forbidden (the archived "
+                        "condition). reasoned: working allowed, then a final "
+                        "'Answer: ...' line. A separate prompt version")
+    p.add_argument("--direct-max-new-tokens", type=int, default=None,
+                   help="output budget for the direct mode alone; choose it on "
+                        "the development split. Defaults to --max-new-tokens")
+    p.add_argument("--thinking", default="default", choices=("default", "on", "off"),
+                   help="chat-template thinking switch (Qwen3); 'default' "
+                        "leaves the template alone")
     p.add_argument("--limit", type=int, default=0)
     return p
 
@@ -581,6 +592,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             device=args.device,
             precision=args.precision,
             device_map=args.device_map,
+            enable_thinking={"on": True, "off": False}.get(args.thinking),
             **({"model_name": args.model} if args.model else {}))
         runtime = QwenRuntime(runtime_config)
 
@@ -593,7 +605,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     direct = DirectQwenQA(runtime=runtime, region_config=config,
                           cache_path=direct_cache,
                           coordinate_precision=int(
-                              manifest.config.get("coordinate_precision", 1)))
+                              manifest.config.get("coordinate_precision", 1)),
+                          style=args.direct_style,
+                          max_new_tokens=args.direct_max_new_tokens)
     parser = QwenQuestionParser(
         model_name=runtime_config.model_name,
         cache_path=program_cache,
@@ -621,7 +635,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
           f"({runtime_config.identity()})")
     print(f"objects: min_lidar_points={min_lidar} -> {report.annotations_kept} "
           f"annotations")
-    print(f"layout: {args.layout} -> {config.directions()}\n")
+    print(f"layout: {args.layout} -> {config.directions()}")
+    print(f"direct prompt: {direct.prompt_version} "
+          f"(budget {args.direct_max_new_tokens or budget})\n")
 
     started = time.time()
     rows = run(items, scenes, direct, parser, config, functional=functional)
@@ -642,7 +658,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "split": args.split,
             "runtime": runtime_config.fingerprint(),
             "backend": args.backend,
-            "prompt_version": PROMPT_VERSION,
+            "prompt_version": direct.prompt_version,
+            "direct_style": args.direct_style,
+            "direct_max_new_tokens": args.direct_max_new_tokens or budget,
             "dsl_version": DSL_VERSION,
             "layout": args.layout,
             "min_lidar_points": min_lidar,
