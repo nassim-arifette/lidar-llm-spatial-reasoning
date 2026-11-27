@@ -183,6 +183,24 @@ def build(results: Path, runs: Path) -> str:
             out.append(f"| {label} | {fmt(acc(archived, 'direct'))} | "
                        f"{fmt(acc(rows, 'direct'))} | {fmt(acc(rows, 'executed'))} |")
 
+    # ------------------------------------------------------------------ #
+    out += ["", "## 5. Qwen3-8B with and without thinking (first comparison, as labelled)",
+            "", "Same weights, prompt `direct-2`, bare answer format; only the chat "
+            "template's thinking switch differs. With thinking on, every mode gets a "
+            "4,096-token budget, fixed in advance rather than tuned. Thinking tokens "
+            "are counted in the output.", "",
+            "| thinking | split | direct | mean direct output tokens | no readable "
+            "answer | program | invalid programs |", "|---|---|---:|---:|---:|---:|---:|"]
+    for label, name, split in (("off", "q3_8b_think_off_dev_b4", "dev"),
+                               ("on", "q3_8b_think_on_dev_b4", "dev"),
+                               ("off", "q3_8b_think_off_eval", "eval"),
+                               ("on", "q3_8b_think_on_eval_b4", "eval")):
+        rows = get(name, split)
+        if rows:
+            out.append(f"| {label} | {split} | {fmt(acc(rows, 'direct'))} | {tokens(rows)} | "
+                       f"{unread(rows)} | {fmt(acc(rows, 'executed'))} | "
+                       f"{bad(rows, 'program_status')} |")
+
     out += ["", "## Runs read", ""] + [f"- {name}" for name in sorted(set(found))]
     return "\n".join(out) + "\n"
 
