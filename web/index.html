@@ -99,6 +99,10 @@
       <div class="fig-stage"><svg class="bev" data-role="bev" role="img" aria-label="The six direction sectors drawn around the chosen reference."></svg></div>
       <div class="fig-controls">
         <p class="ctl-text" data-role="status">Reference: the ego vehicle.</p>
+        <div class="seg" role="group" aria-label="Which convention to draw">
+          <button type="button" data-layout="nuscenes_qa" aria-pressed="false">As published</button>
+          <button type="button" data-layout="nuscenes_qa_as_labelled" aria-pressed="true">As the answers use them</button>
+        </div>
         <button type="button" class="btn ghost" data-ctl="reset">Back to the ego vehicle</button>
       </div>
       <figcaption><span class="fig-n">Figure 2.</span> The six NuScenes-QA relations. Every object is coloured by the sector it falls in, seen from the reference. Click any object to make it the reference.</figcaption>
