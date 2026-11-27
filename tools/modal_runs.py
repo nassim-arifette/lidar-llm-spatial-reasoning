@@ -121,7 +121,5 @@ def main(name: str, args: str, gpu: str = "T4",
     dirty = bool(_git("status", "--porcelain", "--untracked-files=no"))
     if dirty:
         print("WARNING: uncommitted changes; the recorded commit is not the code that runs")
-    # "L4,A10G" lets Modal fall back when the first type has no capacity.
-    choice = gpu.split(",") if "," in gpu else gpu
-    runner = job.with_options(gpu=choice)
+    runner = job.with_options(gpu=gpu)
     print(runner.remote(name, module, shlex.split(args), commit, dirty, metadata))
