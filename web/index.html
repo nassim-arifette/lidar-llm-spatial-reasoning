@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Answer or Compute</title>
-  <meta name="description" content="A frozen language model answers spatial questions about nuScenes driving scenes either directly or by writing a small program that an executor runs. Interactive figures on the archived answers." />
+  <meta name="description" content="The released NuScenes-QA answers do not tell left from right. With that convention corrected, a frozen language model answers spatial questions about driving scenes either directly or by writing a small program that an executor runs. Interactive figures on the saved answers." />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <script>
     try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -33,7 +33,7 @@
     </div>
     <div class="hero-scene">
       <svg class="bev" id="hero-bev" role="img" aria-label="Bird's-eye view of a nuScenes scene around the ego vehicle, with the objects the program selects highlighted."></svg>
-      <p class="hero-scene-note">Bird’s-eye view with 10 m rings, drawn over the real LiDAR sweep and the nuScenes annotations. The outputs are archived Qwen2.5-1.5B answers from the held-out set, and one of them is wrong.</p>
+      <p class="hero-scene-note">Bird’s-eye view with 10 m rings, drawn over the real LiDAR sweep and the nuScenes annotations. The outputs are saved Qwen2.5-1.5B answers on held-out questions, scored the way the released answers are. The program is not always right.</p>
     </div>
   </header>
 
@@ -50,9 +50,9 @@
   <main class="article">
     <section class="tldr" aria-labelledby="tldr-h">
       <h2 id="tldr-h">In short</h2>
-      <p>LiDAR-LLM turns 3D scene understanding into text generation. This study holds perception fixed by using the ground-truth nuScenes objects, and asks something narrower. Once the objects are known, should a frozen language model <em>produce</em> the answer, or write a program that <em>computes</em> it?</p>
-      <p>On 200 held-out questions from three drives never seen during development, Qwen2.5-1.5B is right <strong data-stat="direct-acc">50.5 %</strong> of the time when it answers directly and <strong data-stat="exec-acc">68.5 %</strong> when its program is executed. Its counting error falls from 2.16 to 0.68.</p>
-      <p>The advantage holds up to 32B parameters. Past that, one hosted model reaches parity. Keep in mind that this is a controlled diagnostic with oracle perception. There is no new detector here and no benchmark record.</p>
+      <p><strong>The released NuScenes-QA answers do not tell left from right.</strong> The benchmark’s six spatial relations are published as signed 60° sectors. Its answers follow the unsigned angle to the ego heading instead: “front left” holds on either side, so does “back right”, and “front right” and “back left” never hold. In the official train and validation sets, all <strong data-stat="lat-never-n">12,392</strong> counting or existence questions about those two relations are answered 0 or no. Two more conventions sit beside this one: “things” are every annotation plus the ego vehicle, and objects with no LiDAR return are counted. I inferred these rules from the answers and did not read the benchmark’s generation code.</p>
+      <p>The study itself holds perception fixed, using the ground-truth nuScenes objects, and asks something narrow. Once the objects are known, should a frozen language model <em>produce</em> the answer, or write a program that an executor <em>computes</em>? My archived comparison told both modes the published convention. With the convention the answers follow, on 200 questions from three drives, Qwen2.5-1.5B is right <strong data-stat="p-1p5b-direct-2">54.0 %</strong> of the time when it answers directly and <strong data-stat="p-1p5b-program-as-labelled">76.5 %</strong> when its program is executed (<span data-stat="p-1p5b-direct-1">50.5 %</span> and <span data-stat="p-1p5b-program-published">68.5 %</span> as published). For Qwen2.5-7B it is <strong data-stat="p-7b-direct-2">54.5 %</strong> against <strong data-stat="p-7b-program-as-labelled">95.0 %</strong>. The share of these questions that at least one of six models’ programs gets right moves from <span data-stat="ceil-old">86 %</span> to <span data-stat="ceil-new">98 %</span>.</p>
+      <p>On <span data-stat="val-n">1,460</span> questions from <span data-stat="val-drives">146</span> validation drives that no prompt was developed on, the 7B model’s programs are ahead of its direct answers by <strong data-stat="val-7b-lab-diff">+36.6 points [+33.7, +39.5]</strong>, a 95 % interval over drives. This remains a controlled diagnostic with oracle perception on a few question families. Asking the 1.5B and 7B models to reason before answering did not close the gap, which says nothing general about whether language models can reason spatially.</p>
     </section>
 
     <section aria-labelledby="s1">
@@ -85,18 +85,18 @@
         </div>
         <div class="legend" data-role="legend"></div>
       </div>
-      <figcaption><span class="fig-n">Figure 1.</span> One evaluation keyframe and the object list sent to the model, verbatim: <code>id, category, x, y, status</code>. x points forward, y to the left. <span data-role="caption"></span></figcaption>
+      <figcaption><span class="fig-n">Figure 1.</span> One evaluation keyframe and the object list sent to the model, verbatim: <code>id, category, x, y, status</code>. x points forward, y to the left. The list holds the ten classes the questions name. <span data-role="caption"></span></figcaption>
     </figure>
 
     <section aria-labelledby="s2">
-      <h2 id="s2">Directions are a convention</h2>
-      <p>“To the front left of the bus” sounds obvious until you have to compute it. NuScenes-QA pins it down in its Equation 2. There are six relations, each a 60° sector of bearing, measured from the reference object but using the ego vehicle’s heading. A plain “left” or “right” does not exist.</p>
-      <p>My earlier version of this project used eight 45° sectors and quietly selected the wrong objects. Now the convention lives in exactly one place in the executor, and the direct model gets the same definition in its prompt. Click an object to measure directions from it.</p>
-      <aside class="note">The sectors are half-open intervals (low, high], so an object exactly on a boundary belongs to one sector only. Objects closer than 1 m to the reference get no direction, since their bearing is unstable.</aside>
+      <h2 id="s2">The answers do not tell left from right</h2>
+      <p>“To the front left of the bus” sounds obvious until you have to compute it. NuScenes-QA pins it down in its Equation 2. There are six relations, each a 60° sector of bearing, measured from the reference object but using the ego vehicle’s heading. A plain “left” or “right” does not exist. Read as written, the sectors are signed: front left runs from 30° to 90° counter-clockwise of straight ahead, and front right is its mirror image. My archived runs used that reading, and both modes were told it.</p>
+      <p>The released answers follow another rule. Take <em>a</em>, the unsigned angle between the ego heading and the direction to the object, from 0° to 180°. “Front” is <em>a</em> ≤ 30°. “Front left” is 30° &lt; <em>a</em> ≤ 90°, on either side. “Back right” is 90° &lt; <em>a</em> ≤ 150°, on either side. “Back” is <em>a</em> &gt; 150°. “Front right” and “back left” are never true. This is what the arccos of a normalised dot product gives when the sign of the angle is never recovered. Figure 2 draws both readings; click an object to measure directions from it.</p>
+      <aside class="note">Under both readings the intervals are half-open (low, high], so an object exactly on a boundary belongs to one relation only. Objects closer than 1 m to the reference get no direction, since their bearing is unstable.</aside>
     </section>
 
     <figure class="fig wide" id="fig-sectors">
-      <div class="fig-stage"><svg class="bev" data-role="bev" role="img" aria-label="The six direction sectors drawn around the chosen reference."></svg></div>
+      <div class="fig-stage"><svg class="bev" data-role="bev" role="img" aria-label="The six spatial relations drawn around the chosen reference, under the reading selected below. As published there are six signed sectors; as the answers use them, front left covers both front diagonals, back right covers both rear diagonals, and front right and back left are empty."></svg></div>
       <div class="fig-controls">
         <p class="ctl-text" data-role="status">Reference: the ego vehicle.</p>
         <div class="seg" role="group" aria-label="Which convention to draw">
@@ -105,13 +105,52 @@
         </div>
         <button type="button" class="btn ghost" data-ctl="reset">Back to the ego vehicle</button>
       </div>
-      <figcaption><span class="fig-n">Figure 2.</span> The six NuScenes-QA relations. Every object is coloured by the sector it falls in, seen from the reference. Click any object to make it the reference.</figcaption>
+      <figcaption><span class="fig-n">Figure 2.</span> The six NuScenes-QA relations under two readings. <em>As published</em>: six signed sectors. <em>As the answers use them</em>: both front diagonals are “front left”, both rear diagonals are “back right”, and nothing is ever “front right” or “back left”. Every object is coloured by the relation it falls in, seen from the reference. Click any object to make it the reference.</figcaption>
     </figure>
+
+    <section aria-labelledby="s2b">
+      <h3 id="s2b">The evidence needs no geometry</h3>
+      <p>Take every counting or existence question of the official release that names exactly one relation, and count how often the answer is 0 or no. For four of the relations that happens between <span data-stat="lat-other-min">20.2 %</span> and <span data-stat="lat-other-max">23.9 %</span> of the time. For “front right” and “back left” it happens every time: <span data-stat="lat-never-n">12,392</span> questions over <span data-stat="lat-keyframes">34,117</span> keyframes, and not one of them has an object there. The same holds on v1.0-mini (<span data-stat="lat-mini-front-right">37 of 37</span> and <span data-stat="lat-mini-back-left">41 of 41</span>).</p>
+    </section>
+
+    <figure class="fig wide" id="fig-laterality">
+      <div class="table-wrap" data-role="table"></div>
+      <figcaption><span class="fig-n">Figure 3.</span> How often each relation is answered 0 or no in the official NuScenes-QA train and validation questions. Only the questions and answers are read; no positions are computed.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s2c">
+      <h3 id="s2c">Checked on data that did not suggest the rule</h3>
+      <p>I read the rule off evaluation failures of my first comparison, so it has to be tested elsewhere. On the development split, with reference programs verified by hand, the executor reproduces <span data-stat="check-dev-signed">91</span> of <span data-stat="check-dev-n">100</span> answers under the signed sectors and <span data-stat="check-dev-labelled">99</span> under the unsigned rule; the one left over is a question whose reference object is not unique. The same procedure on the evaluation split gives <span data-stat="check-eval-labelled">195</span> of <span data-stat="check-eval-n">200</span>. On the official validation set, a rule parser answers <span data-stat="check-val-n">25,973</span> questions and agreement goes from <span data-stat="check-val-signed">82.8 %</span> to <span data-stat="check-val-labelled">91.9 %</span>, with the whole change on the four diagonal relations. That parser was not verified by hand and its own programs are sometimes wrong, so the last figure is a floor on agreement and not a measure of label noise.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-checks">
+      <div class="table-wrap" data-role="table"></div>
+      <figcaption><span class="fig-n">Figure 4.</span> Agreement between executed reference programs and the released answers, under each reading of the relations. The last two rows also change what counts as a “thing” (next paragraph). Refusals of the executor count as disagreements.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s2d">
+      <h3 id="s2d">“Things” include the ego vehicle</h3>
+      <p>For “How many things are there?”, the answer equals the number of annotations of the keyframe, of every category, plus one. That holds for all <span data-stat="things-n">2,728</span> such questions in the official release (<span data-stat="things-train-n">2,080</span> in train, <span data-stat="things-val-n">648</span> in validation). Counting only the ten classes the questions name, plus one, matches <span data-stat="things-train-named">1,610</span> and <span data-stat="things-val-named">495</span> of them. So a “thing” includes classes no question ever names, such as pushable objects, debris, bicycle racks and animals. It includes boxes with no LiDAR return. And it includes the ego vehicle, which also counts in relations between objects, though never to the front or back “of me”. I found this on the validation drives and confirmed it on train, which I had not looked at before.</p>
+      <p>With both rules applied, the executor agrees with reference programs on <span data-stat="check-vd-all-labelled">97.5 %</span> of <span data-stat="check-vd-n">1,460</span> questions from <span data-stat="val-drives">146</span> validation drives, against <span data-stat="check-vd-named-signed">85.1 %</span> under the published reading. The object list of Figure 1 and every archived run use the ten named classes; on v1.0-mini that changes one question in 300.</p>
+
+      <h3 id="s2e">Objects the sensor did not see are counted</h3>
+      <p>In the v1.0-mini annotations, <span data-stat="lidar-zero">4,278</span> of <span data-stat="lidar-total">18,538</span> objects have zero LiDAR returns. Someone drew a box, but the sensor saw nothing there. The answers count them. Hold the programs fixed and change only the object list: on the <span data-stat="lidar-mini-n">249</span> counting questions of v1.0-mini that both conditions answer, exact accuracy falls from <span data-stat="lidar-mini-labelled-all">94.0 %</span> with every annotation to <span data-stat="lidar-mini-labelled-return">44.2 %</span> with only the objects LiDAR hit. On the official validation set (<span data-stat="lidar-val-n">10,087</span> questions) it falls from <span data-stat="lidar-val-labelled-all">82.7 %</span> to <span data-stat="lidar-val-labelled-return">42.0 %</span>. Under the signed sectors the same drop is <span data-stat="lidar-mini-signed-all">79.9 %</span> to <span data-stat="lidar-mini-signed-return">37.3 %</span> and <span data-stat="lidar-val-signed-all">72.5 %</span> to <span data-stat="lidar-val-signed-return">37.0 %</span>.</p>
+      <p>A perfect detector working from the point cloud would therefore be marked wrong on many of these questions. This measures a mismatch between labels and input on that subset. It is not a detector score. Switch Figure 1 to <em>LiDAR returns</em> to see hollow boxes the sensor missed.</p>
+
+      <h3 id="s2f">What this means if you use the benchmark</h3>
+      <ul class="limits">
+        <li>A model can score well on the directional questions with no notion of left and right, and a model that has one is penalised: a correct count of the cars to the front right is marked wrong whenever there is one.</li>
+        <li>A LiDAR-only system is asked to count objects its sensor did not return, and objects of classes its detector does not have.</li>
+        <li>Results reported on NuScenes-QA stay comparable with each other, since every system faces the same labels. What changes is what a number means. It measures agreement with these conventions, not left/right spatial reasoning.</li>
+        <li>The rules are descriptions of the released labels. Reading the generation code could confirm or refine them. Some questions still disagree under all three: <span data-stat="check-vd-left">36</span> of <span data-stat="check-vd-n">1,460</span> on the validation drives, which I did not investigate further.</li>
+      </ul>
+    </section>
 
     <section aria-labelledby="s3">
       <h2 id="s3">Writing a program instead</h2>
       <p>In program mode the model never sees the scene. It reads the question and writes one JSON object: an operation over a <em>selector</em>, which is a category with an optional status, direction and anchor. A deterministic executor then runs that on the object list.</p>
-      <p>When in doubt, the executor refuses. “The bus” presupposes exactly one bus, so if there are three the answer is <em>ambiguous</em>, which counts as wrong. You can build a program below and run it on any keyframe. It is the same executor, ported to TypeScript and checked against every archived run.</p>
+      <p>A program names a relation, such as <code>front_left</code>. What that relation selects is the executor’s convention, kept in exactly one place. So when the convention turns out to be wrong, the saved programs can be executed again under the right one, with no GPU and no new generation. The direct mode has no such separation: its prompt states the convention, and correcting it needs a new run.</p>
+      <p>When in doubt, the executor refuses. “The bus” presupposes exactly one bus, so if there are three the answer is <em>ambiguous</em>, which counts as wrong. You can build a program below and run it on any keyframe under either convention. It is the same executor, ported to TypeScript and checked against the Python execution of every archived program under both.</p>
     </section>
 
     <figure class="fig wide" id="fig-playground">
@@ -126,92 +165,160 @@
       <div class="fig-controls">
         <label class="ctl">Keyframe <select data-ctl="sample"></select></label>
         <label class="ctl">Load a real question <select data-ctl="preset"></select></label>
+        <div class="ctl">Relations
+          <div class="seg" role="group" aria-label="Which convention the executor applies" data-ctl="convention">
+            <button type="button" data-value="published" aria-pressed="false">As published</button>
+            <button type="button" data-value="as_labelled" aria-pressed="true">As the answers use them</button>
+          </div>
+        </div>
       </div>
-      <figcaption><span class="fig-n">Figure 3.</span> The program schema the model writes, executed live. Selected objects are filled; the anchor is ringed and the active sector is shaded.</figcaption>
+      <figcaption><span class="fig-n">Figure 5.</span> The program schema the model writes, executed live. Selected objects are filled; the anchor is ringed and the active relation is shaded. Switch the convention to see the same program select different objects.</figcaption>
     </figure>
 
     <section aria-labelledby="s4">
-      <h2 id="s4">Two hundred questions, two answers each</h2>
-      <p>The evaluation set has 200 questions from three drives that were kept out of all prompt development. Invalid programs and refusals count as wrong. The program mode answers fewer questions (<span data-stat="answered">91 %</span>) and wins anyway. Paired question by question, only the executed answer is right on <strong data-stat="exec-only">67</strong> questions and only the direct one on <strong data-stat="direct-only">31</strong>.</p>
-      <p>Every archived answer is in the table below. Pick a model and click a cell of the grid to filter; clicking a question shows its scene.</p>
+      <h2 id="s4">Two hundred questions, two conventions</h2>
+      <p>The first comparison has 200 questions from three drives that were kept out of all prompt development. Invalid programs, refusals and unreadable answers count as wrong. As archived, both modes worked under the published convention: the direct prompt, <code>direct-1</code>, stated the signed sectors and the executor applied them. Qwen2.5-1.5B was then right <span data-stat="p-1p5b-direct-1">50.5 %</span> of the time directly and <span data-stat="p-1p5b-program-published">68.5 %</span> through its program.</p>
+      <p>Correcting the two modes takes different work. The programs are executed again under the rule the answers follow and reach <span data-stat="p-1p5b-program-as-labelled">76.5 %</span>. The direct mode gets a new run with a new prompt, <code>direct-2</code>, which states that rule, and reaches <span data-stat="p-1p5b-direct-2">54.0 %</span>. Paired question by question, only the executed answer is right on <strong><span data-stat="lab-exec-only">71</span></strong> questions and only the direct one on <strong><span data-stat="lab-direct-only">26</span></strong> (<span data-stat="pub-exec-only">67</span> and <span data-stat="pub-direct-only">31</span> as published). The program mode answers fewer questions (<span data-stat="pub-answered">91 %</span>) and wins anyway.</p>
+      <p>Every archived answer is in the table below. Pick a model, switch the convention, and click a cell of the grid to filter. Clicking a question shows its scene, what the executor selects, and the program’s answer under both conventions. For the three hosted models the direct mode was not rerun, so their direct column stays the <code>direct-1</code> answer.</p>
     </section>
 
     <figure class="fig full" id="fig-browser">
       <div class="browser">
         <div class="browser-side">
           <label class="ctl">Model <select data-ctl="run"></select></label>
+          <div class="ctl">Conventions
+            <div class="seg" role="group" aria-label="Which conventions score the answers" data-ctl="convention">
+              <button type="button" data-value="published" aria-pressed="false">As published</button>
+              <button type="button" data-value="as_labelled" aria-pressed="true">As the answers use them</button>
+            </div>
+          </div>
+          <p class="small browser-note" data-role="note" aria-live="polite"></p>
           <div class="quad" data-role="quad" role="group" aria-label="Filter by which method was right"></div>
           <label class="ctl">Question family <select data-ctl="family"></select></label>
-          <div class="fig-stage small"><svg class="bev" data-role="bev" role="img" aria-label="Scene of the selected question."></svg></div>
+          <label class="check"><input type="checkbox" data-ctl="changed" /> Only questions whose program answer differs between the two conventions</label>
+          <div class="fig-stage small"><svg class="bev" data-role="bev" role="img" aria-label="Scene of the selected question, with the objects the program selects under the chosen convention."></svg></div>
           <div class="detail" data-role="detail"></div>
         </div>
         <div class="browser-list" data-role="list" role="list"></div>
       </div>
-      <figcaption><span class="fig-n">Figure 4.</span> Every archived evaluation answer. <span class="ok-mark">✓</span> right, <span class="bad-mark">✗</span> wrong; a refusal or invalid program is wrong. The reference is the NuScenes-QA label, which is occasionally disputable: open the scene and judge.</figcaption>
+      <figcaption><span class="fig-n">Figure 6.</span> Every archived evaluation answer, under either convention. <span class="ok-mark">✓</span> right, <span class="bad-mark">✗</span> wrong; a refusal or invalid program is wrong. The programs are the archived generations in both cases; only their execution changes. The reference is the NuScenes-QA label.</figcaption>
     </figure>
 
     <section aria-labelledby="s5">
-      <h2 id="s5">Where the gain comes from</h2>
-      <p>Counting shows it most clearly. Asked how many objects match, the direct model is off by <span data-stat="mae-d">2.16</span> objects on average, and <span data-stat="under">1.84</span> of that is undercounting. It likes to say “1”. The executor actually counts, and is off by <span data-stat="mae-e">0.68</span>.</p>
+      <h2 id="s5">Direct or program, once the convention is right</h2>
+      <p>The same re-execution applies to all six archived models, and program accuracy rises for each of them. Under the published layout, <span data-stat="ceil-old-n">28</span> of the 200 questions were wrong in program mode for all six, so none of these programs could pass <span data-stat="ceil-old">86 %</span>. <span data-stat="ceil-old-directional">27</span> of them ask about a direction, where the executor applied a rule the answers do not follow. Executed as labelled, <span data-stat="ceil-new-n">4</span> remain and that bound is <span data-stat="ceil-new">98 %</span>. For the 32B model, correct answers go from <span data-stat="rel-32b-front-left">15 to 25 of 27</span> on “front left” questions, <span data-stat="rel-32b-front-right">5 to 11 of 11</span> on “front right”, <span data-stat="rel-32b-back-left">10 to 16 of 16</span> on “back left” and <span data-stat="rel-32b-back-right">12 to 17 of 18</span> on “back right”.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-models">
+      <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Accuracy of both methods for six models under two conventions."></svg></div>
+      <div class="fig-controls"><div class="legend" data-role="legend"></div></div>
+      <details class="as-table"><summary>Show these numbers as a table</summary><div class="table-wrap" data-role="table"></div></details>
+      <figcaption><span class="fig-n">Figure 7.</span> Accuracy on the same 200 questions. Hollow marks are the published convention: the <code>direct-1</code> prompt, and programs executed with signed sectors. Filled marks are the convention the answers follow: <code>direct-2</code> where it was run, and the same programs executed again. The 32B model is 4-bit quantised. The three hosted endpoints differ in architecture, training and output budget, so this is not a scaling law, and their direct mode was not rerun under <code>direct-2</code>. Qwen3.8 27B ignored the 256-token cap and used <span data-stat="q38-direct-tokens">523.9</span> tokens per direct answer on average, against <span data-stat="q38-program-tokens">156.5</span> per program.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s5b">
+      <p>The direct mode gains less from being told the right rule: from <span data-stat="p-1p5b-direct-1">50.5 %</span> to <span data-stat="p-1p5b-direct-2">54.0 %</span> at 1.5B, <span data-stat="p-7b-direct-1">50.5 %</span> to <span data-stat="p-7b-direct-2">54.5 %</span> at 7B, and <span data-stat="p-32b-direct-1">58.0 %</span> to <span data-stat="p-32b-direct-2">64.0 %</span> at 32B.</p>
+      <p>A bare answer in a few tokens may be an unfair format, so I also asked for the working first and read a final <code>Answer:</code> line, with a 2,048-token budget chosen on the development split. For the 1.5B model this hurts. Under <code>direct-2r</code> it is right <span data-stat="p-1p5b-direct-2r">34.5 %</span> of the time, and <span data-stat="r-1p5b-direct-2r-unread">56</span> of its 200 outputs contain no readable answer, which counts as wrong. For the 7B model it helps, from <span data-stat="p-7b-direct-2">54.5 %</span> to <span data-stat="p-7b-direct-2r">62.5 %</span>, at <span data-stat="r-7b-direct-2r-tokens">427</span> output tokens per question. That is still far below its programs at <span data-stat="p-7b-program-as-labelled">95.0 %</span>.</p>
+      <p>Constrained decoding is a separate condition, because it changes the decoder and not only the prompt. Programs are decoded under a JSON Schema whose categories, statuses, relations and operations are closed sets. Invalid programs go from <span data-stat="c-1p5b-eval-invalid">8 to 0</span> at 1.5B and from <span data-stat="c-7b-eval-invalid">1 to 0</span> at 7B, and accuracy moves from <span data-stat="p-1p5b-program-as-labelled">76.5 %</span> to <span data-stat="p-1p5b-program-constrained">80.5 %</span> and from <span data-stat="p-7b-program-as-labelled">95.0 %</span> to <span data-stat="p-7b-program-constrained">95.5 %</span>.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-prompts">
+      <div class="cond" data-role="cards"></div>
+      <figcaption><span class="fig-n">Figure 8.</span> Every condition run on the first comparison, evaluation split. Pale bars were scored under the published convention, full bars under the one the answers follow. A condition is listed only where its run is complete. Greedy decoding throughout.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s6">
+      <h2 id="s6">On <span data-stat="val-drives">146</span> held-out drives</h2>
+      <p>Three drives are a thin basis. A second manifest takes <span data-stat="val-n">1,460</span> questions from <span data-stat="val-drives">146</span> drives of the official validation set, none of them in v1.0-mini and none used to write a prompt or to find the left/right rule. The “things” rule was found on them. Each model answers them twice in both modes. Once under the published conventions: signed sectors, the ten named classes, <code>direct-1</code>. Once as labelled: the unsigned angle, every annotation and the ego vehicle as things, <code>direct-2</code>. Questions within a drive share its vehicles and its road, so the intervals resample drives, not questions.</p>
+      <p>As labelled, the 7B model is right <span data-stat="val-7b-lab-direct">59.5 %</span> of the time directly and <span data-stat="val-7b-lab-program">96.1 %</span> through its programs, a difference of <span data-stat="val-7b-lab-diff">+36.6 points [+33.7, +39.5]</span>. Its programs are ahead on <span data-stat="val-7b-lab-ahead">143</span> drives and behind on <span data-stat="val-7b-lab-behind">0</span>. For the 1.5B model the difference is <span data-stat="val-1p5b-lab-diff">+16.6 points [+12.5, +20.5]</span>, ahead on <span data-stat="val-1p5b-lab-ahead">108</span> drives and behind on <span data-stat="val-1p5b-lab-behind">29</span>. The advantage was already there under the published conventions (<span data-stat="val-7b-pub-diff">+27.1 points [+24.4, +29.8]</span> and <span data-stat="val-1p5b-pub-diff">+15.8 points [+12.2, +19.2]</span>).</p>
+      <p>It is not uniform. On questions that measure a direction from another object, the 1.5B model’s programs are right <span data-stat="val-1p5b-category_anchor_relation-program">33.1 %</span> of the time and its direct answers <span data-stat="val-1p5b-category_anchor_relation-direct">47.9 %</span>. The 7B model shows no such reversal: there it is <span data-stat="val-7b-category_anchor_relation-program">92.1 %</span> against <span data-stat="val-7b-category_anchor_relation-direct">39.3 %</span>.</p>
+    </section>
+
+    <figure class="fig wide" id="fig-validation">
+      <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Accuracy of both methods on the validation drives, with drive-level intervals."></svg></div>
+      <div class="fig-controls"><div class="legend" data-role="legend"></div></div>
+      <details class="as-table"><summary>Show these numbers as a table</summary><div class="table-wrap" data-role="table"></div></details>
+      <figcaption><span class="fig-n">Figure 9.</span> Accuracy on <span data-stat="val-n">1,460</span> questions from <span data-stat="val-drives">146</span> validation drives. Whiskers are 95 % intervals from 10,000 resamples of drives. Each row is a separate run of both modes. A model appears once its runs are complete.</figcaption>
+    </figure>
+
+    <section aria-labelledby="s7">
+      <h2 id="s7">Where the gain comes from</h2>
+      <p>Counting shows it most clearly. Asked how many objects match, the 1.5B model answering directly under <code>direct-2</code> is off by <span data-stat="lab-mae-d">2.42</span> objects on average, and <span data-stat="lab-under">2.20</span> of that is undercounting. It likes to say “1”. The executor actually counts, and is off by <span data-stat="lab-mae-e">0.34</span>. As published the two errors were <span data-stat="pub-mae-d">2.16</span> and <span data-stat="pub-mae-e">0.68</span>.</p>
     </section>
 
     <figure class="fig wide" id="fig-counts">
       <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Predicted against reference counts for both methods."></svg></div>
-      <div class="fig-controls"><label class="ctl">Model <select data-ctl="run"></select></label><div class="legend" data-role="legend"></div></div>
-      <figcaption><span class="fig-n">Figure 5.</span> Each counting question, reference on the horizontal axis and answer on the vertical. Points on the diagonal are exact. Non-numeric answers are left out.</figcaption>
+      <div class="fig-controls">
+        <label class="ctl">Model <select data-ctl="run"></select></label>
+        <div class="ctl">Conventions
+          <div class="seg" role="group" aria-label="Which conventions score the answers" data-ctl="convention">
+            <button type="button" data-value="published" aria-pressed="false">As published</button>
+            <button type="button" data-value="as_labelled" aria-pressed="true">As the answers use them</button>
+          </div>
+        </div>
+        <div class="legend" data-role="legend"></div>
+      </div>
+      <figcaption><span class="fig-n">Figure 10.</span> Each counting question of the first comparison, reference on the horizontal axis and answer on the vertical. Points on the diagonal are exact. Non-numeric answers are left out. For the hosted models the direct answers are those of <code>direct-1</code> under either setting.</figcaption>
     </figure>
 
-    <section aria-labelledby="s6">
-      <p>The second gain is less obvious. NuScenes-QA repeats some questions word for word across keyframes, with different correct answers, and a system that ignores the scene can’t keep up. There are 13 such groups. The executed answer is right in every scene for all 13. The direct answer manages that for 1, and in 4 it gives the same answer to every scene.</p>
+    <section aria-labelledby="s7b">
+      <p>The second gain is less obvious. NuScenes-QA repeats some questions word for word across keyframes, with different correct answers, and a system that ignores the scene can’t keep up. There are <span data-stat="dep-groups">13</span> such groups. The executed answer is right in every scene for <span data-stat="dep-exec-all">13</span> of them. The direct answer manages that for <span data-stat="dep-direct-all">1</span>, and in <span data-stat="dep-direct-constant">2</span> it gives the same answer to every scene.</p>
     </section>
 
     <figure class="fig wide" id="fig-dependence">
       <div class="dep" data-role="groups"></div>
-      <figcaption><span class="fig-n">Figure 6.</span> Questions asked verbatim of several keyframes whose reference answers differ. Qwen2.5-1.5B, evaluation set.</figcaption>
-    </figure>
-
-    <section aria-labelledby="s7">
-      <h2 id="s7">Does scale close the gap?</h2>
-      <p>Partly. I archived the same comparison for five more models. Larger Qwen2.5 checkpoints write valid programs more often, and the executed mode stays ahead up to 32B. One hosted endpoint, <code>qwen3.8-27b</code>, answers directly almost as well as its programs do.</p>
-    </section>
-
-    <figure class="fig wide" id="fig-scale">
-      <div class="fig-stage chart"><svg class="chart-svg" data-role="chart" role="img" aria-label="Accuracy of both methods for six models."></svg></div>
-      <figcaption><span class="fig-n">Figure 7.</span> Accuracy on the same 200 questions. The three hosted endpoints differ in architecture, training and output budget, so this is not a scaling law. The last one ignored the 256-token cap and used 523.9 tokens per direct answer on average, against 156.5 per program.</figcaption>
+      <figcaption><span class="fig-n">Figure 11.</span> Questions asked verbatim of several keyframes whose reference answers differ. Qwen2.5-1.5B, evaluation split, scored as the answers use the relations: <code>direct-2</code> answers and the archived programs executed again.</figcaption>
     </figure>
 
     <section aria-labelledby="s8">
-      <p>That last row is a counterexample to any claim of a universal execution advantage. But it doesn’t show that “reasoning” rather than size explains the change. Too many factors moved at once.</p>
-      <p>A wider test points the other way. On 280 broader questions, a typed CLEVR-style language lets programs express 98.5 % of the benchmark instead of 27.5 %. At 1.5B, though, accuracy drops to 29.6 %, below the direct answer at 52.1 %. When its programs run they are right 85.6 % of the time, but they run on only 34.6 % of questions.</p>
-    </section>
-
-    <section aria-labelledby="s9">
-      <h2 id="s9">A problem in the labels</h2>
-      <p>In the processed mini annotations, 4,278 of 18,538 objects have zero LiDAR returns. Someone drew a box, but the sensor saw nothing there. NuScenes-QA still counts them. If I keep only the objects LiDAR actually hit, the executor’s exact accuracy on 125 paired counting questions drops from 0.824 to 0.336.</p>
-      <p>A perfect detector working from the point cloud would therefore be marked wrong on many of these questions. What this measures is a mismatch between labels and input on that subset. It is not a global detector score. Switch Figure 1 to <em>LiDAR returns</em> to see hollow boxes the sensor missed.</p>
+      <h2 id="s8">Does scale close the gap?</h2>
+      <p>Not among the models I could rerun. Larger Qwen2.5 checkpoints write valid programs more often, and from 1.5B to 32B the executed mode stays well ahead under either convention (Figure 7). One hosted endpoint, <code>qwen3.8-27b</code>, is the exception in the archive. Told the published convention, it answered directly <span data-stat="gw_qwen3p8_27b-d1">84.0 %</span> of the time, level with its programs under that convention at <span data-stat="gw_qwen3p8_27b-pub">84.5 %</span>. That is a counterexample to any claim of a universal execution advantage. Its programs reach <span data-stat="gw_qwen3p8_27b-lab">98.0 %</span> when executed as labelled, but its direct mode was not rerun under <code>direct-2</code>, so the corrected comparison for this model is open. Nor does the row show that “reasoning” rather than size explains the change. Too many factors moved at once.</p>
+      <p>A cleaner probe holds the weights fixed. Qwen3-8B has a thinking switch in its chat template. With thinking off, on the first comparison as labelled, it is right <span data-stat="q3-8b-off-direct">58.0 %</span> of the time directly and <span data-stat="q3-8b-off-program">98.0 %</span> through its programs. <span data-if="q3-8b-on-direct" hidden>With thinking on, under a 4,096-token budget fixed in advance, the same weights reach <span data-stat="q3-8b-on-direct" data-optional>…</span> directly and <span data-stat="q3-8b-on-program" data-optional>…</span> through programs.</span></p>
+      <p>A wider test points the other way. On <span data-stat="wide-n">280</span> broader questions, a typed CLEVR-style language lets programs express far more of the benchmark. At 1.5B, though, its accuracy is <span data-stat="wide-typed-pub">29.6 %</span> under the published layout and <span data-stat="wide-typed-lab">31.4 %</span> as labelled, below the <code>direct-1</code> answer at <span data-stat="wide-direct">52.1 %</span>. When its programs run they are right <span data-stat="wide-typed-when-run">85.6 %</span> of the time under the published layout, but they run on only <span data-stat="wide-typed-runs">34.6 %</span> of questions.</p>
     </section>
 
     <section aria-labelledby="s10">
       <h2 id="s10">What this does not show</h2>
       <ul class="limits">
         <li>Perception is an oracle. Object lists and statuses are ground-truth annotations, and since no detector was run, nothing here measures LiDAR perception.</li>
-        <li>Three drives are not a population. The gain is positive on each evaluation drive (<span data-stat="drives">+21.2, +18.8 and +13.8 points</span>), but questions within a drive are correlated, so the sign test is only descriptive.</li>
-        <li>The narrow comparison covers selected question families only. Of the 5,916 questions in the full benchmark subset, the frozen manifest keeps 100 for development and 200 for evaluation.</li>
-        <li>Program execution is not new; CLEVR and Neural-Symbolic VQA did it years ago. What this study adds is an auditable, same-checkpoint comparison on driving questions, with scene-disjoint splits and failure traces.</li>
-        <li>The larger runs used different hardware. The core 1.5B comparison ran on a T4, and the hosted rows record provider aliases rather than immutable checkpoints.</li>
+        <li>It does not show that language models cannot reason spatially. Asking for the working did not close the gap for the 1.5B and 7B models, with one prompt wording and one token budget. That is all the ablation says.</li>
+        <li>The comparison covers four question families: counting or existence, with a status, with a direction from the ego vehicle, and with a direction from another object. The wider test above is a single model.</li>
+        <li>The first comparison rests on three evaluation drives. The gain is positive on each (<span data-stat="lab-drives">+24.6, +21.2, +21.7</span> points as labelled, <span data-stat="pub-drives">+21.2, +18.8, +13.8</span> as published), but three drives are not a population. The interval over <span data-stat="val-drives">146</span> validation drives is the one to rely on, and it exists only for the models in Figure 9.</li>
+        <li>The label rules are inferred from the answers. I did not read the benchmark’s generation code.</li>
+        <li>All prompts were developed on v1.0-mini, including <code>direct-2</code>, the wording of the reasoned prompt and its token budget. The validation drives are new drives of the same benchmark and the same four families, and the “things” rule was found on them.</li>
+        <li>The 32B model is 4-bit quantised. The hosted rows record provider aliases rather than immutable checkpoints, and the direct mode of the hosted Qwen3 models was not rerun under the corrected prompt.</li>
+        <li>The runs used different hardware: a T4 for the 1.5B model, an A10G for the 7B, an L40S for the 32B.</li>
+        <li>Program execution is not new; CLEVR and Neural-Symbolic VQA did it years ago. What this study adds is an auditable, same-checkpoint comparison on driving questions, with scene-disjoint splits and failure traces, and an account of what the labels encode.</li>
       </ul>
     </section>
 
     <section aria-labelledby="reproduce" class="reproduce">
       <h2 id="reproduce">Check it yourself</h2>
-      <p>You can recompute every saved number without a GPU. The audit re-derives correctness and every summary field from the 1,580 per-question records of eight comparisons. It also checks manifest membership and scene separation, and fails on any disagreement.</p>
+      <p>You can recompute every saved number without a GPU and without downloading nuScenes. The audit re-derives correctness and every summary field from the per-question records of the eight archived comparisons and of their eight re-executed counterparts. It also checks manifest membership and scene separation, and fails on any disagreement. The next two commands rebuild the tables of the November 2026 runs and a drive-level interval from the saved rows.</p>
 <pre><code>python -m pip install -r requirements-audit.txt
-python -m spatial_reasoning.audit_results</code></pre>
+python -m spatial_reasoning.audit_results
+python -m spatial_reasoning.summarise_runs
+python -m spatial_reasoning.drive_bootstrap spatial_reasoning/results/runs_2026_11/val_new_7b/rows_eval.jsonl \
+  --against spatial_reasoning/results/runs_2026_11/val_old_7b/rows_eval.jsonl</code></pre>
+      <p>The label audit and the re-execution need the official questions and the nuScenes metadata, without sensor data; <a href="files/reproduction.md">reproduction.md</a> says where to get them.</p>
+<pre><code># left and right without geometry, and what a "thing" is
+python -m spatial_reasoning.audit_labels \
+  --questions data/data/nuscenes_qa/NuScenes_train_questions.json data/data/nuscenes_qa/NuScenes_val_questions.json \
+  --metadata-root data/data/nuscenes/v1.0-trainval --out outputs/label_audit.json
+# the executor against hand-verified reference programs, under each reading
+python -m spatial_reasoning.verify_executor --manifest spatial_reasoning/manifests/first_comparison.json \
+  --metadata-root data/data/nuscenes/v1.0-mini --split dev --layout nuscenes_qa_as_labelled --out outputs/ev_as_labelled
+# every archived program executed again as labelled
+python -m spatial_reasoning.rescore_programs --metadata-root data/data/nuscenes/v1.0-mini --out outputs/rescored_as_labelled
+python -m spatial_reasoning.analyse_rescored --rescored outputs/rescored_as_labelled</code></pre>
       <ul class="files">
-        <li><a href="files/report.pdf">report.pdf</a><span>The revised 14-page report, with the protocol, results and failure analysis.</span></li>
-        <li><a href="data/study.json">study.json</a><span>All the data behind this page: six runs, 1,200 answers and programs, and annotation geometry for 102 keyframes.</span></li>
-        <li><a href="files/results.md">results.md</a><span>Where every result stands, unfinished extensions included.</span></li>
-        <li><a href="files/reproduction.md">reproduction.md</a><span>How to rerun on a GPU and fetch the metadata, with exact commands and cache notes.</span></li>
+        <li><a href="files/label_audit.md">label_audit.md</a><span>The three label conventions and their evidence, with limits.</span></li>
+        <li><a href="files/runs_2026_11.md">runs_2026_11.md</a><span>Tables of every run of November 2026, generated from the saved rows.</span></li>
+        <li><a href="data/audit.json">audit.json</a><span>The label audit, the re-executed archive and the new runs as this page reads them, with every number quoted in the text.</span></li>
+        <li><a href="data/study.json">study.json</a><span>Six archived runs: 1,200 answers and programs with their outcome under both conventions, and annotation geometry for 102 keyframes.</span></li>
+        <li><a href="files/reproduction.md">reproduction.md</a><span>How to fetch the data and rerun on CPU or GPU, with exact commands.</span></li>
+        <li><a href="files/report.pdf">report.pdf</a><span>The written report, with the protocol, results and failure analysis.</span></li>
+        <li><a href="files/results.md">results.md</a><span>Where every archived result stands, unfinished extensions included.</span></li>
         <li><a href="files/literature.md">literature.md</a><span>Primary sources, and what they allow the study to claim.</span></li>
       </ul>
       <p class="small">The original course project (2025) was a two-person reimplementation of a reduced PointNet/GPT-2 pipeline, forked from <a href="https://github.com/oomcth/npm-3D">oomcth/npm-3D</a>; it never completed a real training run. This study replaces it. Scenes use the <a href="https://www.nuscenes.org/">nuScenes</a> v1.0-mini annotations (CC BY-NC-SA 4.0) and NuScenes-QA questions.</p>
@@ -230,7 +337,7 @@ python -m spatial_reasoning.audit_results</code></pre>
   </main>
 
   <footer class="foot">
-    <p>The figures re-run the archived programs with a TypeScript port of the study’s executor. A test checks that it reproduces every saved answer and selection.</p>
+    <p>The figures re-run the archived programs with a TypeScript port of the study’s executor. A test checks that it reproduces every saved answer and selection, under the published convention and under the one the answers follow.</p>
   </footer>
 
   <script type="module" src="/src/main.ts"></script>

@@ -1,10 +1,10 @@
-import { axisBottom, axisLeft, scaleBand, scaleLinear, select } from 'd3';
-import type { Study } from './data';
-import { cssVar, onThemeChange } from './util';
+import { axisBottom, axisLeft, scaleLinear, select } from 'd3';
+import { sidesOf, viewOf, type Convention, type Study } from './data';
+import { cssVar, onThemeChange, segmented } from './util';
 
 const isInt = (s: string | null) => s !== null && /^\d+$/.test(s);
 
-/** Figure 5: predicted against reference counts, both methods. */
+/** Predicted against reference counts, both methods, under either convention. */
 export function initCounts(study: Study) {
   const fig = document.getElementById('fig-counts')!;
   const svgEl = fig.querySelector<SVGSVGElement>('[data-role=chart]')!;
@@ -14,11 +14,14 @@ export function initCounts(study: Study) {
   const W = 760, H = 420, M = { l: 48, r: 20, t: 16, b: 44 };
   svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
+  let convention: Convention = 'as_labelled';
+
   function draw() {
     const run = study.runs[+runSel.value];
-    const rows = run.rows.filter((r) => isInt(r.reference_answer) && (isInt(r.direct_answer) || isInt(r.executed_answer)));
+    const views = run.rows.filter((r) => isInt(r.reference_answer)).map((r) => ({ ref: +r.reference_answer, v: viewOf(r, convention) }));
+    const rows = views.filter((r) => isInt(r.v.direct) || isInt(r.v.executed));
     // keep the axes on the reference range; rare larger answers are pinned to the top edge
-    const max = Math.max(...rows.map((r) => +r.reference_answer)) + 2;
+    const max = Math.max(...rows.map((r) => r.ref)) + 2;
     const x = scaleLinear().domain([-0.5, max + 0.5]).range([M.l, W - M.r]);
     const y = scaleLinear().domain([-0.5, max + 0.6]).range([H - M.b, M.t]);
     const svg = select(svgEl);
@@ -32,9 +35,9 @@ export function initCounts(study: Study) {
     for (const [key, colour, dx] of [['direct', cssVar('--direct'), -0.13], ['executed', cssVar('--program'), 0.13]] as const) {
       const bins = new Map<string, number>();
       for (const r of rows) {
-        const a = r[`${key}_answer`];
+        const a = r.v[key];
         if (!isInt(a)) continue;
-        const k = `${r.reference_answer},${a}`;
+        const k = `${r.ref},${a}`;
         bins.set(k, (bins.get(k) ?? 0) + 1);
       }
       for (const [k, n] of bins) {
@@ -46,9 +49,12 @@ export function initCounts(study: Study) {
         if (pinned) svg.append('text').attr('x', x(ref + dx) + 9).attr('y', y(max + 0.3) + 4).attr('font-size', 11).attr('fill', colour).text(`answered ${ans}`);
       }
     }
-    const d = run.summary.direct.count_errors, e = run.summary.executed.count_errors;
+    const sides = sidesOf(run, convention);
+    const d = sides.direct.count_errors, e = sides.executed.count_errors;
+    const prompt = views[0]?.v.directPrompt ?? 'direct-1';
+    svgEl.setAttribute('aria-label', `Predicted against reference counts for ${run.label}, ${convention === 'published' ? 'as published' : 'as the answers use them'}. Mean absolute error: direct (${prompt}) ${d.mae.toFixed(2)}, program and executor ${e.mae.toFixed(2)}.`);
     legend.replaceChildren();
-    for (const [name, c, m] of [['direct', cssVar('--direct'), d.mae], ['program + executor', cssVar('--program'), e.mae]] as const) {
+    for (const [name, c, m] of [[`direct (${prompt})`, cssVar('--direct'), d.mae], ['program + executor', cssVar('--program'), e.mae]] as const) {
       const s = document.createElement('span');
       const i = document.createElement('i'); i.style.background = c; i.style.borderRadius = '50%';
       s.append(i, `${name}, mean absolute error ${m.toFixed(2)}`);
@@ -56,11 +62,12 @@ export function initCounts(study: Study) {
     }
   }
   runSel.addEventListener('change', draw);
+  segmented(fig.querySelector<HTMLElement>('[data-ctl=convention]')!, (value) => { convention = value as Convention; draw(); });
   onThemeChange(draw);
   draw();
 }
 
-/** Figure 6: verbatim-repeated questions with differing reference answers. */
+/** Verbatim-repeated questions with differing reference answers, scored as the released answers are. */
 export function initDependence(study: Study) {
   const root = document.querySelector<HTMLElement>('#fig-dependence [data-role=groups]')!;
   const rows = study.runs[0].rows;
@@ -79,7 +86,8 @@ export function initDependence(study: Study) {
       const tr = t.insertRow();
       tr.insertCell().textContent = String(i + 1);
       tr.insertCell().textContent = r.reference_answer;
-      for (const [a, ok] of [[r.direct_answer ?? '—', r.direct_correct], [r.executed_answer ?? '—', r.executed_correct]] as const) {
+      const v = viewOf(r, 'as_labelled');
+      for (const [a, ok] of [[v.direct ?? '—', v.directOk], [v.executed ?? '—', v.executedOk]] as const) {
         const td = tr.insertCell();
         const m = document.createElement('span'); m.className = ok ? 'ok-mark' : 'bad-mark'; m.textContent = ok ? '✓ ' : '✗ ';
         td.append(m, String(a));
@@ -100,37 +108,4 @@ export function initDependence(study: Study) {
     root.after(more);
     more.style.marginTop = '0.8rem';
   }
-}
-
-/** Figure 7: direct versus executed accuracy for the six archived models. */
-export function initScale(study: Study) {
-  const fig = document.getElementById('fig-scale')!;
-  const svgEl = fig.querySelector<SVGSVGElement>('[data-role=chart]')!;
-  const W = 760, H = 300, M = { l: 236, r: 60, t: 28, b: 36 };
-  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  function draw() {
-    const svg = select(svgEl);
-    svg.selectAll('*').remove();
-    const y = scaleBand<string>().domain(study.runs.map((r) => r.id)).range([M.t, H - M.b]).padding(0.35);
-    const x = scaleLinear().domain([0.4, 0.9]).range([M.l, W - M.r]);
-    svg.append('g').attr('class', 'axis').attr('transform', `translate(0,${H - M.b})`).call(axisBottom(x).ticks(5).tickFormat((d) => `${Math.round(+d * 100)} %`) as any);
-    for (const r of study.runs) {
-      const cy = y(r.id)! + y.bandwidth() / 2;
-      const d = r.summary.direct.accuracy, e = r.summary.executed.accuracy;
-      svg.append('text').attr('x', M.l - 14).attr('y', cy - 2).attr('text-anchor', 'end').attr('font-size', 13).attr('fill', cssVar('--ink')).attr('font-weight', 550).text(r.label);
-      svg.append('text').attr('x', M.l - 14).attr('y', cy + 12).attr('text-anchor', 'end').attr('font-size', 10.5).attr('fill', cssVar('--muted')).text(r.runtime);
-      svg.append('line').attr('x1', x(d)).attr('x2', x(e)).attr('y1', cy).attr('y2', cy).attr('stroke', cssVar('--rule')).attr('stroke-width', 5).attr('stroke-linecap', 'round');
-      for (const [v, c, label, anchor, off] of [[d, cssVar('--direct'), 'direct', 'end', -10], [e, cssVar('--program'), 'program', 'start', 10]] as const) {
-        svg.append('circle').attr('cx', x(v)).attr('cy', cy).attr('r', 7).attr('fill', c);
-        const close = Math.abs(e - d) < 0.04;
-        svg.append('text').attr('x', x(v) + off).attr('y', cy + (close ? (label === 'direct' ? -10 : 18) : 4)).attr('text-anchor', close ? 'middle' : anchor)
-          .attr('font-size', 11.5).attr('fill', c).attr('font-weight', 600).text(`${(v * 100).toFixed(1)} %`);
-      }
-    }
-    svg.append('text').attr('x', M.l).attr('y', 14).attr('font-size', 11.5).attr('fill', cssVar('--direct')).attr('font-weight', 600).text('● direct answer');
-    svg.append('text').attr('x', M.l + 120).attr('y', 14).attr('font-size', 11.5).attr('fill', cssVar('--program')).attr('font-weight', 600).text('● program + executor');
-  }
-  onThemeChange(draw);
-  draw();
-  void scaleBand;
 }

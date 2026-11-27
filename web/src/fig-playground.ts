@@ -1,7 +1,7 @@
 import { Bev } from './bev';
-import { CATEGORY_LABEL, sampleLabels, type Study } from './data';
+import { CATEGORY_LABEL, LAYOUT, sampleLabels, type Convention, type Study } from './data';
 import { CATEGORIES, DIRECTIONS, execute, parseProgram, programText, STATUSES, type Op, type Program, type Selector } from './executor';
-import { onThemeChange } from './util';
+import { onThemeChange, segmented } from './util';
 
 const OPS: Op[] = ['count', 'exists', 'identify', 'status'];
 const blank = (): Selector => ({ category: 'object', status: null, negate_status: false, direction: null, anchor: null });
@@ -19,6 +19,7 @@ export function initPlayground(study: Study, startToken: string) {
   for (const [t, l] of labels) sampleSel.add(new Option(l, t));
 
   let token = startToken;
+  let convention: Convention = 'as_labelled';
   let program: Program = { op: 'count', target: { ...blank(), category: 'car', direction: 'front' }, second: null, comparison: null };
   let anchorOn = false;
   let anchor: Selector = { ...blank(), category: 'bus' };
@@ -85,11 +86,12 @@ export function initPlayground(study: Study, startToken: string) {
     const blob = { op: program.op, target: strip(program.target), second: null, comparison: null };
     json.textContent = JSON.stringify(blob, null, 2);
     const objects = study.scenes[token].objects;
-    const res = execute(program, objects);
+    const layout = LAYOUT[convention];
+    const res = execute(program, objects, layout);
     bev.paint(() => 'var(--obj)');
     bev.clearSectors();
     bev.ring(res.anchor ?? null);
-    if (program.target.direction && res.status === 'ok') bev.sectors(res.anchor ?? null, program.target.direction, false);
+    if (program.target.direction && res.status === 'ok') bev.sectors(res.anchor ?? null, program.target.direction, false, layout);
     bev.select(new Set(res.selected.map((o) => o.token)));
     result.replaceChildren();
     const head = document.createElement('div');
@@ -102,7 +104,8 @@ export function initPlayground(study: Study, startToken: string) {
     const note = document.createElement('div');
     if (res.status === 'ok') {
       big.textContent = res.answer ?? '';
-      note.textContent = `${res.selected.length} object${res.selected.length === 1 ? '' : 's'} selected.`;
+      const never = convention === 'as_labelled' && (program.target.direction === 'front_right' || program.target.direction === 'back_left');
+      note.textContent = `${res.selected.length} object${res.selected.length === 1 ? '' : 's'} selected.${never ? ` In the released answers nothing is ever to the ${program.target.direction!.replace('_', ' ')}.` : ''}`;
     } else {
       big.textContent = `refused: ${res.status.replace('_', ' ')}`;
       big.classList.add('refused');
@@ -112,6 +115,7 @@ export function initPlayground(study: Study, startToken: string) {
   }
 
   sampleSel.value = token;
+  segmented(fig.querySelector<HTMLElement>('[data-ctl=convention]')!, (value) => { convention = value as Convention; update(); });
   sampleSel.addEventListener('change', () => { token = sampleSel.value; bev.setScene(study.scenes[token].objects); update(); });
   presetSel.addEventListener('change', () => {
     const row = run.rows.find((r) => r.question_id === presetSel.value);

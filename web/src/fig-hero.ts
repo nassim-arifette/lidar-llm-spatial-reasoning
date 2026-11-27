@@ -1,12 +1,16 @@
 import { loadSweep } from './lidar';
 import { isDark } from './theme';
 import { Bev } from './bev';
-import type { Study } from './data';
+import { LAYOUT, viewOf, type Study } from './data';
 import { execute, parseProgram, programText } from './executor';
 import { onScreen, reducedMotion } from './util';
 
-/** Archived Qwen2.5-1.5B evaluation questions. The last one is a failure of the program mode. */
-const PICKS = ['q_0aa6927791ce', 'q_386fc3d66a60', 'q_c2df9aa1c9a0', 'q_16a7af6ca052'];
+/**
+ * Qwen2.5-1.5B evaluation questions, scored as the released answers are: direct-2 answers and the
+ * archived programs executed under the as-labelled layout. The last one is a failure of the program mode.
+ */
+const PICKS = ['q_a9e29aab8a21', 'q_386fc3d66a60', 'q_c2df9aa1c9a0', 'q_16a7af6ca052'];
+const LAYOUT_USED = LAYOUT.as_labelled;
 
 export function initHero(study: Study) {
   const root = document.getElementById('top')!;
@@ -36,6 +40,7 @@ export function initHero(study: Study) {
     node.replaceChildren(document.createTextNode(`${text} `), m);
   };
   const NOTE: Record<string, string> = {
+    q_a9e29aab8a21: ' The cars are on both sides: in the released answers, “front left” means either front diagonal.',
     q_16a7af6ca052: ' The program found the right pedestrians, but it answered “how many” to a yes-or-no question.',
   };
 
@@ -44,7 +49,8 @@ export function initHero(study: Study) {
     const row = rows[i];
     const objects = study.scenes[row.sample_token].objects;
     const program = parseProgram(row.program_raw ?? '');
-    const res = program ? execute(program, objects) : null;
+    const res = program ? execute(program, objects, LAYOUT_USED) : null;
+    const view = viewOf(row, 'as_labelled');
     const instant = reducedMotion();
     bev.setScene(objects, true, res ? [...res.selected, ...(res.anchor ? [res.anchor] : [])] : []);
     bev.paint(() => 'var(--obj)');
@@ -64,14 +70,14 @@ export function initHero(study: Study) {
     };
     if (!(await typeInto(q('question'), row.question, 26))) return;
     if (!instant && !(await sleep(450, t))) return;
-    answer(q('direct'), row.direct_answer ?? '—', row.direct_correct);
+    answer(q('direct'), view.direct ?? '—', view.directOk);
     if (!instant && !(await sleep(700, t))) return;
     if (!(await typeInto(q('program'), program ? programText(program) : row.program, 14))) return;
     if (!instant && !(await sleep(300, t))) return;
     if (res && program) {
       const dir = program.target.direction;
       if (res.anchor) bev.ring(res.anchor);
-      if (dir) bev.sectors(res.anchor ?? null, dir, false);
+      if (dir) bev.sectors(res.anchor ?? null, dir, false, LAYOUT_USED);
       const chosen = new Set<string>();
       bev.select(chosen);
       for (const o of res.selected) {
@@ -82,7 +88,7 @@ export function initHero(study: Study) {
       }
       if (!res.selected.length) bev.select(new Set());
     }
-    answer(q('executed'), row.executed_answer ?? row.execution_status, row.executed_correct);
+    answer(q('executed'), view.executed ?? view.status, view.executedOk);
     q('reference').textContent = `Reference answer: ${row.reference_answer}.${NOTE[row.question_id] ?? ''}`;
     if (instant) return;
     if (await sleep(4200, t)) { index = (index + 1) % rows.length; play(index); }
